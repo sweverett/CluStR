@@ -19,6 +19,8 @@ import reglib # Regression library
 import plotlib # Plotting library
 import PyPDF2
 
+# Parameter list used throughout. See `param.config`
+parameters = {}
 
 def Ez(z,Om=0.3,H_0=0.7):
     ''' Calculate E(z) for Om=0.3, H_0=0.7 cosmology. '''
@@ -62,7 +64,7 @@ def check_flag(flag):
     }
 
     cutoff = {
-        'offset_500',
+        'offset_r500',
         'offset_r2500'
     }
 
@@ -229,6 +231,26 @@ def return_methods_list(method):
 
     return methods
 
+def set_parameters(file):
+    ''' Set useful parameters from config file'''
+
+    config_file = open(file)
+    for line in config_file:
+        # Ignore empty lines and comments:
+        if line[0:2] == '\n': continue
+        if line[0] == '#': continue
+        line.strip()
+        line = line.split('#')[0]
+        # Remove whitespace and interpret Name:Value pairs:
+        line = ''.join(line.split())
+        line = line.split(':')
+        Name, Value = line[0], line[1]
+        parameters[Name] = Value
+
+    config_file.close()
+
+    return
+
 def parse_opts():
     ''' Parse command line arguments '''
     parser = argparse.ArgumentParser()
@@ -271,6 +293,10 @@ def main(): #pylint: disable=missing-docstring
 
     # Parse all inputted options, regardless of param.config file
     options = parse_opts()
+
+    # Set useful parameters from configure file
+    config_file = 'param.config'
+    set_parameters(config_file)
 
     # Determine methods list
     method = options.method
