@@ -29,9 +29,10 @@ def plot_scatter(options, data_obs, kelly_scaled_fit, mantz_scaled_fit,x_piv, x_
     # Plot data
     plt.errorbar(x_obs, y_obs, xerr=x_err_obs, yerr=y_err_obs, c='r', fmt='o')
 
-    methods = clustr.return_methods_list(options.method)
+    # OLD: now replaced by METHODS
+    #methods = clustr.return_methods_list(options.method)
 
-    for method in methods:
+    for method in METHODS:
         if method == 'kelly':
             scaled_fit = kelly_scaled_fit
             color = 'b'
@@ -45,12 +46,15 @@ def plot_scatter(options, data_obs, kelly_scaled_fit, mantz_scaled_fit,x_piv, x_
         (x_fit, y_fit, _, _) = data_fit
 
         # plot fit
-        if parameters['show_method_name'] is False:
+        if parameters['show_method_name'] is True or len(METHODS) > 1:
+            # Prints method name in legend (default if more than 1 method)
             plt.loglog(
                 x_fit, y_fit, color, linewidth=2.0,
-                label=(r'$({0:0.2g} \pm {1:0.2g}) (x/x_{{piv}})^{{{2:0.2f} \pm {3:0.2f}}} '
-                    r'(\sigma = {4:0.2f} \pm {5:0.2f})$'
+                label=('{0}:'
+                    r'$({1:0.2g} \pm {2:0.2g}) (x/x_{{piv}})^{{{3:0.2g} \pm {4:0.2g}}} '
+                    r'(\sigma^2 = {5:0.2g} \pm {6:0.2g})$'
                 ).format(
+                    method.capitalize(),
                     np.exp(np.mean(fit_int)),
                     np.exp(np.mean(fit_int)) * np.std(fit_int),
                     np.mean(fit_slope),
@@ -61,13 +65,12 @@ def plot_scatter(options, data_obs, kelly_scaled_fit, mantz_scaled_fit,x_piv, x_
             )
 
         else:
+            # Doesn't print method label
             plt.loglog(
                 x_fit, y_fit, color, linewidth=2.0,
-                label=('{0}:'
-                    r'$({1:0.2g} \pm {2:0.2g}) (x/x_{{piv}})^{{{3:0.2g} \pm {4:0.2g}}} '
-                    r'(\sigma^2 = {5:0.2g} \pm {6:0.2g})$'
+                label=(r'$({0:0.2g} \pm {1:0.2g}) (x/x_{{piv}})^{{{2:0.2f} \pm {3:0.2f}}} '
+                    r'(\sigma = {4:0.2f} \pm {5:0.2f})$'
                 ).format(
-                    method.capitalize(),
                     np.exp(np.mean(fit_int)),
                     np.exp(np.mean(fit_int)) * np.std(fit_int),
                     np.mean(fit_slope),
@@ -97,12 +100,13 @@ def plot_corners(options, kelly_scaled_fit, mantz_scaled_fit,burn=0):
 
     # FIX: add a condition to adapt burn # if needed
 
-    methods = clustr.return_methods_list(options.method)
+    # OLD: now uses METHODS
+    #methods = clustr.return_methods_list(options.method)
 
     N = np.size(methods) # Number of subplots
     n = 1 # Subplot counter
 
-    for method in methods:
+    for method in METHODS:
         if method == 'kelly':
             scaled_fit = kelly_scaled_fit
         elif method == 'mantz':
@@ -154,9 +158,10 @@ def plot_chains(options,kelly_scaled_fit,mantz_scaled_fit,burn=0):
     Use this to examine chain convergence. May implement convergence tests in future.
     '''
 
-    methods = clustr.return_methods_list(options.method)
+    # OLD: now uses MEHTODS
+    #methods = clustr.return_methods_list(options.method)
 
-    for method in methods:
+    for method in METHODS:
         if method == 'kelly':
             scaled_fit = kelly_scaled_fit
         elif method == 'mantz':
@@ -221,8 +226,9 @@ def plot_chains(options,kelly_scaled_fit,mantz_scaled_fit,burn=0):
 def make_plots(options, data_obs, kelly_scaled_fit, mantz_scaled_fit, piv, x_min, x_max):
     '''Calls both plotting functions and then combines all outputs into a single PDF.'''
 
+    # OLD: now uses METHODS
     # Retreive methods list
-    methods = clustr.return_methods_list(options.method)
+    #methods = clustr.return_methods_list(options.method)
 
     if parameters['scatter'] is True:
         plot_scatter(options, data_obs, kelly_scaled_fit, mantz_scaled_fit,piv, x_min, x_max)
@@ -232,13 +238,13 @@ def make_plots(options, data_obs, kelly_scaled_fit, mantz_scaled_fit, piv, x_min
     if parameters['corner'] is True:
         plot_corners(options,kelly_scaled_fit,mantz_scaled_fit)
         # Add corner plot(s)
-        for method in methods:
+        for method in METHODS:
             pdfs.append('Corner-{}-{}{}-{}.pdf'.format(method,options.prefix, fits_label(options.y), fits_label(options.x)))
 
     if parameters['chains'] is True:
         plot_chains(options,kelly_scaled_fit,mantz_scaled_fit)
         # Add chain plot(s)
-        for method in methods:
+        for method in METHODS:
             pdfs.append('Chains-{}-{}{}-{}.pdf'.format(method,options.prefix, fits_label(options.y), fits_label(options.x)))
 
     if parameters['residuals'] is True:
