@@ -45,37 +45,37 @@ def plot_scatter(options, data_obs, kelly_scaled_fit, mantz_scaled_fit,x_piv, x_
         (x_fit, y_fit, _, _) = data_fit
 
         # plot fit
-        plt.loglog(
-            x_fit, y_fit, color, linewidth=2.0,
-            label=(r'$({0:0.2g} \pm {1:0.2g}) (x/x_{{piv}})^{{{2:0.2f} \pm {3:0.2f}}} '
-                r'(\sigma = {4:0.2f} \pm {5:0.2f})$'
-            ).format(
-                np.exp(np.mean(fit_int)),
-                np.exp(np.mean(fit_int)) * np.std(fit_int),
-                np.mean(fit_slope),
-                np.std(fit_slope),
-                np.mean(fit_sig),
-                np.std(fit_sig)
+        if parameters['show_method_name'] is False:
+            plt.loglog(
+                x_fit, y_fit, color, linewidth=2.0,
+                label=(r'$({0:0.2g} \pm {1:0.2g}) (x/x_{{piv}})^{{{2:0.2f} \pm {3:0.2f}}} '
+                    r'(\sigma = {4:0.2f} \pm {5:0.2f})$'
+                ).format(
+                    np.exp(np.mean(fit_int)),
+                    np.exp(np.mean(fit_int)) * np.std(fit_int),
+                    np.mean(fit_slope),
+                    np.std(fit_slope),
+                    np.mean(fit_sig),
+                    np.std(fit_sig)
+                )
             )
-        )
-        '''
-        FIX: Re-implement, and default to having no name attached for method
-        plt.loglog(
-            x_fit, y_fit, color, linewidth=2.0,
-            label=('{0}:'
-                r'$({1:0.2g} \pm {2:0.2g}) (x/x_{{piv}})^{{{3:0.2g} \pm {4:0.2g}}} '
-                r'(\sigma^2 = {5:0.2g} \pm {6:0.2g})$'
-            ).format(
-                method.capitalize(),
-                np.exp(np.mean(fit_int)),
-                np.exp(np.mean(fit_int)) * np.std(fit_int),
-                np.mean(fit_slope),
-                np.std(fit_slope),
-                np.mean(fit_sig),
-                np.std(fit_sig)
+
+        else:
+            plt.loglog(
+                x_fit, y_fit, color, linewidth=2.0,
+                label=('{0}:'
+                    r'$({1:0.2g} \pm {2:0.2g}) (x/x_{{piv}})^{{{3:0.2g} \pm {4:0.2g}}} '
+                    r'(\sigma^2 = {5:0.2g} \pm {6:0.2g})$'
+                ).format(
+                    method.capitalize(),
+                    np.exp(np.mean(fit_int)),
+                    np.exp(np.mean(fit_int)) * np.std(fit_int),
+                    np.mean(fit_slope),
+                    np.std(fit_slope),
+                    np.mean(fit_sig),
+                    np.std(fit_sig)
+                )
             )
-        )
-        '''
 
     plt.xlabel(axis_label(options.x), fontsize=16)
     plt.ylabel(axis_label(options.y), fontsize=16)
@@ -101,8 +101,6 @@ def plot_corners(options, kelly_scaled_fit, mantz_scaled_fit,burn=0):
 
     N = np.size(methods) # Number of subplots
     n = 1 # Subplot counter
-
-    #figures = []
 
     for method in methods:
         if method == 'kelly':
@@ -147,11 +145,7 @@ def plot_corners(options, kelly_scaled_fit, mantz_scaled_fit,burn=0):
 
         plt.savefig('Corner-{}-{}{}-{}.pdf'.format(method,options.prefix, fits_label(options.y), fits_label(options.x)))#,bbox_inches='tight')
 
-        #figures.append(fig)
-
         n += 1 # Iterate counter
-
-    #plt.gcf().set_size_inches(20,10)
 
     return
 
@@ -227,37 +221,41 @@ def plot_chains(options,kelly_scaled_fit,mantz_scaled_fit,burn=0):
 def make_plots(options, data_obs, kelly_scaled_fit, mantz_scaled_fit, piv, x_min, x_max):
     '''Calls both plotting functions and then combines all outputs into a single PDF.'''
 
-    # FIX: Re-implement, and allow plotting choices as arguments!
-
-    plot_scatter(options, data_obs, kelly_scaled_fit, mantz_scaled_fit,piv, x_min, x_max)
-    plot_corners(options,kelly_scaled_fit,mantz_scaled_fit)
-    plot_chains(options,kelly_scaled_fit,mantz_scaled_fit)
-
-    # Initialize pdf Luminosity
-    pdfs = []
-
-    # Add scatter/fit plot
-    pdfs.append('Scatter-{}{}-{}.pdf'.format(options.prefix, fits_label(options.y), fits_label(options.x)))
-
-    # Add corner plots
+    # Retreive methods list
     methods = clustr.return_methods_list(options.method)
 
-    for method in methods:
-        pdfs.append('Corner-{}-{}{}-{}.pdf'.format(method,options.prefix, fits_label(options.y), fits_label(options.x)))
+    if parameters['scatter'] is True:
+        plot_scatter(options, data_obs, kelly_scaled_fit, mantz_scaled_fit,piv, x_min, x_max)
+        # Add scatter/fit plot
+        pdfs.append('Scatter-{}{}-{}.pdf'.format(options.prefix, fits_label(options.y), fits_label(options.x)))
 
-    # Separate loops for the right order
-    for method in methods:
-        pdfs.append('Chains-{}-{}{}-{}.pdf'.format(method,options.prefix, fits_label(options.y), fits_label(options.x)))
+    if parameters['corner'] is True:
+        plot_corners(options,kelly_scaled_fit,mantz_scaled_fit)
+        # Add corner plot(s)
+        for method in methods:
+            pdfs.append('Corner-{}-{}{}-{}.pdf'.format(method,options.prefix, fits_label(options.y), fits_label(options.x)))
 
+    if parameters['chains'] is True:
+        plot_chains(options,kelly_scaled_fit,mantz_scaled_fit)
+        # Add chain plot(s)
+        for method in methods:
+            pdfs.append('Chains-{}-{}{}-{}.pdf'.format(method,options.prefix, fits_label(options.y), fits_label(options.x)))
+
+    if parameters['residuals'] is True:
+        # FIX: Implement!
+        pass
+
+    # Initialize pdf list
+    pdfs = []
     merger = PyPDF2.PdfFileMerger()
 
     for pdf in pdfs:
         merger.append(pdf)
 
+    # Save combined output file
     merger.write('{}{}-{}.pdf'.format(options.prefix, fits_label(options.y), fits_label(options.x)))
 
     # Unless otherwise specified, delete individual plots
-    ## FIX: for now, always delete
-    if True:
+    if parameters['save_all_plots'] is True:
         for pdf in pdfs:
             os.remove(pdf)
