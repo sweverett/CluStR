@@ -1,9 +1,24 @@
 # Plotting library for CluStR
 
+from clustr import fits_label
 import matplotlib
 matplotlib.use('Agg')
+import PyPDF2
+import corner
+import numpy as np
 import matplotlib.pylab as plt
 
+# ----------------------------------------------------------------------
+# Some useful global variables
+
+# Parameter list used throughout. See `param.config`
+PARAMETERS = {}
+
+# Method List
+METHODS = []
+
+# ----------------------------------------------------------------------
+# Helper functions
 
 def axis_label(axis_name):
     ''' Get plot axis name for `axis_name` '''
@@ -19,6 +34,27 @@ def axis_label(axis_name):
         'tr500cc':'Core-Cropped r500 Temperature (keV)'
     }
     return labels[axis_name]
+
+def scaled_fit_to_data(x_min, x_max, x_piv, scaled_fit):
+    ''' Get a data set from a scaled fit '''
+    (fit_int, fit_slope, fit_sig) = scaled_fit
+    scaled_x = np.linspace(x_min, x_max, 101)
+    scaled_y = np.mean(fit_int) + np.mean(fit_slope) * scaled_x
+    scaled_x_errs = np.zeros(101)
+    scaled_y_errs = np.ones(101)*np.mean(fit_sig)
+    unscaled_data = unscale(scaled_x, scaled_y, scaled_x_errs, scaled_y_errs, x_piv)
+    return unscaled_data
+
+def unscale(x, y, x_err, y_err, x_piv):
+    ''' Recover original data from fit-scaled data '''
+    return (np.exp(x + x_piv), np.exp(y), x_err * x, y_err * y)
+
+def check_convergence():
+    '''FIX: In future, will use autocorrelations to check convergence of MCMC chains.'''
+    pass
+
+# ----------------------------------------------------------------------
+# Inividual plotting functions
 
 # pylint: disable=too-many-arguments
 # pylint: disable=too-many-locals
@@ -46,7 +82,7 @@ def plot_scatter(options, data_obs, kelly_scaled_fit, mantz_scaled_fit,x_piv, x_
         (x_fit, y_fit, _, _) = data_fit
 
         # plot fit
-        if parameters['show_method_name'] is True or len(METHODS) > 1:
+        if PARAMETERS['show_method_name'] is True or len(METHODS) > 1:
             # Prints method name in legend (default if more than 1 method)
             plt.loglog(
                 x_fit, y_fit, color, linewidth=2.0,
@@ -105,7 +141,7 @@ def plot_corners(options, kelly_scaled_fit, mantz_scaled_fit):
     # OLD: now uses METHODS
     #methods = clustr.return_methods_list(options.method)
 
-    N = np.size(methods) # Number of subplots
+    N = np.size(METHODS) # Number of subplots
     n = 1 # Subplot counter
 
     for method in METHODS:
@@ -227,40 +263,46 @@ def plot_chains(options,kelly_scaled_fit,mantz_scaled_fit):
 
     return
 
-def check_convergence():
-    '''FIX: In future, will use autocorrelations to check convergence of MCMC chains.'''
-    pass
+# ----------------------------------------------------------------------
+# Make all plots
 
-def make_plots(options, data_obs, kelly_scaled_fit, mantz_scaled_fit, piv, x_min, x_max):
+def make_plots(options, parameters, methods, data_obs, kelly_scaled_fit, mantz_scaled_fit, piv, x_min, x_max):
     '''Calls both plotting functions and then combines all outputs into a single PDF.'''
 
     # OLD: now uses METHODS
     # Retreive methods list
     #methods = clustr.return_methods_list(options.method)
 
-    if parameters['scatter'] is True:
+    # Sets module parameters to those set in clustr.py
+    global PARAMETERS
+    global METHODS
+    PARAMETERS = parameters
+    METHODS = methods
+
+    # Initialize pdf list
+    pdfs = []
+
+    if PARAMETERS['scatter'] is True:
         plot_scatter(options, data_obs, kelly_scaled_fit, mantz_scaled_fit,piv, x_min, x_max)
         # Add scatter/fit plot
         pdfs.append('Scatter-{}{}-{}.pdf'.format(options.prefix, fits_label(options.y), fits_label(options.x)))
 
-    if parameters['corner'] is True:
+    if PARAMETERS['corner'] is True:
         plot_corners(options,kelly_scaled_fit,mantz_scaled_fit)
         # Add corner plot(s)
         for method in METHODS:
             pdfs.append('Corner-{}-{}{}-{}.pdf'.format(method,options.prefix, fits_label(options.y), fits_label(options.x)))
 
-    if parameters['chains'] is True:
+    if PARAMETERS['chains'] is True:
         plot_chains(options,kelly_scaled_fit,mantz_scaled_fit)
         # Add chain plot(s)
         for method in METHODS:
             pdfs.append('Chains-{}-{}{}-{}.pdf'.format(method,options.prefix, fits_label(options.y), fits_label(options.x)))
 
-    if parameters['residuals'] is True:
+    if PARAMETERS['residuals'] is True:
         # FIX: Implement!
         pass
 
-    # Initialize pdf list
-    pdfs = []
     merger = PyPDF2.PdfFileMerger()
 
     for pdf in pdfs:
