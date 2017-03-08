@@ -3,8 +3,7 @@
 from clustr import fits_label
 import matplotlib
 matplotlib.use('Agg')
-import PyPDF2
-import corner
+import PyPDF2, corner, os
 import numpy as np
 import matplotlib.pylab as plt
 
@@ -312,7 +311,7 @@ def make_plots(options, parameters, methods, data_obs, kelly_scaled_fit, mantz_s
     merger.write('{}{}-{}.pdf'.format(options.prefix, fits_label(options.y), fits_label(options.x)))
 
     # Unless otherwise specified, delete individual plots
-    if parameters['save_all_plots'] is True:
+    if parameters['save_all_plots'] is False:
         for pdf in pdfs:
             os.remove(pdf)
 
