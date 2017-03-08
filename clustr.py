@@ -25,9 +25,12 @@ PARAMETERS = {}
 # Method List
 METHODS = []
 
-def Ez(z,Om=0.3,H_0=0.7):
+def Ez(z):
     ''' Calculate E(z) for Om=0.3, H_0=0.7 cosmology. '''
+    Om = PARAMETERS['Om']
+    H_0 = PARAMETERS['H_0']
     h = H_0/100.
+
     return np.sqrt(Om*(1.+z)**3 + h)
 
 def fits_label(axis_name):
@@ -241,7 +244,7 @@ def set_methods_list(method):
     '''
     if method is None:
         # Use default method in `param.config`
-        method = parameters['default_methods']
+        method = PARAMETERS['default_methods']
 
     if method.lower() == 'both':
         METHODS = ['kelly', 'mantz']
@@ -271,7 +274,7 @@ def set_parameters(file):
         line = ''.join(line.split())
         line = line.split(':')
         Name, Value = line[0], line[1]
-        parameters[Name] = Value
+        PARAMETERS[Name] = Value
 
     config_file.close()
 
