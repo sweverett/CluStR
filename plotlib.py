@@ -227,7 +227,9 @@ def plot_chains(options,kelly_scaled_fit,mantz_scaled_fit):
 
     return
 
-def check_convergence()
+def check_convergence():
+    '''FIX: In future, will use autocorrelations to check convergence of MCMC chains.'''
+    pass
 
 def make_plots(options, data_obs, kelly_scaled_fit, mantz_scaled_fit, piv, x_min, x_max):
     '''Calls both plotting functions and then combines all outputs into a single PDF.'''
@@ -271,3 +273,5 @@ def make_plots(options, data_obs, kelly_scaled_fit, mantz_scaled_fit, piv, x_min
     if parameters['save_all_plots'] is True:
         for pdf in pdfs:
             os.remove(pdf)
+
+    return
