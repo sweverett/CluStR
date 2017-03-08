@@ -92,11 +92,13 @@ def plot_scatter(options, data_obs, kelly_scaled_fit, mantz_scaled_fit,x_piv, x_
 
     return
 
-def plot_corners(options, kelly_scaled_fit, mantz_scaled_fit,burn=0):
+def plot_corners(options, kelly_scaled_fit, mantz_scaled_fit):
     '''
     Makes corner plots for the desired Kelly and/or Mantz method parameter posteriors. Burn is the
     burn in period parameter.
     '''
+
+    burn = PARAMETERS['burn']
 
     # FIX: add a condition to adapt burn # if needed
 
@@ -153,10 +155,12 @@ def plot_corners(options, kelly_scaled_fit, mantz_scaled_fit,burn=0):
 
     return
 
-def plot_chains(options,kelly_scaled_fit,mantz_scaled_fit,burn=0):
+def plot_chains(options,kelly_scaled_fit,mantz_scaled_fit):
     '''
     Use this to examine chain convergence. May implement convergence tests in future.
     '''
+
+    burn = PARAMETERS['burn']
 
     # OLD: now uses MEHTODS
     #methods = clustr.return_methods_list(options.method)
@@ -222,6 +226,8 @@ def plot_chains(options,kelly_scaled_fit,mantz_scaled_fit,burn=0):
         plt.clf()
 
     return
+
+def check_convergence()
 
 def make_plots(options, data_obs, kelly_scaled_fit, mantz_scaled_fit, piv, x_min, x_max):
     '''Calls both plotting functions and then combines all outputs into a single PDF.'''
