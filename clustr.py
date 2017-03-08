@@ -222,6 +222,7 @@ def fit(x_obs, y_obs, x_err, y_err,nmc=5000):
 
     return (kelly_b, kelly_m, kelly_sig), (mantz_b, mantz_m, mantz_sig)
 
+'''
 def return_methods_list(method):
     ''' Used to convert a method input choice into a list of used method types.'''
     if method is None:
@@ -237,6 +238,7 @@ def return_methods_list(method):
         methods = ['kelly']
 
     return methods
+'''
 
 def set_methods_list(method):
     ''' Used to convert a method input choice into a list of used method types.
@@ -261,7 +263,7 @@ def set_methods_list(method):
 
 
 def set_parameters(file):
-    ''' Set useful parameters from config file'''
+    ''' Set useful parameters from config file.'''
 
     config_file = open(file)
     for line in config_file:
@@ -273,8 +275,14 @@ def set_parameters(file):
         # Remove whitespace and interpret Name:Value pairs:
         line = ''.join(line.split())
         line = line.split(':')
-        Name, Value = line[0], line[1]
-        PARAMETERS[Name] = Value
+        name, value = line[0], line[1]
+
+        try:
+            # If numeric
+            PARAMETERS[name] = eval(value)
+        except NameError:
+            # If string
+            PARAMETERS[name] = value
 
     config_file.close()
 
