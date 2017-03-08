@@ -12,7 +12,6 @@ Initially based upon `devon_scaling_relations` by Devon Hollowood.
 #pylint: disable=no-member
 
 import argparse
-import os, ast
 import astropy.io.fits as fits
 import numpy as np
 import reglib # Regression library
