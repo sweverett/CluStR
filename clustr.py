@@ -12,12 +12,11 @@ Initially based upon `devon_scaling_relations` by Devon Hollowood.
 #pylint: disable=no-member
 
 import argparse
-import os, corner, ast
+import os, ast
 import astropy.io.fits as fits
 import numpy as np
 import reglib # Regression library
 import plotlib # Plotting library
-import PyPDF2
 
 # Parameter list used throughout. See `param.config`
 PARAMETERS = {}
@@ -181,20 +180,6 @@ def scale(x, y, x_err, y_err):
     log_y = np.log(y)
     return (log_x-x_piv, log_y, x_err/x, y_err/y, x_piv)
 
-def unscale(x, y, x_err, y_err, x_piv):
-    ''' Recover original data from fit-scaled data '''
-    return (np.exp(x + x_piv), np.exp(y), x_err * x, y_err * y)
-
-def scaled_fit_to_data(x_min, x_max, x_piv, scaled_fit):
-    ''' Get a data set from a scaled fit '''
-    (fit_int, fit_slope, fit_sig) = scaled_fit
-    scaled_x = np.linspace(x_min, x_max, 101)
-    scaled_y = np.mean(fit_int) + np.mean(fit_slope) * scaled_x
-    scaled_x_errs = np.zeros(101)
-    scaled_y_errs = np.ones(101)*np.mean(fit_sig)
-    unscaled_data = unscale(scaled_x, scaled_y, scaled_x_errs, scaled_y_errs, x_piv)
-    return unscaled_data
-
 def fit(x_obs, y_obs, x_err, y_err,nmc=5000):
     ''' Calculates fit using the Kelly (linmix) and/or Mantz (lrgs) methods and returns
         their respective markov chains for the intercept, slope, and sigma. Does only
@@ -224,7 +209,7 @@ def fit(x_obs, y_obs, x_err, y_err,nmc=5000):
 
 '''
 def return_methods_list(method):
-    ''' Used to convert a method input choice into a list of used method types.'''
+    #Used to convert a method input choice into a list of used method types.
     if method is None:
         # Default is Kelly method
         methods = ['kelly']
@@ -244,6 +229,9 @@ def set_methods_list(method):
     ''' Used to convert a method input choice into a list of used method types.
         Saves to a global variable.
     '''
+
+    global METHODS
+
     if method is None:
         # Use default method in `param.config`
         method = PARAMETERS['default_methods']
@@ -264,6 +252,8 @@ def set_methods_list(method):
 
 def set_parameters(file):
     ''' Set useful parameters from config file.'''
+
+    global PARAMETERS
 
     config_file = open(file)
     for line in config_file:
@@ -335,6 +325,8 @@ def main(): #pylint: disable=missing-docstring
     config_file = 'param.config'
     set_parameters(config_file)
 
+    print('Parameters: ',PARAMETERS)
+
     # Set methods list
     method = options.method
     set_methods_list(method)
@@ -360,7 +352,8 @@ def main(): #pylint: disable=missing-docstring
     print('Making plots...')
 
     # Make all desired plots
-    plotlib.make_plots(options, data_obs, kelly_scaled_fit, mantz_scaled_fit, scaled_data[4], x_min, x_max)
+    plotlib.make_plots(options, PARAMETERS, METHODS, data_obs, kelly_scaled_fit,
+                        mantz_scaled_fit, scaled_data[4], x_min, x_max)
 
     print('Done!')
 
