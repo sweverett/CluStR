@@ -48,7 +48,7 @@ def fits_label(axis_name):
 
 def check_flag(flag):
     ''' Checks whether the flag type is boolean, cutoff, or a range. '''
-    #FIX: Finish!!
+    #FIX: Flags are now more versatile, so change up the cutoff and
 
     boolean = {
         'Analyzed',
@@ -67,13 +67,8 @@ def check_flag(flag):
         'overlap_r500'
     }
 
-    cutoff = {
-        'offset_r500',
-        'offset_r2500'
-    }
-
-    # Mispelled as 'range' is reserved
-    rnge = {
+    # List of possible cutoff and range flags
+    cut_or_range = {
         'Redshift',
         'redMaPPer_ra',
         'redMaPPer_dec',
@@ -91,15 +86,43 @@ def check_flag(flag):
         'r2500_band_lumin',
         'r2500_temperature',
         '500_kiloparsecs_band_lumin',
-        '500_kiloparsecs_temperature'
+        '500_kiloparsecs_temperature',
+        'offset_r500',
+        'offset_r2500'
     }
 
     if flag in boolean:
-        return 'bool'
-    elif flag in cutoff:
-        return 'cutoff'
-    elif flag in rnge:
-        return 'range'
+        bool_type = PARAMETERS[flag+'_bool_type']
+        if bool_type is True or bool_type is False:
+            return 'bool'
+        else:
+            print('WARNING: {} is an invalid type entry. Ignoring {} flag.'.format(cut_type,flag))
+            return None
+
+    elif flag in cut_or_range:
+        # Tries cutoff, goes to range if fails. Can only pick one in config file!
+        try:
+            cut_type = PARAMETERS[flag+'_cut_type'].lower()
+            if cut_type == 'above' or cut_type == 'below':
+                return 'cutoff'
+            else:
+                print('WARNING: {} is an invalid type entry. Ignoring {} flag.'.format(cut_type,flag))
+                return None
+
+        except:
+            try:
+                range_min = PARAMETERS[flag+'_range_min']
+                range_max = PARAMETERS[flag+'_range_max']
+                range_type = PARAMETERS[flag+'_range_type']
+                if range_type == 'inside' or range_type = 'outside':
+                    return 'range'
+                else:
+                    print('WARNING: {} is an invalid type entry. Ignoring {} flag.'.format(range_type,flag))
+
+            except:
+                # FIX!!!
+                pass
+                
     else:
         print('WARNING: {} is an invalid flag entry. Ignoring flag.'.format(flag))
 
@@ -138,15 +161,31 @@ def get_data(options):
             flag_type = check_flag(flag)
 
             if flag_type == 'bool':
-                # If flag is boolean, remove those that are True
-                flagged = np.where(data[flag] == True)
+                # Remove data that is flagged True or False
+                bool_type = PARAMETERS[flag+'_bool_type']
+                if bool_type is True or bool_type is False:
+                    # Want to remove the complement of bool_type
+                    flagged = np.where(data[flag] == (not bool_type) )
+                    x[flagged] = -1
+                    y[flagged] = -1
+                    L = np.size(flagged)
+                    print('Removed {} data points due to {} flag of type {}'.format(L,flag,flag_type))
+                else:
+                    print('WARNING: Boolean type must be `true` or `false`. Ignoring {} flag.'.format(flag))
+                    continue
+            elif flag_type == 'cutoff':
+                # Remove data above/below desired cutoff
+                cutoff = PARAMETERS[flag+'_cut']
+                if PARAMETERS[flag+'_cut_type'].lower() == 'above':
+                    flagged = np.where(data[flag] > cutoff)
+                elif PARAMETERS[flag+'_cut_type'].lowe() == 'below:':
+                    flagged = np.where(data[flag] < cutoff)
+                else:
+                    print('WARNING: Cutoff type must be `above` or `below`. Ignoring {} flag.'.format(flag))
+                    continue
                 x[flagged] = -1
                 y[flagged] = -1
                 L = np.size(flagged)
-                print('Removed {} data points due to {} flag'.format(L,flag))
-            elif flag_type == 'cutoff':
-                # Remove data above/below desired cutoff
-                pass #FIX
             elif flag_type == 'range':
                 # Remove data outside of inputted range
                 pass # FIX
@@ -184,11 +223,8 @@ def fit(x_obs, y_obs, x_err, y_err,nmc=5000):
         their respective markov chains for the intercept, slope, and sigma. Does only
         Kelly method by default.'''
 
-    #print "median log(x-x_piv) =", np.median(x_obs)
-    assert np.median(x_obs) == 0.0
-
-    # OLD: is now replaced by METHODS
-    #methods = return_methods_list(method)
+    print "median log(x-x_piv) =", np.median(x_obs)
+    #assert np.median(x_obs) == 0.0
 
     # Set default parameter markov chains to None in case both methods aren't used
     kelly_b, kelly_m, kelly_sig = None, None, None
@@ -207,6 +243,7 @@ def fit(x_obs, y_obs, x_err, y_err,nmc=5000):
     return (kelly_b, kelly_m, kelly_sig), (mantz_b, mantz_m, mantz_sig)
 
 '''
+OLD:
 def return_methods_list(method):
     #Used to convert a method input choice into a list of used method types.
     if method is None:
@@ -314,7 +351,7 @@ def check_dependencies():
     pass
 
 def main(): #pylint: disable=missing-docstring
-    print('Checking dependencies...')
+    print('\nChecking dependencies...')
     check_dependencies()
 
     # Parse all inputted options, regardless of param.config file
@@ -324,8 +361,6 @@ def main(): #pylint: disable=missing-docstring
     config_file = 'param.config'
     set_parameters(config_file)
 
-    print('Parameters: ',PARAMETERS)
-
     # Set methods list
     method = options.method
     set_methods_list(method)
@@ -333,8 +368,8 @@ def main(): #pylint: disable=missing-docstring
     # Determine flags
     flags = options.flags
 
-    print('Inputted options:',options)
-    print('Grabbing data...')
+    print('\nInputted options: {}'.format(options))
+    print('\nGrabbing data...')
 
     # Grab and process data from catalog, including flag removal
     data_obs = get_data(options)
@@ -342,19 +377,19 @@ def main(): #pylint: disable=missing-docstring
     # Scale for linear fitting
     scaled_data = scale(*data_obs)
 
-    print('Fitting data...')
+    print('\nFitting data...')
 
     # Fit data using linmix, lrgs, or both
     kelly_scaled_fit, mantz_scaled_fit = fit(*scaled_data[:4])
     (x_min, x_max) = (np.min(scaled_data[0]), np.max(scaled_data[0]))
 
-    print('Making plots...')
+    print('\nMaking plots...')
 
     # Make all desired plots
     plotlib.make_plots(options, PARAMETERS, METHODS, data_obs, kelly_scaled_fit,
                         mantz_scaled_fit, scaled_data[4], x_min, x_max)
 
-    print('Done!')
+    print('\nDone!')
 
 if __name__ == '__main__':
     main()
