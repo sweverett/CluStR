@@ -114,15 +114,15 @@ def check_flag(flag):
                 range_min = PARAMETERS[flag+'_range_min']
                 range_max = PARAMETERS[flag+'_range_max']
                 range_type = PARAMETERS[flag+'_range_type']
-                if range_type == 'inside' or range_type = 'outside':
+                if range_type == 'inside' or range_type == 'outside':
                     return 'range'
                 else:
                     print('WARNING: {} is an invalid type entry. Ignoring {} flag.'.format(range_type,flag))
 
             except:
-                # FIX!!!
-                pass
-                
+                print('WARNING: {} flag parameters not found in config file. Ignoring flag.'.format(flag))
+                return None
+
     else:
         print('WARNING: {} is an invalid flag entry. Ignoring flag.'.format(flag))
 
