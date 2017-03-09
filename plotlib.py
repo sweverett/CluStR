@@ -150,6 +150,7 @@ def plot_residuals(options, data_obs, kelly_scaled_fit, mantz_scaled_fit):
         # Calculate residuals
         x_fit = lx_obs
         y_fit = m*x_fit+b
+        # FIX: Find out which normalization to use!
         #residuals = (ly_obs - y_fit) / ly_err_obs
         residuals = (ly_obs - y_fit) / np.std(ly_obs)
 
