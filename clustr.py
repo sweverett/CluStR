@@ -51,8 +51,8 @@ def check_flag(flag):
     #FIX: Flags are now more versatile, so change up the cutoff and
 
     boolean = {
-        'Analyzed',
-        'Detected',
+        'analyzed',
+        'detected',
         'merger',
         'bad_redmapper_pos',
         'bad_xray_pos',
@@ -69,7 +69,7 @@ def check_flag(flag):
 
     # List of possible cutoff and range flags
     cut_or_range = {
-        'Redshift',
+        'redshift',
         'redMaPPer_ra',
         'redMaPPer_dec',
         'r500_ra',
@@ -91,22 +91,22 @@ def check_flag(flag):
         'offset_r2500'
     }
 
-    if flag in boolean:
+    if flag.lower() in boolean:
         bool_type = PARAMETERS[flag+'_bool_type']
         if bool_type is True or bool_type is False:
             return 'bool'
         else:
-            print('WARNING: {} is an invalid type entry. Ignoring {} flag.'.format(cut_type,flag))
+            print('WARNING: `{}` is an invalid type entry. Ignoring `{}` flag.'.format(cut_type,flag))
             return None
 
-    elif flag in cut_or_range:
+    elif flag.lower() in cut_or_range:
         # Tries cutoff, goes to range if fails. Can only pick one in config file!
         try:
             cut_type = PARAMETERS[flag+'_cut_type'].lower()
             if cut_type == 'above' or cut_type == 'below':
                 return 'cutoff'
             else:
-                print('WARNING: {} is an invalid type entry. Ignoring {} flag.'.format(cut_type,flag))
+                print('WARNING: `{}` is an invalid type entry. Ignoring `{}` flag.'.format(cut_type,flag))
                 return None
 
         except:
@@ -117,14 +117,14 @@ def check_flag(flag):
                 if range_type == 'inside' or range_type == 'outside':
                     return 'range'
                 else:
-                    print('WARNING: {} is an invalid type entry. Ignoring {} flag.'.format(range_type,flag))
+                    print('WARNING: `{}` is an invalid type entry. Ignoring `{}` flag.'.format(range_type,flag))
 
             except:
-                print('WARNING: {} flag parameters not found in config file. Ignoring flag.'.format(flag))
+                print('WARNING: `{}` flag parameters not found in config file. Ignoring flag.'.format(flag))
                 return None
 
     else:
-        print('WARNING: {} is an invalid flag entry. Ignoring flag.'.format(flag))
+        print('WARNING: `{}` is an invalid flag entry. Ignoring flag.'.format(flag))
 
     return None
 
@@ -157,6 +157,9 @@ def get_data(options):
     if flags is not None:
         # FIX: Should be more error handling than this!
         # FIX: Should write a method to ensure all the counts are what we expect
+
+        print('NOTE: `Removed` counts may be redundant, as some data fail multiple flags.')
+
         for flag in flags:
             flag_type = check_flag(flag)
 
@@ -169,28 +172,54 @@ def get_data(options):
                     x[flagged] = -1
                     y[flagged] = -1
                     L = np.size(flagged)
-                    print('Removed {} data points due to {} flag of type {}'.format(L,flag,flag_type))
+                    print('Removed {} clusters due to {} flag of type {}'.format(L,flag,flag_type))
                 else:
-                    print('WARNING: Boolean type must be `true` or `false`. Ignoring {} flag.'.format(flag))
+                    print('WARNING: Boolean type must be `true` or `false` - you entered `{}`. Ignoring `{}` flag.'.format(bool_tupe,flag))
                     continue
+
             elif flag_type == 'cutoff':
                 # Remove data above/below desired cutoff
                 cutoff = PARAMETERS[flag+'_cut']
-                if PARAMETERS[flag+'_cut_type'].lower() == 'above':
-                    flagged = np.where(data[flag] > cutoff)
-                elif PARAMETERS[flag+'_cut_type'].lowe() == 'below:':
+                cut_type = PARAMETERS[flag+'_cut_type'].lower()
+                if cut_type == 'above':
+                    # flag data below cutoff
                     flagged = np.where(data[flag] < cutoff)
+                elif cut_type == 'below':
+                    # flag data above cutoff
+                    flagged = np.where(data[flag] > cutoff)
                 else:
-                    print('WARNING: Cutoff type must be `above` or `below`. Ignoring {} flag.'.format(flag))
+                    print('WARNING: Cutoff type must be `above` or `below` - you entered `{}`. Ignoring `{}` flag.'.format(cut_type,flag))
                     continue
                 x[flagged] = -1
                 y[flagged] = -1
                 L = np.size(flagged)
+                print('Removed {} clusters due to `{}` flag of type `{}`'.format(L,flag,flag_type))
+
             elif flag_type == 'range':
                 # Remove data outside of inputted range
-                pass # FIX
+                fmin = PARAMETERS[flag+'_range_min']
+                fmax = PARAMETERS[flag+'_range_max']
+                range_type = PARAMETERS[flag+'_range_type']
+                if range_type == 'inside':
+                    # flag data outside of range
+                    f1 = np.where(data[flag] < fmin)[0]
+                    f2 = np.where(data[flag] > fmax)[0]
+                    flagged = np.union1d(f1,f2)
+                elif range_type == 'outside':
+                    # flag data inside of range
+                    f1 = np.where(data[flag] > fmin)[0]
+                    f2 = np.where(data[flag] < fmax)[0]
+                    flagged = np.intersect1d(f1,f2)
+                else:
+                    print('WARNING: Range type must be `inside` or `outside` - you entered `{}`. Ignoring `{}` flag.'.format(range_type,flag))
+                    continue
+                x[flagged] = -1
+                y[flagged] = -1
+                L = np.size(flagged)
+                print('Removed {} clusters due to {} flag of type {}'.format(L,flag,flag_type))
+
             else:
-                print('WARNING: Inputted flag {} is not valid. Ignoring flag for analysis.'.format(flag))
+                print('WARNING: Inputted flag `{}` is not valid. Ignoring flag for analysis.'.format(flag))
                 continue
 
     # Take rows with good data, and all flagged data removed
@@ -202,6 +231,10 @@ def get_data(options):
     y_err = y_err[good_rows]
 
     print('Accepted {} data out of {}'.format(np.size(x),N))
+
+    if np.size(x) == 0:
+        print('\nWARNING: No data survived flag removal. Suggest changing flag parameters in `param.config`.\n\nClosing program...\n')
+        raise SystemExit
 
     print 'mean x error:', np.mean(x_err)
     print 'mean y error:', np.mean(y_err)
