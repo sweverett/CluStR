@@ -1,10 +1,12 @@
 # CluStR
 
-This package calculates various scaling relations from cluster catalogs. While currently only simple power law 
+This package calculates various scaling relations from cluster catalogs. While currently only simple power law ...
 
 For more information on the Kelly method, read his [2007 paper](https://arxiv.org/pdf/0705.2774.pdf), check out his original IDL implementation [linmix_err](https://idlastro.gsfc.nasa.gov/ftp/pro/math/linmix_err.pro), or see the python port [linmix](https://github.com/jmeyers314/linmix) by Josh Meyers, which was used in this work.
 
 For more information on the Mantz method, read his .....
+
+```
 
 ## Getting Started
 
@@ -14,9 +16,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 What things you need to install the software and how to install them
 
-```
-Give examples
-```
+
 
 ### Installing
 
@@ -24,15 +24,9 @@ A step by step series of examples that tell you have to get a development env ru
 
 Say what the step will be
 
-```
-Give the example
-```
 
 And repeat
 
-```
-until finished
-```
 
 End with an example of getting some data out of the system or using it for a little demo
 
@@ -90,3 +84,4 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 * Inspiration
 * etc
 
+```
