@@ -14,7 +14,6 @@ First you will need to clone the repo by moving to the desired local directory a
 git clone https://github.com/sweverett/CluStR
 ```
 
-
 ### Dependencies
 
 Besides some standard packages like numpy, scipy, and matplotlib that can be aquired through common distributions or pip, CluStR requires the following python packages be installed:
@@ -22,20 +21,19 @@ Besides some standard packages like numpy, scipy, and matplotlib that can be aqu
 * [astropy](http://www.astropy.org/)
 * [corner](http://corner.readthedocs.io/en/latest/)
 * [PyPDF2](http://pythonhosted.org/PyPDF2/)
-* [rpy2]()
 * [linmix]()
-
-While many of 
+* [rpy2]()
 
 
 Note that astropy is now included in Anaconda.
 
 
-You can look at these links for details, or simply use the following:
+You can look at these links for details, or simply paste the following into terminal (don't install rpy2 if you don't have R yet):
 
 ```
 pip install astropy
 pip install corner
+pip install pypdf2
 ```
 
 CluStR also requires R and the following R package:
@@ -49,7 +47,13 @@ conda install -c r r-essentials
 conda update -c r r-essentials
 ```
 
-This installs R and some essential packages that works well with Anaconda and Jupyter. Once installed, open R in the terminal and input the following commands:
+This installs R and some essential packages that works well with Anaconda and Jupyter. Now that R is installed, grab rpy2.
+
+```
+pip install rpy2
+```
+
+Once everything is installed, open R in the terminal and input the following commands:
 
 ```
 install.packages("devtools")
@@ -57,6 +61,8 @@ devtools::install_github("hoxo-m/githubinstall")
 library(devtools)
 install_github("abmantz/lrgs")
 ```
+
+Now you should be ready to use `CluStR`!
 
 ## Config File
 
