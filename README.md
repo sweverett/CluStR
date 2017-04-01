@@ -20,10 +20,12 @@ git clone https://github.com/sweverett/CluStR
 Besides some standard packages like numpy, scipy, and matplotlib that can be aquired through common distributions or pip, CluStR requires the following python packages be installed:
 
 * [astropy](http://www.astropy.org/)
-* [corner]()
-* [PyPDF2]()
+* [corner](http://corner.readthedocs.io/en/latest/)
+* [PyPDF2](http://pythonhosted.org/PyPDF2/)
 * [rpy2]()
 * [linmix]()
+
+While many of 
 
 
 Note that astropy is now included in Anaconda.
