@@ -8,66 +8,57 @@ For more information on the Mantz method, read his [2016 paper](https://arxiv.or
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
-
-### Prerequisites
-
-What things you need to install the software and how to install them
-
-
-
-### Installing
-
-A step by step series of examples that tell you have to get a development env running
-
-Say what the step will be
-
-
-And repeat
-
-
-End with an example of getting some data out of the system or using it for a little demo
-
-## Running the tests
-
-Explain how to run the automated tests for this system
-
-### Break down into end to end tests
-
-Explain what these tests test and why
+First you will need to clone the repo by moving to the desired local directory and using
 
 ```
-Give an example
+git clone https://github.com/sweverett/CluStR
 ```
 
-### And coding style tests
 
-Explain what these tests test and why
+### Dependencies
+
+Besides some standard packages like numpy, scipy, and matplotlib that can be aquired through common distributions or pip, CluStR requires the following python packages be installed:
+
+* [astropy](http://www.astropy.org/)
+* [corner]()
+* [PyPDF2]()
+* [rpy2]()
+* [linmix]()
+
+
+Note that astropy is now included in Anaconda.
+
+
+You can look at these links for details, or simply use the following:
 
 ```
-Give an example
+pip install astropy
+pip install corner
 ```
 
-## Deployment
+CluStR also requires R and the following R package:
 
-Add additional notes about how to deploy this on a live system
+* [lrgs](https://github.com/abmantz/lrgs)
 
-## Built With
+This is needed as CluStR interfaces with the original lrgs code through rpy2. The easiest way to do this is to use the Anaconda distribution and then use the following:
 
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
+```
+conda install -c r r-essentials
+conda update -c r r-essentials
+```
 
-## Contributing
+This installs R and some essential packages that works well with Anaconda and Jupyter. Once installed, open R in the terminal and input the following commands:
 
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
+```
+install.packages("devtools")
+devtools::install_github("hoxo-m/githubinstall")
+library(devtools)
+install_github("abmantz/lrgs")
+```
 
-## Versioning
+## Config File
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
-
-## Authors
-
+## Example Use
 
 ## License
 
@@ -75,6 +66,4 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Acknowledgments
 
-* Hat tip to anyone who's code was used
-* Inspiration
-* etc
+* Add Tesla, Devon, etc.
