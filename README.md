@@ -66,6 +66,49 @@ Now you should be ready to use `CluStR`!
 
 ## Config File
 
+Most parameters are set in the `param.config` file. Here you can set the cosmology, default regression method, plotting options, and most importantly any desired flags. There are three possible flag types: bool, cutoff, and range. For each, you must specify the exact catalog column name you want to flag along with the cut type and, if a cutoff or range, the corresponding cut values. All name - value pairs must be separated by a colon.
+
+There are two important things to note that might be unclear:
+
+* Setting a flag type and cut value **does not mean the cut will be used!** A flag is set to be used in the actual method call - see Example Use below. This allows you to set many flag parameters without having to change the config file everytime you want to use a different combination of flags.
+
+* While it may seem counter-intuitive at first, the flag parameters are set to what data you want to *keep*, not remove - i.e. set what redshift range you want your clusters to be found in rather than what ranges you want to remove. I found this to eliminate some mental gynmastics when setting cuts but may feel awkward for bools.
+
+Here is an example for each flag type:
+
+### Bool: 
+*<column_name>_bool_type: <True/False>* 
+
+To exclude clusters that are within r500 of a chip edge, use
+
+```
+edge_exclude_r500_bool_type: False
+```
+
+In other words - only use data that is *not* flagged with `edge_exclude_r500`.
+
+### Cutoff:
+*<column_name>_cut_type: <above/below>**
+*<column_name>_cut: <value>
+
+To remove clusters with a redshift
+
+
+### Range:
+*<column_name>_range_type: <inside/outside>*
+*<column_name>_range_min: <value>*
+*<column_name>_range_max: <value>*
+
+To only use clusters with redshift between 0.3 and 0.5, use
+
+```
+redshift_range_type: inside
+redshift_range_min: 0.3
+redshift_range_max: 0.5
+```
+
+This system may seem inefficient, but allows for quite a bit of flexibility in selecting interesting data subsets.
+
 ## Example Use
 
 ## License
