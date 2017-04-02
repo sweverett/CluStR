@@ -77,6 +77,7 @@ There are two important things to note that might be unclear:
 Here is an example for each flag type:
 
 ### Bool: 
+
 *<column_name>_bool_type: <True/False>* 
 
 To exclude clusters that are within r500 of a chip edge, use
@@ -88,13 +89,15 @@ edge_exclude_r500_bool_type: False
 In other words - only use data that is *not* flagged with `edge_exclude_r500`.
 
 ### Cutoff:
-*<column_name>_cut_type: <above/below>**
+
+*<column_name>_cut_type: <above/below>*
 *<column_name>_cut: <value>
 
 To remove clusters with a redshift
 
 
 ### Range:
+
 *<column_name>_range_type: <inside/outside>*
 *<column_name>_range_min: <value>*
 *<column_name>_range_max: <value>*
