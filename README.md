@@ -21,7 +21,7 @@ Besides some standard packages like numpy, scipy, and matplotlib that can be aqu
 * [astropy](http://www.astropy.org/)
 * [corner](http://corner.readthedocs.io/en/latest/)
 * [PyPDF2](http://pythonhosted.org/PyPDF2/)
-* [linmix]()
+* [linmix](https://github.com/jmeyers314/linmix)
 * [rpy2]()
 
 
@@ -34,6 +34,14 @@ You can look at these links for details, or simply paste the following into term
 pip install astropy
 pip install corner
 pip install pypdf2
+```
+
+The simplest way to get `linmix` is to clone the repo and install using the given setup file:
+
+```
+git clone https://github.com/jmeyers314/linmix.git
+cd linmix
+python setup.py install
 ```
 
 CluStR also requires R and the following R package:
@@ -64,7 +72,7 @@ install_github("abmantz/lrgs")
 
 Now you should be ready to use `CluStR`!
 
-## Config File
+## Config File <a name="config"></a>
 
 Most parameters are set in the `param.config` file. Here you can set the cosmology, default regression method, plotting options, and most importantly any desired flags. There are three possible flag types: bool, cutoff, and range. For each, you must specify the exact catalog column name you want to make cuts along with the flag type and, if a cutoff or range, the corresponding cut values. All name:value pairs must be separated by a colon.
 
@@ -120,6 +128,38 @@ redshift_range_max: 0.5
 This system may seem inefficient, but allows for quite a bit of flexibility in selecting interesting data subsets.
 
 ## Example Use <a name="exuse"></a>
+
+*python clustr.py <catalog.fits> <response> <covariate>*
+
+CluStR has three mandatory inputs: An appropriate cluster FITS file, the response variable (y-axis), and the covariate variable (x-axis). The available columns for axis variables (on the right) and their corresponding input labels (on the left) are:
+
+- lambda : lambda (richness)
+- l500kpc : 500_kiloparsecs_band_lumin
+- lr2500 : r2500_band_lumin
+- lr500 : r500_band_lumin
+- lr500cc : r500_core_cropped_band_lumin
+- t500kpc : 500_kiloparsecs_temperature
+- tr2500 : r2500_temperature
+- tr500 : r500_temperature
+- tr500cc : r500_core_cropped_temperature
+
+To plot the scaling relation between r2500 temperature and richness using the default regression method (set in `param.config`), use
+
+```
+python clustr.py <catalog.fits> tr2500 lambda
+```
+
+The output file will be named `<default_prefix>r2500_temperature-lambda.pdf`, where you can set the default prefix in `param.config`.
+
+Additionally there are three optional arguments: A filename prefix (`-p`), regression method (`-m`), and flag options (`-f`). The order of the first two is arbitrary, but all desired flags must be specified last. As described in the [Config File](#config) section, flag paramters are set in `param.config` but are only used if present in the method call following `-f`.
+
+To plot the scaling relation between r2500 temperature and richness using both regression methods but only including clusters with redshift between 0.3 and 0.5, use
+
+```
+python clustr.py <catalog.fits> tr2500 lambda -p SDSS_redshifts_ -m both -f redshift
+```
+
+The output file will be named `SDSS_redshifts_r2500_band_lumin-lambda.pdf`
 
 ## License
 
