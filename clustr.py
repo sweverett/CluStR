@@ -347,6 +347,21 @@ def set_parameters(file):
 
     return
 
+def check_prefix(options):
+    '''
+    If no prefix is given, use default set in `param.config`. If default is None,
+    then no prefix is given.
+    '''
+    print('prefix = {}'.format(options.prefix))
+    if options.prefix is None:
+        if PARAMETERS['default_prefix'] is None:
+            options.prefix = ''
+        else:
+            options.prefix = PARAMETERS['default_prefix']
+    print('prefix = {}'.format(options.prefix))
+
+    return
+
 def parse_opts():
     ''' Parse command line arguments '''
     parser = argparse.ArgumentParser()
@@ -393,6 +408,9 @@ def main(): #pylint: disable=missing-docstring
     # Set useful parameters from configure file
     config_file = 'param.config'
     set_parameters(config_file)
+
+    # Set default prefix if none entered
+    check_prefix(options)
 
     # Set methods list
     method = options.method
