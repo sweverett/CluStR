@@ -1,9 +1,4 @@
 # CluStR
-<<<<<<< HEAD
-Calculates various scaling relations from cluster catalogs.
-
-Will add description later!
-=======
 
 This package calculates various scaling relations from cluster catalogs. While only appropriate for fitting power laws, it uses a methodology developed by Brandon Kelly for a fully Bayesian approach that incorporates correlated and heteroscedastic measurement errors, intrinsic scatter, selection effects, censored data, and gaussian mixture modeling for the covariates. Alternatively, a different methodology developed by Adam Mantz can be used that handles multivariate regression and replaces the gaussian mixture model with a Dirichlet process - at the expense of no censored data handling. If desired, both methods can be used and compared.
 
@@ -89,9 +84,9 @@ There are two important things to note that might be unclear:
 
 Here is an example for each flag type:
 
-### Bool: 
+### Bool:
 
-*<column_name>_bool_type: <True/False>* 
+*<column_name>_bool_type: <True/False>*
 
 To only include clusters that are not within r500 of a chip edge, use
 
@@ -169,8 +164,3 @@ The output file will be named `SDSS_redshifts_r2500_band_lumin-lambda.pdf`
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-## Acknowledgments
-
-* Add Tesla, Devon, etc.
->>>>>>> 33c68b42e94566312235c27e6e8bf42f782272b7
