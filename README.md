@@ -30,7 +30,7 @@ source activate clustr
 
 Next, we need to install the necessary `R` packages. Run `R`, and then enter:
 ```R
-install.packages(“devtools")
+install.packages("devtools")
 install_github("abmantz/lrgs")
 ```
 
