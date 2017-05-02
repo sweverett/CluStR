@@ -31,12 +31,12 @@ install_github("abmantz/lrgs")
 
 **Note on Mac OS**: On OSX Mavericks or more recent, you need to run `R` as:
 ```bash
-TAR=“/usr/bin/tar R”
+TAR=“/usr/bin/tar” R
 ```
 
 Now you should be ready to use `CluStR`!
 
-## Getting Started (using pip and conda)
+## Getting Started (using `pip` and `conda`)
 
 First you will need to clone the repo by moving to the desired local directory and using
 
