@@ -23,6 +23,11 @@ Next, create a `conda` environment using the supplied `environment.yml`:
 conda env create -f environment.yml
 ```
 
+Now activate the newly-created `conda` environment:
+```bash
+source activate clustr
+```
+
 Next, we need to install the necessary `R` packages. Run `R`, and then enter:
 ```R
 install.packages(“devtools")
@@ -34,7 +39,15 @@ install_github("abmantz/lrgs")
 TAR=“/usr/bin/tar” R
 ```
 
-Now you should be ready to use `CluStR`!
+Now you should be ready to use `CluStR`! Whenever you want to run `CluStR`, activate the `conda` environment with:
+```bash
+source activate clustr
+```
+
+Whenever you are finished, deactivate the `conda` environment with
+```bash
+source deactivate clustr
+```
 
 ## Getting Started (using `pip` and `conda`)
 
