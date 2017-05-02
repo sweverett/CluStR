@@ -31,13 +31,15 @@ source activate clustr
 Next, we need to install the necessary `R` packages. Run `R`, and then enter:
 ```R
 install.packages("devtools")
-devtools::install_github("abmantz/lrgs")
+devtools::install_github("abmantz/lrgs", subdir="R/lrgs")
 ```
 
 **Note on Mac OS**: On OSX Mavericks or more recent, you need to run `R` as:
 ```bash
 TAR=“/usr/bin/tar” R
 ```
+
+Press `CTRL-D` to exit `R`.
 
 Now you should be ready to use `CluStR`! Whenever you want to run `CluStR`, activate the `conda` environment with:
 ```bash
