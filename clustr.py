@@ -14,6 +14,7 @@ Initially based upon `devon_scaling_relations` by Devon Hollowood.
 import argparse
 import astropy.io.fits as fits
 import numpy as np
+import cPickle as pickle
 import reglib # Regression library
 import plotlib # Plotting library
 
@@ -398,6 +399,26 @@ def check_dependencies():
     # check for others!
     pass
 
+def save_data(options, PARAMETERS, METHODS, data_obs, kelly_scaled_fit,
+                    mantz_scaled_fit, piv, x_min, x_max):
+    '''
+    Save data locally to a pickle file. Uses default naming scheme if not specified
+    in param.config.
+    '''
+
+    if PARAMETERS['output_filename'] is not None:
+        filename = 'pickles/{}'.format(PARAMETERS['output_filename'])
+        # make sure there is the correct extension
+        if filename[-2:] != '.p':
+            filename = filename + '.p'
+    else:
+        filename = 'pickles/Data-{}{}-{}.p'.format(options.prefix, fits_label(options.y), fits_label(options.x))
+
+    pickle.dump([options, PARAMETERS, METHODS, data_obs, kelly_scaled_fit,
+                        mantz_scaled_fit, piv, x_min, x_max], open(filename,'wb'))
+
+    return
+
 def main(): #pylint: disable=missing-docstring
     print('\nChecking dependencies...')
     check_dependencies()
@@ -439,6 +460,11 @@ def main(): #pylint: disable=missing-docstring
     # Make all desired plots
     plotlib.make_plots(options, PARAMETERS, METHODS, data_obs, kelly_scaled_fit,
                         mantz_scaled_fit, scaled_data[4], x_min, x_max)
+
+    if PARAMETERS['save_data'] is True:
+        print('\nSaving data...')
+        save_data(options, PARAMETERS, METHODS, data_obs, kelly_scaled_fit,
+                            mantz_scaled_fit, scaled_data[4], x_min, x_max)
 
     print('\nDone!')
 
