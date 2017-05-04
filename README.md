@@ -6,7 +6,52 @@ For more information on the Kelly method, read his [2007 paper](https://arxiv.or
 
 For more information on the Mantz method, read his [2016 paper](https://arxiv.org/pdf/1509.00908.pdf) or check out his R implementation [lrgs](https://github.com/abmantz/lrgs).
 
-## Getting Started
+## Getting Started (using `conda env`)
+
+First, you will need [conda](https://conda.io/docs/intro.html).
+
+Once you have that, clone this repository into a local directory, and switch to that directory:
+
+```bash
+git clone https://github.com/sweverett/CluStR
+cd CluStR
+```
+
+Next, create a `conda` environment using the supplied `environment.yml`:
+
+```bash
+conda env create -f environment.yml
+```
+
+Now activate the newly-created `conda` environment:
+```bash
+source activate clustr
+```
+
+Next, we need to install the necessary `R` packages. Run `R`, and then enter:
+```R
+install.packages("devtools")
+devtools::install_github("abmantz/lrgs", subdir="R/lrgs")
+```
+
+**Note on Mac OS**: On OSX Mavericks or more recent, you need to run `R` as:
+```bash
+TAR=“/usr/bin/tar” R
+```
+
+Press `CTRL-D` to exit `R`.
+
+Now you should be ready to use `CluStR`! Whenever you want to run `CluStR`, activate the `conda` environment with:
+```bash
+source activate clustr
+```
+
+Whenever you are finished, deactivate the `conda` environment with
+```bash
+source deactivate clustr
+```
+
+## Getting Started (using `pip` and `conda`)
 
 First you will need to clone the repo by moving to the desired local directory and using
 
