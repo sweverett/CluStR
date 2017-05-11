@@ -34,12 +34,24 @@ install.packages("devtools")
 devtools::install_github("abmantz/lrgs", subdir="R/lrgs")
 ```
 
-**Note on Mac OS**: On OSX Mavericks or more recent, you need to run `R` as:
-```bash
-TAR=“/usr/bin/tar” R
-```
-
 Press `CTRL-D` to exit `R`.
+
+A few notes on installing R packages:
+
+1. If you get a message about not having `tar`, you need to specify its location when invoking `R`. You can either do so automatically, with
+    ```bash
+    TAR="$(which tar)" R
+    ```
+    or manually, with (for example)
+    ```bash
+    TAR=/usr/bin/tar R
+    ```
+1. If you get a message about an `lrgs` dependency not being available, you may need to install `gfortran`.
+1. If you get a message about `tcl` not being available, the issue is that the `R` terminal is trying to open a GUI and can't. Run
+    ```R
+    chooseCRANmirror(graphics=FALSE)
+    ```
+    then choose a mirror and proceed as above.
 
 Now you should be ready to use `CluStR`! Whenever you want to run `CluStR`, activate the `conda` environment with:
 ```bash
