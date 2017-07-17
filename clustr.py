@@ -12,6 +12,7 @@ Initially based upon `devon_scaling_relations` by Devon Hollowood.
 #pylint: disable=no-member
 
 import argparse
+import os
 import astropy.io.fits as fits
 import numpy as np
 import cPickle as pickle
@@ -405,6 +406,11 @@ def save_data(options, PARAMETERS, METHODS, data_obs, kelly_scaled_fit,
     Save data locally to a pickle file. Uses default naming scheme if not specified
     in param.config.
     '''
+
+    try: # do try-except instead of if-exists to avoid race condition
+        os.makedirs('pickles')
+    except os.error: # already existed
+        pass
 
     if PARAMETERS['output_filename'] is not None:
         filename = 'pickles/{}'.format(PARAMETERS['output_filename'])
