@@ -52,6 +52,11 @@ A few notes on installing R packages:
     chooseCRANmirror(graphics=FALSE)
     ```
     then choose a mirror and proceed as above.
+1. If you get the following (unhelpful) error:
+    ```bash
+    asdf
+    ```
+check out the issue page [here](https://github.com/r-lib/devtools/issues/1722)
 
 Now you should be ready to use `CluStR`! Whenever you want to run `CluStR`, activate the `conda` environment with:
 ```bash
