@@ -30,8 +30,7 @@ source activate clustr
 
 Next, we need to install the necessary `R` packages. Run `R`, and then enter:
 ```R
-install.packages("devtools")
-devtools::install_github("abmantz/lrgs", subdir="R/lrgs")
+install.packages("lrgs")
 ```
 
 Press `CTRL-D` to exit `R`.
@@ -52,6 +51,11 @@ A few notes on installing R packages:
     chooseCRANmirror(graphics=FALSE)
     ```
     then choose a mirror and proceed as above.
+1. If you get the following (unhelpful) error:
+    ```bash
+    asdf
+    ```
+check out the issue page [here](https://github.com/r-lib/devtools/issues/1722)
 
 Now you should be ready to use `CluStR`! Whenever you want to run `CluStR`, activate the `conda` environment with:
 ```bash
