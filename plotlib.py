@@ -6,8 +6,10 @@ import corner
 import PyPDF2
 import numpy as np
 import matplotlib
-import matplotlib.pylab as plt
-matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+#import seaborn as ssb
+#plt.style.use('seaborn')
+#matplotlib.use('Agg')
 
 # pylint: disable=invalid-name
 
@@ -76,12 +78,12 @@ def plot_scatter(options, data_obs, kelly_scaled_fit, mantz_scaled_fit, x_piv,
     (x_obs, y_obs, x_err_obs, y_err_obs) = data_obs
 
     # Plot data
-    plt.errorbar(x_obs, y_obs, xerr=x_err_obs, yerr=y_err_obs, c='r', fmt='o')
+    plt.errorbar(x_obs, y_obs, xerr=x_err_obs, yerr=y_err_obs, fmt='o', markeredgecolor='k')
 
     for method in METHODS:
         if method == 'kelly':
             scaled_fit = kelly_scaled_fit
-            color = 'b'
+            color = 'r'
 
         elif method == 'mantz':
             scaled_fit = mantz_scaled_fit
