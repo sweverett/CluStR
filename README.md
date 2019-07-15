@@ -59,12 +59,12 @@ check out the issue page [here](https://github.com/r-lib/devtools/issues/1722)
 
 Now you should be ready to use `CluStR`! Whenever you want to run `CluStR`, activate the `conda` environment with:
 ```bash
-source activate clustr
+conda activate clustr
 ```
 
 Whenever you are finished, deactivate the `conda` environment with
 ```bash
-source deactivate clustr
+conda deactivate clustr
 ```
 
 ## Getting Started (using `pip` and `conda`)
