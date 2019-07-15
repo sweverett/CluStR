@@ -25,7 +25,7 @@ conda env create -f environment.yml
 
 Now activate the newly-created `conda` environment:
 ```bash
-source activate clustr
+conda activate clustr
 ```
 
 Next, we need to install the necessary `R` packages. Run `R`, and then enter:
