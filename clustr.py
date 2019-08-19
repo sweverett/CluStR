@@ -4,6 +4,10 @@
 class Config(object):
     '''
     Used for CluStR config processing
+<<<<<<< HEAD
+=======
+
+>>>>>>> 44dd23eb0da3303c2de6679e505e3742b5d0ba94
     Some options:
     - scale_luminosity: Divide luminosity columns by E(z)^-3/2
     '''
@@ -39,6 +43,7 @@ class Config(object):
     def __repr__(self):
         return repr(self._config.__dict__)
 
+<<<<<<< HEAD
 class CheckDependencies:
     '''
     check if all required packages are
@@ -117,6 +122,8 @@ class SaveData:
     def __init__(self, options, parameters, , ,)
         pass
 
+=======
+>>>>>>> 44dd23eb0da3303c2de6679e505e3742b5d0ba94
 #-------------------------------------------------------
 # We'll write the main function here
 
@@ -124,4 +131,8 @@ def main():
     pass
 
 if __name__ == '__main__':
+<<<<<<< HEAD
 main()
+=======
+    main()
+>>>>>>> 44dd23eb0da3303c2de6679e505e3742b5d0ba94
