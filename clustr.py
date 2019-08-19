@@ -4,10 +4,6 @@
 class Config(object):
     '''
     Used for CluStR config processing
-<<<<<<< HEAD
-=======
-
->>>>>>> 44dd23eb0da3303c2de6679e505e3742b5d0ba94
     Some options:
     - scale_luminosity: Divide luminosity columns by E(z)^-3/2
     '''
@@ -43,7 +39,6 @@ class Config(object):
     def __repr__(self):
         return repr(self._config.__dict__)
 
-<<<<<<< HEAD
 class CheckDependencies:
     '''
     check if all required packages are
@@ -53,13 +48,7 @@ class CheckDependencies:
     def __init__(self,):
         pass
 
-class SetParameters:
-    def __init__(self,config_file):
-        self.config_file = config_file
-
-        return parameters
-
-class Ez:
+class Ez: #function
     def __init__(self,parameters,z):
         self.z = z
         self.Om = parameters['Om']
@@ -76,15 +65,15 @@ class FitsLabel:
         return self.labels[self.axis_name]
 
 class Flag:
-    def __init__(self,flag,data,options,boolean,cut_or_range)
-    self.flag = flags
-    self.data = data
-    self.boolean = boolean
-    self.cut_or_range = cut_or_range
-    self.options = options
+    def __init__(self,flag,data,options,boolean,cut_or_range):
+        self.flag = flags
+        self.data = data
+        self.boolean = boolean
+        self.cut_or_range = cut_or_range
+        self.options = options
     def check_flag(self):
         pass
-
+#inheritance would be good here
     def create_cuts(self):
         pass
 
@@ -102,7 +91,7 @@ class Data:
         self.x_obs = x_obs
         self.y_obs = y_obs
         self.nmc = nmc
-
+#pass in a file name not all the variables ^
     def scale(self):
         log_x = np.log(self.x)
         x_piv = np.median(log_x)
@@ -111,19 +100,18 @@ class Data:
 
     def fit(self):
         pass
-
+#fit that accepts data
 class CheckPrefix:
     def __init__(self, options, parameters):
         self.options = options
         self.parameters = parameters
         pass
-
+#class function of config
 class SaveData:
     def __init__(self, options, parameters, , ,)
         pass
+#class function in fitter class
 
-=======
->>>>>>> 44dd23eb0da3303c2de6679e505e3742b5d0ba94
 #-------------------------------------------------------
 # We'll write the main function here
 
@@ -131,8 +119,5 @@ def main():
     pass
 
 if __name__ == '__main__':
-<<<<<<< HEAD
-main()
-=======
+
     main()
->>>>>>> 44dd23eb0da3303c2de6679e505e3742b5d0ba94
