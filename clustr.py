@@ -8,15 +8,19 @@ class Config(object):
     - scale_luminosity: Divide luminosity columns by E(z)^-3/2
     '''
     _required_keys = []
-
-    def __init__(self, config_file):
+    _default_run_name = 'clustr'
+    def __init__(self, config_file, run_options):
         with open(config_file, 'r') as stream:
 
             self._config = yaml.safe_load(stream)
-
+# TODO: was prefix (in arparse) changing to run_name
         # TODO: Any logical parsing here:
         #...
-
+        self.run_options = run_options
+        if run_options.run_name is None:
+            self.run_name = _default_run_name
+        else:
+            self.run_name = run_options.run_name
         return
 
     # The following are so we can access the config
@@ -38,15 +42,40 @@ class Config(object):
 
     def __repr__(self):
         return repr(self._config.__dict__)
+    def run_name()
 
-class CheckDependencies:
-    '''
-    check if all required packages are
-    installed, and, if not, ask if these packages should be downloaded.
-    Otherwise exists program.
-    '''
-    def __init__(self,):
-        pass
+class ArgumentParser:
+    def __init__(self,)
+
+    def parse_opts():
+    ''' Parse command line arguments '''
+    parser = argparse.ArgumentParser()
+    # Required argument for catalog
+    parser.add_argument('catalog', help='FITS catalog to open')
+    # Required arguement for axes
+    valid_axes = ['l500kpc', 'lr2500', 'lr500', 'lr500cc', 't500kpc', 'tr2500',
+                  'tr500', 'tr500cc', 'lambda']
+    parser.add_argument('y', help='what to plot on y axis', choices=valid_axes)
+    parser.add_argument('x', help='what to plot on x axis', choices=valid_axes)
+    # Optional argument for file prefix
+    parser.add_argument('-p', '--prefix', help='prefix for output file')
+    # Optional arguments for any flag cuts
+    # FIX: in the future, make an allowed choices vector work!
+    parser.add_argument(
+        '-f',
+        '--flags',
+        nargs='+',
+        type=str,
+        help=(
+            'Input any desired flag cuts as a list of flag names '
+            '(with "" and no spaces!)'
+        )
+    )
+    # Optional argument for which files to be saved
+    # FIX: Implement!
+
+    return parser.parse_args()
+
 
 class Ez: #function
     def __init__(self,parameters,z):
@@ -57,12 +86,6 @@ class Ez: #function
     def show(self):
         return np.sqrt(self.Om*(1.+self.z)**3 + h)
 
-class FitsLabel:
-    def __init__(self,labels,axis_name):
-        self.labels = labels
-        self.axis_name = axis_name
-    def show(self):
-        return self.labels[self.axis_name]
 
 class Flag:
     def __init__(self,flag,data,options,boolean,cut_or_range):
@@ -74,11 +97,24 @@ class Flag:
     def check_flag(self):
         pass
 #inheritance would be good here
+class Catalog:
+    column_labels = {
+        'lambda': 'lambda',
+        'l500kpc': '500_kiloparsecs_band_lumin',
+        'lr2500': 'r2500_band_lumin',
+        'lr500': 'r500_band_lumin',
+        'lr500cc': 'r500_core_cropped_band_lumin',
+        't500kpc': '500_kiloparsecs_temperature',
+        'tr2500': 'r2500_temperature',
+        'tr500': 'r500_temperature',
+        'tr500cc': 'r500_core_cropped_temperature'
+    }
+    def __init__():
+        pass
     def create_cuts(self):
         pass
 
     def get_data(self):
-
 
         return (x, y, x_err, y_err)
 
@@ -91,7 +127,7 @@ class Data:
         self.x_obs = x_obs
         self.y_obs = y_obs
         self.nmc = nmc
-#pass in a file name not all the variables ^
+
     def scale(self):
         log_x = np.log(self.x)
         x_piv = np.median(log_x)
@@ -101,12 +137,15 @@ class Data:
     def fit(self):
         pass
 #fit that accepts data
-class CheckPrefix:
+#replace check_prefix with run_name
+def run_name:
     def __init__(self, options, parameters):
         self.options = options
         self.parameters = parameters
         pass
 #class function of config
+class Fitter:
+    pass
 class SaveData:
     def __init__(self, options, parameters, , ,)
         pass
@@ -115,8 +154,49 @@ class SaveData:
 #-------------------------------------------------------
 # We'll write the main function here
 
-def main():
-    pass
+def main():  # pylint: disable=missing-docstring
+
+    # Parse all inputted options, regardless of param.config file
+    options = parse_opts()
+
+    # Set useful parameters from configure file
+    config_file = 'param.config'
+    set_parameters(config_file)
+
+    # Set default prefix if none entered
+    check_prefix(options)
+
+    print '\nInputted options: {}'.format(options)
+    print '\nGrabbing data...'
+
+    # Grab and process data from catalog, including flag removal
+    data_obs = get_data(options)
+
+    # Scale for linear fitting
+    scaled_data = scale(*data_obs)
+
+    print '\nFitting data...'
+
+    # Fit data using linmix, lrgs, or both
+    kelly_scaled_fit, mantz_scaled_fit = fit(*scaled_data[:4])
+    (x_min, x_max) = (np.min(scaled_data[0]), np.max(scaled_data[0]))
+
+    print '\nMaking plots...'
+
+    # Make all desired plots
+    plotlib.make_plots(
+        options, PARAMETERS, METHODS, data_obs, kelly_scaled_fit,
+        mantz_scaled_fit, scaled_data[4], x_min, x_max
+    )
+
+    if PARAMETERS['save_data'] is True:
+        print '\nSaving data...'
+        save_data(options, PARAMETERS, METHODS, data_obs, kelly_scaled_fit,
+                  mantz_scaled_fit, scaled_data[4], x_min, x_max)
+
+    print '\nDone!'
+
+
 
 if __name__ == '__main__':
 
