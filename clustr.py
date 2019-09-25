@@ -77,44 +77,161 @@ class ArgumentParser:
     return parser.parse_args()
 
 
-class Ez: #function
-    def __init__(self,parameters,z):
-        self.z = z
-        self.Om = parameters['Om']
-        self.H_0 = parameters['H_O']
-        h = self.H_0/100
-    def show(self):
-        return np.sqrt(self.Om*(1.+self.z)**3 + h)
+def Ez(z)
+    Om = 0.3
+    H_0 = 0.7
+    h = H_0/100
+    return np.sqrt(Om*(1.+z)**3 + h)
 
 
 class Flag:
-    def __init__(self,flag,data,options,boolean,cut_or_range):
-        self.flag = flags
-        self.data = data
+    def __init__(self,flag,boolean,cut_or_range):
+        self.flag = flag
         self.boolean = boolean
         self.cut_or_range = cut_or_range
-        self.options = options
     def check_flag(self):
-        pass
-#inheritance would be good here
-class Catalog:
-    column_labels = {
-        'lambda': 'lambda',
-        'l500kpc': '500_kiloparsecs_band_lumin',
-        'lr2500': 'r2500_band_lumin',
-        'lr500': 'r500_band_lumin',
-        'lr500cc': 'r500_core_cropped_band_lumin',
-        't500kpc': '500_kiloparsecs_temperature',
-        'tr2500': 'r2500_temperature',
-        'tr500': 'r500_temperature',
-        'tr500cc': 'r500_core_cropped_temperature'
-    }
-    def __init__():
-        pass
-    def create_cuts(self):
-        pass
+        if flag.lower() in boolean:
+            try:
+                #what would I get from this statement?
+                bool_type = config.bools[flag+'_bool_type']
+            except KeyError:
+                raise TypeError()
+            if bool_type is True or bool_type is False:
+                return 'bool'
+            else :
+                raise TypeError()
+        elif flag.lower() in cut_or_range:
+            try:
+                cut_type = config.bools[flag+'_bool_type']
+            except KeyError:
+                try:
+                    range_type = config.ranges[flag+'_range_type']
+                except KeyError:
+                    raise TypeError()
+                if range_type == 'inside' or range_type == 'outside':
+                    return 'range'
+                else:
+                    raise TypeError()
+        if cut_type == 'above' or cut_type == 'below':
+                return 'cutoff'
+        else:
+            raise TypeError()
+    raise TypeError()
 
+#inheritance would be good here
+#would inheritance be good here since the only common input is flags?
+class Catalog(Flag):
+    #no need for 2 labels anymore
+    column_labels = {
+        'lambda',
+        'l500kpc',
+        'lr2500',
+        'lr500',
+        'lr500cc',
+        't500kpc',
+        'tr2500',
+        'tr500',
+        'tr500cc'
+    }
+    def __init__(self,data,flags,flag,run_options):
+        self.data = data
+        self.flags = flags
+        self.run_options = run_options
+flag_class = Flag(INPUT)
+    def create_cuts(self):
+        mask = np.zeros(len(data), dtype=bool)
+        for flag in flags:
+            try:
+                flag_type = flag_class.check_flag()
+            except TypeError()
+                continue
+            if flag_type == 'bool':
+                bool_type = config.bools[flag+'_bool_type']
+                pass
+                if isinstance(bool_type, bool):
+                    #cut = data[flag] ==
+                    pass
+                else:
+                    #print()
+                    continue
+            elif flag_type == 'cutoff': #why is this highlighted for if but not elif?
+                cutoff = config.cutoffs[flag+'_cut']
+                cut_type = config.cutoffs[flag+'_cut_type']
+
+                if cut_type == 'above':
+                    cut = data[flag] < cutoff
+                elif cut_type == 'below':
+                    cut = data[flag] > cutoff
+                else:
+                    print()
+                    continue
+            elif flag_type == 'range':
+                fmin = config.ranges[flag+'_range_min']
+                fmax = config.ranges[flag+'_range_max']
+                range_type = config.ranges[flag+'_range_type']
+                if range_type == 'inside':
+                    cut = (data[flag] < fmax) & (data[flag > fmin])
+                elif range_type == 'outside':
+                    cut = (data[flag] > fmin) & (data[flag] < fmax)
+                else:
+                    print()
+                    continue
+            mask |= cut
+            print()
     def get_data(self):
+        #hdulist = fits.open(options.catalog)
+        #data = hdulist[1].data
+        #
+        label_x = run_options.x
+        label_y = run_options.y
+        x = data[label_x]
+        y = data[label_y]
+
+        # Number of original data
+        N = np.size(x)
+        #where does the l come from? should it also be lambda?
+        if label_x[0] == 'l' and label_y != 'lambda':
+            x /= Ez(data['redshift'])
+        if label_y[0] == 'l' and label_x != 'lambda':
+            y /= Ez(data['redshift'])
+
+        #how should error be more accurate here?
+
+        flags = options.flags
+        if flags is not None:
+            # FIX: Should be more error handling than this!
+            # FIX: Should write method to ensure all the counts are what we expect
+
+            mask = create_cuts(self)
+            x[mask] = -1
+            y[mask] = -1
+
+            print (
+                'NOTE: `Removed` counts may be redundant, '
+                'as some data fail multiple flags.'
+            )
+
+            # Take rows with good data, and all flagged data removed
+            good_rows = np.all([x != -1, y != -1], axis=0)
+
+            x = x[good_rows]
+            y = y[good_rows]
+            x_err = x_err[good_rows]
+            y_err = y_err[good_rows]
+
+            print 'Accepted {} data out of {}'.format(np.size(x), N)
+        if np.size(x) == 0:
+            print (
+                '\nWARNING: No data survived flag removal. '
+                'Suggest changing flag parameters in `param.config`.'
+                '\n\nClosing program...\n'
+            )
+            raise SystemExit(2)
+
+        print 'mean x error:', np.mean(x_err)
+        print 'mean y error:', np.mean(y_err)
+
+        hdulist.close()
 
         return (x, y, x_err, y_err)
 
@@ -134,18 +251,21 @@ class Data:
         log_y = np.log(self.y)
         return (log_x-x_piv, log_y, x_err/self.x, y_err/self.y, x_piv)
 
-    def fit(self):
-        pass
-#fit that accepts data
+
+#fit that accepts data/ should that go here or in the fitter class?
+
 #replace check_prefix with run_name
+#dont believe this is needed anymore?
 def run_name:
-    def __init__(self, options, parameters):
+    def __init__(self, run_options, parameters):
         self.options = options
         self.parameters = parameters
         pass
 #class function of config
+#inheritance here (from Data class)
 class Fitter:
     pass
+#inheritance here (from Data/Fitter class)
 class SaveData:
     def __init__(self, options, parameters, , ,)
         pass
