@@ -21,8 +21,7 @@ parser.add_argument(
 type = str,
 help = 'the filename of the desired plotting file to run'
 )
-#is it looping? what does "line" mean? what is line[0:2] pulling out?
-#whats the point
+
 
 class Config:
     def __init__(self,config_filename):
@@ -30,7 +29,7 @@ class Config:
         return
 
     def rlf(self):
-        #from spencers code. Gets rid of anything commented out.
+        #from spencers code.
         with open(confing_filename) as config_file:
             for line in config_file:
                 # Ignore empty lines and comments:
@@ -45,7 +44,8 @@ class Config:
                 line = line.split(':')
                 name, value = line[0], unicode(line[1])
         #convert strings in the param file to booleans, int, or float
-
+        #find way to access the updated "config" that isn't done with universal variables
+        #what will the format of config be?
 
 class Catalog:
     #read/load the fits table that contains the data
@@ -60,7 +60,7 @@ class Catalog:
         return
 
     def _load_catalog(self):
-        self.table = Table.read(self.file_name)
+        self.cat_table = Table.read(self.file_name)
 
         # could do other things...
 
@@ -76,7 +76,7 @@ class Catalog:
 
         if ylog is True:
             plt.yscale('log')
-        plt.gcf().set_size_inches(size, size)
+        plt.gcf().set_size_inches(size, size) #get current figure then set size
         plt.show()
 
         return
@@ -93,8 +93,8 @@ class Data:
         self.catalog = catalog
         return
     def run_config(self):
-        results = config.rlf #run Config's function rlf and get the results. maybe?
-        return results
+        config_results = config.rlf #run Config's function rlf and get the results. maybe?
+        return config_results
     def open_catalog(self): #run Catalog's _load_catolog to have to table in this class
         table_cat = catalog._load_catolog
         return table_cat
@@ -109,14 +109,15 @@ class Fitter:
         self.plotting_filename = plotting_filename
         return
     def fit(self):
-
+        #should we use the plotting method in plotlib, write a different one in a similar file,
+        #or write it directly into the code?
         pass
 
 
 def main():
 
     args = parser.parse_args()
-#what is "run_options" should it be an input of Config?
+
     config_filename = args.config_filename
 
     config = Config(config_filename) #(2)
