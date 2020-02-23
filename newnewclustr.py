@@ -5,47 +5,59 @@ from astropy.table import Table
 import numpy as np
 #import reglib  # Regression library
 import matplotlib.pyplot as plt
-parser = ArgumentParser()
-parser.add_argument(
-'config_filename',
-type = str,
-help = 'the filename of the desired config to run'
-)
-parser.add_argument(
-'cat_filename',
-type = str,
-help = 'the filename of the desired catalog to open'
-)
-parser.add_argument(
-'plotting_filename',
-type = str,
-help = 'the filename of the desired plotting file to run'
-)
 
+class ArgumentParser:
+    def __inti__(self,):
+    
+    def parse_options(self):
+
+    parser = ArgumentParser()
+    parser.add_argument('config_filename', type = str, help = 'the filename of the desired config to run')
+    parser.add_argument('cat_filename', type = str, help = 'the filename of the desired catalog to open')
+    #parser.add_argument('plotting_filename', type = str, help = 'the filename of the desired plotting file to run')
+    valid_axes = ['1500kpc', 'lr2500', 'lr500', 'lr500cc', 't500kpc', 'tr2500', 'tr500', 'tr500cc, 'lambda']
+    parser.add_argument('x', help="x-axis of plot", choices=valid_axes)
+    parser.add_argument('y', help="y-axis of plot", choices=valid_axes)
+    parser.add_argument('-p', help='name of output file')
+    return parser.parse_arg()
 
 class Config:
-    def __init__(self,config_filename):
-        self.config_filename = config_filename
+
+    _required_keys=[]
+    _default_run_name = 'clustr'
+    def __init__(self,config_file, run_options):
+        with open(config_file, 'r') as stream:
+
+            self.config_file = yaml.safe_load(stream)      
+
+        self.run_options = run_options
+        if run_options.run_name is None:
+            self.run_name = _default_run_name
+        else:
+            self.runname = run_options.run_name
         return
 
-    def rlf(self):
-        #from spencers code.
-        with open(confing_filename) as config_file:
-            for line in config_file:
-                # Ignore empty lines and comments:
-                if line[0:2] == '\n':
-                    continue
-                if line[0] == '#':
-                    continue
-                line.strip()
-                line = line.split('#')[0]
-                # Remove whitespace and interpret Name:Value pairs:
-                line = ''.join(line.split())
-                line = line.split(':')
-                name, value = line[0], unicode(line[1])
-        #convert strings in the param file to booleans, int, or float
-        #find way to access the updated "config" that isn't done with universal variables
-        #what will the format of config be?
+    def __getitem__(self,key):
+        return self._config.__dict__[key]
+    
+    def __setitem(self, key, value):
+        self._config._dict_[key] = value
+    
+    def __delitem__(self,key):
+        del self._config.__dict__[key]
+    
+    def __contain__(slef, key):
+        return key in seelf._config.__dict__
+
+    def __len__(self):
+        return len(self._config.__dict__) 
+    
+    def __repr__(self):
+        return repr(self._config.__dict__)
+    
+    def run_name()
+pass
+
 
 class Catalog:
     #read/load the fits table that contains the data
@@ -53,7 +65,6 @@ class Catalog:
         self.file_name = cat_file_name
 
         #self.property = config.property # for example
-        #,,,
 
         self._load_catalog()
 
