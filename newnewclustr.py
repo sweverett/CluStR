@@ -5,21 +5,31 @@ from astropy.table import Table
 import numpy as np
 #import reglib  # Regression library
 import matplotlib.pyplot as plt
-
+''' Parse command line arguments '''
+parser = argparse.ArgumentParser()
+# Required argument for catalog
+parser.add_argument('catalog', help='FITS catalog to open')
+# Required arguement for axes
+valid_axes = ['l500kpc', 'lr2500', 'lr500', 'lr500cc', 't500kpc', 'tr2500',
+              'tr500', 'tr500cc', 'lambda']
+parser.add_argument('y', help='what to plot on y axis', choices=valid_axes)
+parser.add_argument('x', help='what to plot on x axis', choices=valid_axes)
+# Optional argument for file prefix
+parser.add_argument('-p', '--prefix', help='prefix for output file')
+# Optional arguments for any flag cuts
+# FIX: in the future, make an allowed choices vector work!
+parser.add_argument(
+    '-f',
+    '--flags',
+    nargs='+',
+    type=str,
+    help=(
+        'Input any desired flag cuts as a list of flag names '
+        '(with "" and no spaces!)'
+    )
+)
 class ArgumentParser:
     def __inti__(self,):
-
-    def parse_options(self):
-
-    parser = ArgumentParser()
-    parser.add_argument('config_filename', type = str, help = 'the filename of the desired config to run')
-    parser.add_argument('cat_filename', type = str, help = 'the filename of the desired catalog to open')
-    #parser.add_argument('plotting_filename', type = str, help = 'the filename of the desired plotting file to run')
-    valid_axes = ['1500kpc', 'lr2500', 'lr500', 'lr500cc', 't500kpc', 'tr2500', 'tr500', 'tr500cc, 'lambda']
-    parser.add_argument('x', help="x-axis of plot", choices=valid_axes)
-    parser.add_argument('y', help="y-axis of plot", choices=valid_axes)
-    parser.add_argument('-p', help='name of output file')
-    return parser.parse_arg()
 
 class Config:
 
@@ -77,19 +87,19 @@ class Catalog:
         # could do other things...
 
         return
+    #just for fun!
+    #def plot_data(self, xcol, ycol, size=8, ylog=False):
+        #x = self.table[xcol]
+        #y = self.table[ycol]
 
-    def plot_data(self, xcol, ycol, size=8, ylog=False):
-        x = self.table[xcol]
-        y = self.table[ycol]
+        #plt.scatter(x, y)
+        #plt.xlabel(xcol)
+        #plt.ylabel(ycol)
 
-        plt.scatter(x, y)
-        plt.xlabel(xcol)
-        plt.ylabel(ycol)
-
-        if ylog is True:
-            plt.yscale('log')
-        plt.gcf().set_size_inches(size, size) #get current figure then set size
-        plt.show()
+        #if ylog is True:
+        #    plt.yscale('log')
+        #plt.gcf().set_size_inches(size, size) #get current figure then set size
+        #plt.show()
 
         return
     def Ez(z)
@@ -121,7 +131,7 @@ class Data:
         label_x = self.run_options[x] #how to access ?
         label_y = self.run_options[y] #
         x = self.data[label_x] #How to access?
-        y = self.data[label_y] #how to access? 
+        y = self.data[label_y] #how to access?
 
         # Number of original data
         N = np.size(x)
@@ -201,7 +211,7 @@ def main():
     fit = Fitter.fit(viable_data) #(6)
 
     # Just for fun!
-    catalog.plot_data('lambda', 'r500_band_lumin', ylog=True)
+    #catalog.plot_data('lambda', 'r500_band_lumin', ylog=True)
 
 if __name__ == '__main__':
 
