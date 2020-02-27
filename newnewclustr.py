@@ -5,6 +5,7 @@ from astropy.table import Table
 import numpy as np
 #import reglib  # Regression library
 import matplotlib.pyplot as plt
+
 ''' Parse command line arguments '''
 parser = argparse.ArgumentParser()
 # Required argument for catalog
@@ -18,18 +19,11 @@ parser.add_argument('x', help='what to plot on x axis', choices=valid_axes)
 parser.add_argument('-p', '--prefix', help='prefix for output file')
 # Optional arguments for any flag cuts
 # FIX: in the future, make an allowed choices vector work!
-parser.add_argument(
-    '-f',
-    '--flags',
-    nargs='+',
-    type=str,
-    help=(
+parser.add_argument('-f', '--flags', nargs='+', type=str, help=(
         'Input any desired flag cuts as a list of flag names '
         '(with "" and no spaces!)'
     )
 )
-class ArgumentParser:
-    def __inti__(self,):
 
 class Config:
 
@@ -45,20 +39,20 @@ class Config:
         if run_options.run_name is None:
             self.run_name = _default_run_name
         else:
-            self.runname = run_options.run_name
+            self.run_name = run_options.run_name
         return
 
     def __getitem__(self,key):
         return self._config.__dict__[key]
 
-    def __setitem(self, key, value):
-        self._config._dict_[key] = value
+    def __setitem__(self, key, value):
+        self._config.__dict__[key] = value
 
     def __delitem__(self,key):
         del self._config.__dict__[key]
 
-    def __contain__(slef, key):
-        return key in seelf._config.__dict__
+    def __contain__(self, key):
+        return key in self._config.__dict__
 
     def __len__(self):
         return len(self._config.__dict__)
@@ -102,11 +96,11 @@ class Catalog:
         #plt.show()
 
         return
-    def Ez(z)
-        Om = 0.3
-        H_0 = 0.7
-        h = H_0/100
-        return np.sqrt(Om*(1.+z)**3 + h
+def Ez(z)
+    Om = 0.3
+    H_0 = 0.7
+    h = H_0/100
+    return np.sqrt(Om*(1.+z)**3 + h
 #class Flag:
     #def __init__(self,catalog):
         #self.catalog = catalog
@@ -114,7 +108,7 @@ class Catalog:
 class Data:
     #take data frome the Catalog Class and pick rows and columns we want to fit
     #dont call flag in main call it here
-    def __init__(self,config, catalog):
+    def __init__(self, config, catalog):
         self.config = config
         self.catalog = catalog
         return
