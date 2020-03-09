@@ -1,7 +1,37 @@
-#-------------------------------------------------------
-# We'll define useful classes here
+from argparse import ArgumentParser
+import os
+import cPickle as pickle
+from astropy.table import Table
+import numpy as np
+import reglib  # Regression library
+import matplotlib.pyplot as plt
 
-class Config(object):
+# We'll define useful classes here
+''' Parse command line arguments '''
+parser = argparse.ArgumentParser()
+# Required argument for catalog
+parser.add_argument('catalog', help='FITS catalog to open')
+# Required arguement for axes
+valid_axes = ['l500kpc', 'lr2500', 'lr500', 'lr500cc', 't500kpc', 'tr2500',
+              'tr500', 'tr500cc', 'lambda']
+parser.add_argument('y', help='what to plot on y axis', choices=valid_axes)
+parser.add_argument('x', help='what to plot on x axis', choices=valid_axes)
+# Optional argument for file prefix
+parser.add_argument('-p', '--prefix', help='prefix for output file')
+# Optional arguments for any flag cuts
+# FIX: in the future, make an allowed choices vector work!
+parser.add_argument(
+    '-f',
+    '--flags',
+    nargs='+',
+    type=str,
+    help=(
+        'Input any desired flag cuts as a list of flag names '
+        '(with "" and no spaces!)'
+    )
+)
+
+class Config:
     '''
     Used for CluStR config processing
     Some options:
@@ -13,9 +43,7 @@ class Config(object):
         with open(config_file, 'r') as stream:
 
             self._config = yaml.safe_load(stream)
-# TODO: was prefix (in arparse) changing to run_name
-        # TODO: Any logical parsing here:
-        #...
+
         self.run_options = run_options
         if run_options.run_name is None:
             self.run_name = _default_run_name
@@ -43,38 +71,40 @@ class Config(object):
     def __repr__(self):
         return repr(self._config.__dict__)
     def run_name()
+pass
 
-class ArgumentParser:
-    def __init__(self,)
+class Catalog:
+    #read/load the fits table that contains the data
+    def __init__(self,cat_file_name,config):
+        self.file_name = cat_file_name
 
-    def parse_opts():
-    ''' Parse command line arguments '''
-    parser = argparse.ArgumentParser()
-    # Required argument for catalog
-    parser.add_argument('catalog', help='FITS catalog to open')
-    # Required arguement for axes
-    valid_axes = ['l500kpc', 'lr2500', 'lr500', 'lr500cc', 't500kpc', 'tr2500',
-                  'tr500', 'tr500cc', 'lambda']
-    parser.add_argument('y', help='what to plot on y axis', choices=valid_axes)
-    parser.add_argument('x', help='what to plot on x axis', choices=valid_axes)
-    # Optional argument for file prefix
-    parser.add_argument('-p', '--prefix', help='prefix for output file')
-    # Optional arguments for any flag cuts
-    # FIX: in the future, make an allowed choices vector work!
-    parser.add_argument(
-        '-f',
-        '--flags',
-        nargs='+',
-        type=str,
-        help=(
-            'Input any desired flag cuts as a list of flag names '
-            '(with "" and no spaces!)'
-        )
-    )
-    # Optional argument for which files to be saved
-    # FIX: Implement!
+        #self.property = config.property # for example
 
-    return parser.parse_args()
+        self._load_catalog()
+
+        return
+
+    def _load_catalog(self):
+        self.cat_table = Table.read(self.file_name)
+
+        # could do other things...
+
+        return
+    #just for fun!
+    #def plot_data(self, xcol, ycol, size=8, ylog=False):
+        #x = self.table[xcol]
+        #y = self.table[ycol]
+
+        #plt.scatter(x, y)
+        #plt.xlabel(xcol)
+        #plt.ylabel(ycol)
+
+        #if ylog is True:
+        #    plt.yscale('log')
+        #plt.gcf().set_size_inches(size, size) #get current figure then set size
+        #plt.show()
+
+        return
 
 
 def Ez(z)
@@ -84,108 +114,27 @@ def Ez(z)
     return np.sqrt(Om*(1.+z)**3 + h)
 
 
-class Flag:
-    def __init__(self,flag,boolean,cut_or_range):
-        self.flag = flag
-        self.boolean = boolean
-        self.cut_or_range = cut_or_range
-    def check_flag(self):
-        if flag.lower() in boolean:
-            try:
-                #what would I get from this statement?
-                bool_type = config.bools[flag+'_bool_type']
-            except KeyError:
-                raise TypeError()
-            if bool_type is True or bool_type is False:
-                return 'bool'
-            else :
-                raise TypeError()
-        elif flag.lower() in cut_or_range:
-            try:
-                cut_type = config.bools[flag+'_bool_type']
-            except KeyError:
-                try:
-                    range_type = config.ranges[flag+'_range_type']
-                except KeyError:
-                    raise TypeError()
-                if range_type == 'inside' or range_type == 'outside':
-                    return 'range'
-                else:
-                    raise TypeError()
-        if cut_type == 'above' or cut_type == 'below':
-                return 'cutoff'
-        else:
-            raise TypeError()
-    raise TypeError()
-
-#inheritance would be good here
-#would inheritance be good here since the only common input is flags?
-class Catalog(Flag):
-    #no need for 2 labels anymore
-    column_labels = {
-        'lambda',
-        'l500kpc',
-        'lr2500',
-        'lr500',
-        'lr500cc',
-        't500kpc',
-        'tr2500',
-        'tr500',
-        'tr500cc'
-    }
-    def __init__(self,data,flags,flag,run_options):
-        self.data = data
-        self.flags = flags
-        self.run_options = run_options
-flag_class = Flag(INPUT)
-    def create_cuts(self):
-        mask = np.zeros(len(data), dtype=bool)
-        for flag in flags:
-            try:
-                flag_type = flag_class.check_flag()
-            except TypeError()
-                continue
-            if flag_type == 'bool':
-                bool_type = config.bools[flag+'_bool_type']
-                pass
-                if isinstance(bool_type, bool):
-                    #cut = data[flag] ==
-                    pass
-                else:
-                    #print()
-                    continue
-            elif flag_type == 'cutoff': #why is this highlighted for if but not elif?
-                cutoff = config.cutoffs[flag+'_cut']
-                cut_type = config.cutoffs[flag+'_cut_type']
-
-                if cut_type == 'above':
-                    cut = data[flag] < cutoff
-                elif cut_type == 'below':
-                    cut = data[flag] > cutoff
-                else:
-                    print()
-                    continue
-            elif flag_type == 'range':
-                fmin = config.ranges[flag+'_range_min']
-                fmax = config.ranges[flag+'_range_max']
-                range_type = config.ranges[flag+'_range_type']
-                if range_type == 'inside':
-                    cut = (data[flag] < fmax) & (data[flag > fmin])
-                elif range_type == 'outside':
-                    cut = (data[flag] > fmin) & (data[flag] < fmax)
-                else:
-                    print()
-                    continue
-            mask |= cut
-            print()
+class Data:
+    #take data frome the Catalog Class and pick rows and columns we want to fit
+    #dont call flag in main call it here
+    def __init__(self, config, catalog):
+        self.config = config
+        self.catalog = catalog
+        return
+    def run_config(self):
+        config_results = config.rlf #run Config's function rlf and get the results. maybe?
+        return config_results
+    def open_catalog(self): #run Catalog's _load_catolog to have to table in this class
+        table_cat = catalog._load_catolog
+        return table_cat
     def get_data(self):
         #hdulist = fits.open(options.catalog)
         #data = hdulist[1].data
         #
-        label_x = run_options.x
-        label_y = run_options.y
-        x = data[label_x]
-        y = data[label_y]
+        label_x = self.run_options[x]
+        label_y = self.run_options[y]
+        x = self.data[label_x]
+        y = self.data[label_y]
 
         # Number of original data
         N = np.size(x)
@@ -194,17 +143,16 @@ flag_class = Flag(INPUT)
             x /= Ez(data['redshift'])
         if label_y[0] == 'l' and label_x != 'lambda':
             y /= Ez(data['redshift'])
+ERROR STUFF
 
-        #how should error be more accurate here?
-
-        flags = options.flags
+        flags = self.run_options[flags]
         if flags is not None:
             # FIX: Should be more error handling than this!
             # FIX: Should write method to ensure all the counts are what we expect
 
-            mask = create_cuts(self)
-            x[mask] = -1
-            y[mask] = -1
+            mask = f.create_cuts(self)
+            self.x[mask] = -1
+            self.y[mask] = -1
 
             print (
                 'NOTE: `Removed` counts may be redundant, '
@@ -213,12 +161,10 @@ flag_class = Flag(INPUT)
 
             # Take rows with good data, and all flagged data removed
             good_rows = np.all([x != -1, y != -1], axis=0)
-
             x = x[good_rows]
             y = y[good_rows]
             x_err = x_err[good_rows]
             y_err = y_err[good_rows]
-
             print 'Accepted {} data out of {}'.format(np.size(x), N)
         if np.size(x) == 0:
             print (
@@ -233,89 +179,51 @@ flag_class = Flag(INPUT)
 
         hdulist.close()
 
-        return (x, y, x_err, y_err)
-
-class Data:
-    def __init__(self,x, y, x_err, y_err, x_obs, y_obs, nmc):
-        self.x = x
-        self.y = y
-        self.x_err = x_err
-        self.y_err = y_err
-        self.x_obs = x_obs
-        self.y_obs = y_obs
-        self.nmc = nmc
-
-    def scale(self):
-        log_x = np.log(self.x)
-        x_piv = np.median(log_x)
-        log_y = np.log(self.y)
-        return (log_x-x_piv, log_y, x_err/self.x, y_err/self.y, x_piv)
+        return (x, y, x_err, y_err) #put all into 1 and return 'd'
 
 
-#fit that accepts data/ should that go here or in the fitter class?
+    #def scale(self):  potentially add this function?
+        #log_x = np.log(self.x)
+        #x_piv = np.median(log_x)
+        #log_y = np.log(self.y)
+        #return (log_x-x_piv, log_y, x_err/self.x, y_err/self.y, x_piv)
 
-#replace check_prefix with run_name
-#dont believe this is needed anymore?
-def run_name:
-    def __init__(self, run_options, parameters):
-        self.options = options
-        self.parameters = parameters
+
+
+class Fitter(object):
+    def __init__(self, viable_data, plotting_filename):
+        self.viable_data= viable_data
+        self.plotting_filename = plotting_filename
+        return
+    def fit(self):
+        #should we use the plotting method in plotlib, write a different one in a similar file,
+        #or write it directly into the code?
         pass
-#class function of config
-#inheritance here (from Data class)
-class Fitter:
-    pass
-#inheritance here (from Data/Fitter class)
-class SaveData:
-    def __init__(self, options, parameters, , ,)
         pass
-#class function in fitter class
 
-#-------------------------------------------------------
-# We'll write the main function here
+class SaveData(Fitter):
+    def __init__(self, run_options, parameters, , ,)
+        pass
 
-def main():  # pylint: disable=missing-docstring
 
-    # Parse all inputted options, regardless of param.config file
-    options = parse_opts()
+def main():
 
-    # Set useful parameters from configure file
-    config_file = 'param.config'
-    set_parameters(config_file)
+    args = parser.parse_args()
 
-    # Set default prefix if none entered
-    check_prefix(options)
+    config_filename = args.config_filename
 
-    print '\nInputted options: {}'.format(options)
-    print '\nGrabbing data...'
+    config = Config(config_filename) #(2)
 
-    # Grab and process data from catalog, including flag removal
-    data_obs = get_data(options)
+    cat_file_name = args.cat_filename
 
-    # Scale for linear fitting
-    scaled_data = scale(*data_obs)
+    catalog = Catalog(cat_file_name, config) #(3)
 
-    print '\nFitting data...'
+    viable_data = Data(config, catalog) #(4)
 
-    # Fit data using linmix, lrgs, or both
-    kelly_scaled_fit, mantz_scaled_fit = fit(*scaled_data[:4])
-    (x_min, x_max) = (np.min(scaled_data[0]), np.max(scaled_data[0]))
+    fit = Fitter.fit(viable_data) #(6)
 
-    print '\nMaking plots...'
-
-    # Make all desired plots
-    plotlib.make_plots(
-        options, PARAMETERS, METHODS, data_obs, kelly_scaled_fit,
-        mantz_scaled_fit, scaled_data[4], x_min, x_max
-    )
-
-    if PARAMETERS['save_data'] is True:
-        print '\nSaving data...'
-        save_data(options, PARAMETERS, METHODS, data_obs, kelly_scaled_fit,
-                  mantz_scaled_fit, scaled_data[4], x_min, x_max)
-
-    print '\nDone!'
-
+    # Just for fun!
+    #catalog.plot_data('lambda', 'r500_band_lumin', ylog=True)
 
 
 if __name__ == '__main__':
