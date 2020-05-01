@@ -179,7 +179,7 @@ ERROR STUFF
 
         hdulist.close()
 
-        return (x, y, x_err, y_err) #put all into 1 and return 'd'
+        return [x, y, x_err, y_err]; #put all into 1 and return 'd'
 
 
     #def scale(self):  potentially add this function?
@@ -192,12 +192,18 @@ ERROR STUFF
 
 class Fitter(object):
     def __init__(self, viable_data, plotting_filename):
-        self.viable_data= viable_data
+        self.viable_data = viable_data
         self.plotting_filename = plotting_filename
         return
     def fit(self):
         #should we use the plotting method in plotlib, write a different one in a similar file,
         #or write it directly into the code?
+        x_obs = viable_data[0]
+        y_obs = viable_data[1]
+        x_err = viable_data[2]
+        y_err = viable_data[3]
+
+
         pass
         pass
 
@@ -218,7 +224,9 @@ def main():
 
     catalog = Catalog(cat_file_name, config) #(3)
 
-    viable_data = Data(config, catalog) #(4)
+    data = Data(config, catalog) #(4)
+
+    viable_data = data.get_data #check that this is the correct way to access
 
     fit = Fitter.fit(viable_data) #(6)
 
