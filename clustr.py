@@ -5,6 +5,7 @@ from astropy.table import Table
 import numpy as np
 import reglib  # Regression library
 import matplotlib.pyplot as plt
+import linmix
 
 # We'll define useful classes here
 ''' Parse command line arguments '''
@@ -179,15 +180,7 @@ ERROR STUFF
 
         hdulist.close()
 
-        return [x, y, x_err, y_err]; #put all into 1 and return 'd'
-
-
-    #def scale(self):  potentially add this function?
-        #log_x = np.log(self.x)
-        #x_piv = np.median(log_x)
-        #log_y = np.log(self.y)
-        #return (log_x-x_piv, log_y, x_err/self.x, y_err/self.y, x_piv)
-
+        return [x, y, x_err, y_err] #put all into 1 and return 'd'
 
 
 class Fitter(object):
@@ -196,14 +189,21 @@ class Fitter(object):
         self.plotting_filename = plotting_filename
         return
     def fit(self):
-        #should we use the plotting method in plotlib, write a different one in a similar file,
-        #or write it directly into the code?
         x_obs = viable_data[0]
         y_obs = viable_data[1]
         x_err = viable_data[2]
         y_err = viable_data[3]
+        #run linmix
+        print "Using Kelly Algorithm..."
+        kelly_b, kelly_m, kelly_sig = reglib.run_linmix(x_obs, y_obs, x_err, y_err)
+
+#use before plotting
+        log_x = np.log(self.x_obs)
+        x_piv = np.median(log_x)
+        log_y = np.log(self.y_obs)
 
 
+        return [log_x-x_piv, log_y, x_err/self.x_obs, y_err/self.y_obs, x_piv]
         pass
         pass
 
