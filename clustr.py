@@ -26,10 +26,8 @@ parser.add_argument(
     '--flags',
     nargs='+',
     type=str,
-    help=(
-        'Input any desired flag cuts as a list of flag names '
-        '(with "" and no spaces!)'
-    )
+    help=('Input any desired flag cuts as a list of flag names '
+    '(with "" and no spaces!)')
 )
 
 class Config:
@@ -51,6 +49,7 @@ class Config:
         else:
             self.run_name = run_options.run_name
         return
+        pass
 
     # The following are so we can access the config
     # values similarly to a dict
@@ -71,8 +70,8 @@ class Config:
 
     def __repr__(self):
         return repr(self._config.__dict__)
-    def run_name()
-pass
+    "def run_name():"
+    pass
 
 class Catalog:
     #read/load the fits table that contains the data
@@ -84,6 +83,7 @@ class Catalog:
         self._load_catalog()
 
         return
+        pass
 
     def _load_catalog(self):
         self.cat_table = Table.read(self.file_name)
@@ -91,6 +91,7 @@ class Catalog:
         # could do other things...
 
         return
+        pass
     #just for fun!
     #def plot_data(self, xcol, ycol, size=8, ylog=False):
         #x = self.table[xcol]
@@ -106,13 +107,15 @@ class Catalog:
         #plt.show()
 
         return
+        pass
 
 
-def Ez(z)
+def Ez(z):
     Om = 0.3
     H_0 = 0.7
     h = H_0/100
     return np.sqrt(Om*(1.+z)**3 + h)
+    pass
 
 
 class Data:
@@ -129,9 +132,9 @@ class Data:
         table_cat = catalog._load_catolog
         return table_cat
     def get_data(self):
-        #hdulist = fits.open(options.catalog)
-        #data = hdulist[1].data
-        #
+        hdulist = fits.open(options.catalog)
+        data = hdulist[1].data
+        
         label_x = self.run_options[x]
         label_y = self.run_options[y]
         x = self.data[label_x]
@@ -139,12 +142,12 @@ class Data:
 
         # Number of original data
         N = np.size(x)
+        
         #where does the l come from? should it also be lambda?
         if label_x[0] == 'l' and label_y != 'lambda':
             x /= Ez(data['redshift'])
         if label_y[0] == 'l' and label_x != 'lambda':
             y /= Ez(data['redshift'])
-ERROR STUFF
 
         flags = self.run_options[flags]
         if flags is not None:
@@ -166,8 +169,10 @@ ERROR STUFF
             y = y[good_rows]
             x_err = x_err[good_rows]
             y_err = y_err[good_rows]
-            print 'Accepted {} data out of {}'.format(np.size(x), N)
-        if np.size(x) == 0:
+            print ('Accepted {} data out of {}'.format(np.size(x), N)
+
+        if N == 0:
+
             print (
                 '\nWARNING: No data survived flag removal. '
                 'Suggest changing flag parameters in `param.config`.'
@@ -175,12 +180,13 @@ ERROR STUFF
             )
             raise SystemExit(2)
 
-        print 'mean x error:', np.mean(x_err)
-        print 'mean y error:', np.mean(y_err)
+        print ('mean x error:', np.mean(x_err))
+        print ('mean y error:', np.mean(y_err))
 
         hdulist.close()
 
         return [x, y, x_err, y_err] #put all into 1 and return 'd'
+        pass
 
 
 class Fitter(object):
@@ -197,14 +203,13 @@ class Fitter(object):
         print "Using Kelly Algorithm..."
         kelly_b, kelly_m, kelly_sig = reglib.run_linmix(x_obs, y_obs, x_err, y_err)
 
-#use before plotting
+        #use before plotting
         log_x = np.log(self.x_obs)
         x_piv = np.median(log_x)
         log_y = np.log(self.y_obs)
 
 
         return [log_x-x_piv, log_y, x_err/self.x_obs, y_err/self.y_obs, x_piv]
-        pass
         pass
 
 class SaveData(Fitter):
