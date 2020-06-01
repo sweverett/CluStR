@@ -49,7 +49,6 @@ class Config:
         else:
             self.run_name = run_options.run_name
         return
-        pass
 
     # The following are so we can access the config
     # values similarly to a dict
@@ -71,7 +70,6 @@ class Config:
     def __repr__(self):
         return repr(self._config.__dict__)
     "def run_name():"
-    pass
 
 class Catalog:
     #read/load the fits table that contains the data
@@ -83,7 +81,6 @@ class Catalog:
         self._load_catalog()
 
         return
-        pass
 
     def _load_catalog(self):
         self.cat_table = Table.read(self.file_name)
@@ -91,7 +88,6 @@ class Catalog:
         # could do other things...
 
         return
-        pass
     #just for fun!
     #def plot_data(self, xcol, ycol, size=8, ylog=False):
         #x = self.table[xcol]
@@ -107,7 +103,6 @@ class Catalog:
         #plt.show()
 
         return
-        pass
 
 
 def Ez(z):
@@ -115,7 +110,6 @@ def Ez(z):
     H_0 = 0.7
     h = H_0/100
     return np.sqrt(Om*(1.+z)**3 + h)
-    pass
 
 
 class Data:
@@ -132,6 +126,7 @@ class Data:
         table_cat = catalog._load_catolog
         return table_cat
     def get_data(self):
+        
         hdulist = fits.open(options.catalog)
         data = hdulist[1].data
         
@@ -186,7 +181,6 @@ class Data:
         hdulist.close()
 
         return [x, y, x_err, y_err] #put all into 1 and return 'd'
-        pass
 
 
 class Fitter(object):
@@ -210,12 +204,9 @@ class Fitter(object):
 
 
         return [log_x-x_piv, log_y, x_err/self.x_obs, y_err/self.y_obs, x_piv]
-        pass
 
 class SaveData(Fitter):
     def __init__(self, run_options, parameters, , ,)
-        pass
-
 
 def main():
 
