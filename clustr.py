@@ -164,7 +164,7 @@ class Data:
             y = y[good_rows]
             x_err = x_err[good_rows]
             y_err = y_err[good_rows]
-            print ('Accepted {} data out of {}'.format(np.size(x), N)
+            print ('Accepted {} data out of {}'.format(np.size(x), N))
 
         if N == 0:
 
@@ -194,7 +194,7 @@ class Fitter(object):
         x_err = viable_data[2]
         y_err = viable_data[3]
         #run linmix
-        print "Using Kelly Algorithm..."
+        print ("Using Kelly Algorithm...")
         kelly_b, kelly_m, kelly_sig = reglib.run_linmix(x_obs, y_obs, x_err, y_err)
 
         #use before plotting
@@ -205,8 +205,9 @@ class Fitter(object):
 
         return [log_x-x_piv, log_y, x_err/self.x_obs, y_err/self.y_obs, x_piv]
 
-class SaveData(Fitter):
-    def __init__(self, run_options, parameters, , ,)
+"""class SaveData(Fitter):
+    def __init__(self, run_options, parameters)
+"""
 
 def main():
 
