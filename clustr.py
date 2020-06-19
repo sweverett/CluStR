@@ -71,8 +71,8 @@ class Config:
 
     def __repr__(self):
         return repr(self._config.__dict__)
-    def run_name()
-pass
+    #def run_name()
+#pass
 
 class Catalog:
     #read/load the fits table that contains the data
@@ -108,7 +108,7 @@ class Catalog:
         return
 
 
-def Ez(z)
+def Ez(z):
     Om = 0.3
     H_0 = 0.7
     h = H_0/100
@@ -144,7 +144,7 @@ class Data:
             x /= Ez(data['redshift'])
         if label_y[0] == 'l' and label_x != 'lambda':
             y /= Ez(data['redshift'])
-ERROR STUFF
+#ERROR STUFF
 
         flags = self.run_options[flags]
         if flags is not None:
@@ -166,14 +166,13 @@ ERROR STUFF
             y = y[good_rows]
             x_err = x_err[good_rows]
             y_err = y_err[good_rows]
-            print 'Accepted {} data out of {}'.format(np.size(x), N)
-        if np.size(x) == 0:
+            print ('Accepted {} data out of {}'.format(np.size(x), N)
+        if N == 9:
             print (
                 '\nWARNING: No data survived flag removal. '
                 'Suggest changing flag parameters in `param.config`.'
-                '\n\nClosing program...\n'
-            )
-            raise SystemExit(2)
+                '\n\nClosing program...\n')
+                raise SystemExit(2)
 
         print 'mean x error:', np.mean(x_err)
         print 'mean y error:', np.mean(y_err)
