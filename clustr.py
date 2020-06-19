@@ -9,7 +9,7 @@ import linmix
 
 # We'll define useful classes here
 ''' Parse command line arguments '''
-parser = argparse.ArgumentParser()
+parser = ArgumentParser()
 # Required argument for catalog
 parser.add_argument('catalog', help='FITS catalog to open')
 # Required arguement for axes
@@ -29,6 +29,22 @@ parser.add_argument(
     help=('Input any desired flag cuts as a list of flag names '
     '(with "" and no spaces!)')
 )
+
+def fits_label(axis_name):
+    ''' Get the FITS column label for `axis_name` '''
+    labels = {
+        'lambda': 'lambda',
+        'l500kpc': '500_kiloparsecs_band_lumin',
+        'lr2500': 'r2500_band_lumin',
+        'lr500': 'r500_band_lumin',
+        'lr500cc': 'r500_core_cropped_band_lumin',
+        't500kpc': '500_kiloparsecs_temperature',
+        'tr2500': 'r2500_temperature',
+        'tr500': 'r500_temperature',
+        'tr500cc': 'r500_core_cropped_temperature'
+    }
+
+    return labels[axis_name]
 
 class Config:
     '''
@@ -112,80 +128,81 @@ def Ez(z):
     h = H_0/100
     return np.sqrt(Om*(1.+z)**3 + h)
 
-
 class Data:
+    '''
+    This class takes a catalog table, and grabs only the relevant columns
+    for the desired fit using the config dictionary.
+
+    config is expected to act like a dictionary
+    '''
     #take data frome the Catalog Class and pick rows and columns we want to fit
     #dont call flag in main call it here
     def __init__(self, config, catalog):
-        self.config = config
-        self.catalog = catalog
+        self.get_data(config, catalog)
+
         return
+
     def run_config(self):
         config_results = config.rlf #run Config's function rlf and get the results. maybe?
         return config_results
-    def open_catalog(self): #run Catalog's _load_catolog to have to table in this class
-        table_cat = catalog._load_catolog
-        return table_cat
-    def get_data(self):
 
-        hdulist = fits.open(options.catalog)
-        data = hdulist[1].data
-
-        label_x = self.run_options[x]
-        label_y = self.run_options[y]
-        x = self.data[label_x]
-        y = self.data[label_y]
+    def get_data(self, config, catalog):
+        xlabel = fits_label(config['x_label'])
+        ylabel = fits_label(config['y_label'])
+        self.x = catalog[label_x]
+        self.y = catalog[label_y]
 
         # Number of original data
         N = np.size(x)
 
-        #where does the l come from? should it also be lambda?
-        if label_x[0] == 'l' and label_y != 'lambda':
-            x /= Ez(data['redshift'])
-        if label_y[0] == 'l' and label_x != 'lambda':
-            y /= Ez(data['redshift'])
+        # Scale data if a luminosity
+        if config['scale_x_by_ez']:
+            x /= Ez(catalog['redshift'])
+        if config['scale_y_by_ez']:
+            y /= Ez(catalog['redshift'])
 
-        flags = self.run_options[flags]
-        if flags is not None:
-            # FIX: Should be more error handling than this!
-            # FIX: Should write method to ensure all the counts are what we expect
+        self.x_err = (catalog[xlabel+'_err_low'] + catalog[xlabel+'_err_high']) / 2.
+        self.y_err = (catalog[ylabel+'_err_low'] + catalog[ylabel+'_err_high']) / 2.
 
-            mask = f.create_cuts(self)
-            self.x[mask] = -1
-            self.y[mask] = -1
-
-            print (
-                'NOTE: `Removed` counts may be redundant, '
-                'as some data fail multiple flags.'
-            )
-
-            # Take rows with good data, and all flagged data removed
-            good_rows = np.all([x != -1, y != -1], axis=0)
-            x = x[good_rows]
-            y = y[good_rows]
-            x_err = x_err[good_rows]
-            y_err = y_err[good_rows]
-
-            print ('Accepted {} data out of {}'.format(np.size(x), N))
+        # For now, we expect flag cuts to have already been made
+#        flags = self.run_options[flags]
+#        if flags is not None:
+#            # FIX: Should be more error handling than this!
+#            # FIX: Should write method to ensure all the counts are what we expect
+#
+#            mask = f.create_cuts(self)
+#            self.x[mask] = -1
+#            self.y[mask] = -1
+#
+#            print (
+#                'NOTE: `Removed` counts may be redundant, '
+#                'as some data fail multiple flags.'
+#            )
+#
+#            # Take rows with good data, and all flagged data removed
+#            good_rows = np.all([x != -1, y != -1], axis=0)
+#            x = x[good_rows]
+#            y = y[good_rows]
+#            x_err = x_err[good_rows]
+#            y_err = y_err[good_rows]
+#
+#            print ('Accepted {} data out of {}'.format(np.size(x), N))
 
         if N == 0:
-
             print (
                 '\nWARNING: No data survived flag removal. '
                 'Suggest changing flag parameters in `param.config`.'
                 '\n\nClosing program...\n')
-                raise SystemExit(2)
+            raise SystemExit(2)
 
         print ('mean x error:', np.mean(x_err))
         print ('mean y error:', np.mean(y_err))
 
-        hdulist.close()
-
-        return [x, y, x_err, y_err] #put all into 1 and return 'd'
+        return
 
 
 class Fitter(object):
-    def __init__(self, viable_data, plotting_filename):
+    def __init__(self, data, plotting_filename):
         self.viable_data = viable_data
         self.plotting_filename = plotting_filename
         return
@@ -210,6 +227,9 @@ class Fitter(object):
     def __init__(self, run_options, parameters)
 """
 
+def RunFromCatalog(catalog, xlabel):
+    return
+
 def main():
 
     args = parser.parse_args()
@@ -233,5 +253,4 @@ def main():
 
 
 if __name__ == '__main__':
-
     main()
