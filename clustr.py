@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
 import os
-import cPickle as pickle
+import pickle as cPickle
 from astropy.table import Table
 import numpy as np
 import reglib  # Regression library
