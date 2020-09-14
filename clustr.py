@@ -174,7 +174,7 @@ class Data:
                 '\nWARNING: No data survived flag removal. '
                 'Suggest changing flag parameters in `param.config`.'
                 '\n\nClosing program...\n')
-                raise SystemExit(2)
+            raise SystemExit(2)
 
         print ('mean x error:', np.mean(x_err))
         print ('mean y error:', np.mean(y_err))
