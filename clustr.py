@@ -6,6 +6,7 @@ import numpy as np
 import reglib  # Regression library
 import matplotlib.pyplot as plt
 import linmix
+import yaml
 
 # We'll define useful classes here
 ''' Parse command line arguments '''
@@ -61,10 +62,10 @@ class Config:
         with open(config_filename, 'r') as stream:
             self._config = yaml.safe_load(stream)
 
-        if _config.run_name is None:
+        if config_filename.run_name is None:
             self.run_name = _default_run_name
         else:
-            self.run_name = _config.run_name
+            self.run_name = config_filename.run_name
         return
 
     # The following are so we can access the config
