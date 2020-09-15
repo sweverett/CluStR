@@ -17,6 +17,9 @@ valid_axes = ['l500kpc', 'lr2500', 'lr500', 'lr500cc', 't500kpc', 'tr2500',
               'tr500', 'tr500cc', 'lambda']
 parser.add_argument('y', help='what to plot on y axis', choices=valid_axes)
 parser.add_argument('x', help='what to plot on x axis', choices=valid_axes)
+parser.add_argument('config_filename',
+    type = str, 
+    help = 'the filename of the config to run')
 # Optional argument for file prefix
 parser.add_argument('-p', '--prefix', help='prefix for output file')
 # Optional arguments for any flag cuts
@@ -54,16 +57,14 @@ class Config:
     '''
     _required_keys = []
     _default_run_name = 'clustr'
-    def __init__(self, config_file, run_options):
-        with open(config_file, 'r') as stream:
-
+    def __init__(self, config_filename):
+        with open(config_filename, 'r') as stream:
             self._config = yaml.safe_load(stream)
 
-        self.run_options = run_options
-        if run_options.run_name is None:
+        if _config.run_name is None:
             self.run_name = _default_run_name
         else:
-            self.run_name = run_options.run_name
+            self.run_name = _config.run_name
         return
 
     # The following are so we can access the config
@@ -119,7 +120,7 @@ class Catalog:
         #plt.gcf().set_size_inches(size, size) #get current figure then set size
         #plt.show()
 
-        return
+        #return
 
 
 def Ez(z):
@@ -143,7 +144,7 @@ class Data:
         return
 
     def run_config(self):
-        config_results = config.rlf #run Config's function rlf and get the results. maybe?
+        config_results = config.rlf #run Config's function rlf (remove line func) and get the results. maybe?
         return config_results
 
     def get_data(self, config, catalog):
@@ -165,7 +166,7 @@ class Data:
         self.y_err = (catalog[ylabel+'_err_low'] + catalog[ylabel+'_err_high']) / 2.
 
         # For now, we expect flag cuts to have already been made
-#        flags = self.run_options[flags]
+#        flags = config.flags
 #        if flags is not None:
 #            # FIX: Should be more error handling than this!
 #            # FIX: Should write method to ensure all the counts are what we expect
@@ -234,7 +235,7 @@ def main():
 
     args = parser.parse_args()
 
-    config_filename = args.catalog
+    config_filename = args.config_filename #config file argument input
 
     config = Config(config_filename) #(2)
 
