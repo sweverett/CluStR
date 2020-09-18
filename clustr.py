@@ -236,7 +236,7 @@ def main():
 
     config_filename = args.catalog
 
-    config = Config(config_filename) #(2)
+    config = Config(config_filename,None) #(2)
 
     cat_file_name = args.cat_filename
 
