@@ -8,17 +8,17 @@ import matplotlib.pyplot as plt
 import linmix
 import yaml
 
-# We'll define useful classes here
+
 ''' Parse command line arguments '''
 parser = ArgumentParser()
 # Required argument for catalog
-parser.add_argument('catalog', help='FITS catalog to open')
+parser.add_argument('cat_filename', help='FITS catalog to open')
 # Required arguement for axes
 valid_axes = ['l500kpc', 'lr2500', 'lr500', 'lr500cc', 't500kpc', 'tr2500',
               'tr500', 'tr500cc', 'lambda']
 parser.add_argument('y', help='what to plot on y axis', choices=valid_axes)
 parser.add_argument('x', help='what to plot on x axis', choices=valid_axes)
-parser.add_argument('config_filename',
+parser.add_argument('config_file',
     type = str, 
     help = 'the filename of the config to run')
 # Optional argument for file prefix
@@ -50,6 +50,7 @@ def fits_label(axis_name):
 
     return labels[axis_name]
 
+# We'll define useful classes here
 class Config:
     '''
     Used for CluStR config processing
@@ -62,22 +63,23 @@ class Config:
         with open(config_filename, 'r') as stream:
             self._config = yaml.safe_load(stream)
 
-        if config_filename.run_name is None:
-            self.run_name = _default_run_name
-        else:
-            self.run_name = config_filename.run_name
+        #if config_filename.run_name is None:
+        #    self.run_name = _default_run_name
+        #else:
+        #    self.run_name = config_filename.run_name
         return
 
     # The following are so we can access the config
     # values similarly to a dict
     def __getitem__(self, key):
-        return self._config.__dict__[key]
+        return self._config[key]
 
     def __setitem__(self, key, value):
-        self._config.__dict__[key] = value
+        value = self._config[key]
+        return
 
     def __delitem__(self, key):
-        del self._config.__dict__[key]
+        del self._config[key]
 
     def __contains__(self, key):
         return key in self._config.__dict__
@@ -88,7 +90,8 @@ class Config:
     def __repr__(self):
         return repr(self._config.__dict__)
 
-    "def run_name():"
+    #def run_name(self):
+    #    pass
 
 class Catalog:
     #read/load the fits table that contains the data
@@ -107,21 +110,6 @@ class Catalog:
         # could do other things...
 
         return
-    #just for fun!
-    #def plot_data(self, xcol, ycol, size=8, ylog=False):
-        #x = self.table[xcol]
-        #y = self.table[ycol]
-
-        #plt.scatter(x, y)
-        #plt.xlabel(xcol)
-        #plt.ylabel(ycol)
-
-        #if ylog is True:
-        #    plt.yscale('log')
-        #plt.gcf().set_size_inches(size, size) #get current figure then set size
-        #plt.show()
-
-        #return
 
 
 def Ez(z):
@@ -144,10 +132,6 @@ class Data:
 
         return
 
-    def run_config(self):
-        config_results = config.rlf #run Config's function rlf (remove line func) and get the results. maybe?
-        return config_results
-
     def get_data(self, config, catalog):
         xlabel = fits_label(config['x_label'])
         ylabel = fits_label(config['y_label'])
@@ -167,28 +151,29 @@ class Data:
         self.y_err = (catalog[ylabel+'_err_low'] + catalog[ylabel+'_err_high']) / 2.
 
         # For now, we expect flag cuts to have already been made
-#        flags = config.flags
-#        if flags is not None:
-#            # FIX: Should be more error handling than this!
-#            # FIX: Should write method to ensure all the counts are what we expect
-#
-#            mask = f.create_cuts(self)
-#            self.x[mask] = -1
-#            self.y[mask] = -1
-#
-#            print (
-#                'NOTE: `Removed` counts may be redundant, '
-#                'as some data fail multiple flags.'
-#            )
-#
-#            # Take rows with good data, and all flagged data removed
-#            good_rows = np.all([x != -1, y != -1], axis=0)
-#            x = x[good_rows]
-#            y = y[good_rows]
-#            x_err = x_err[good_rows]
-#            y_err = y_err[good_rows]
-#
-#            print ('Accepted {} data out of {}'.format(np.size(x), N))
+        flags = config.flags
+        if flags is not None:
+            # FIX: Should be more error handling than this!
+            # FIX: Should write method to ensure all the counts are what we expect
+
+            mask = f.create_cuts(self)
+            self.x[mask] = -1
+            self.y[mask] = -1
+
+            print (
+                'NOTE: `Removed` counts may be redundant, '
+                'as some data fail multiple flags.'
+            )
+
+        # Take rows with good data, and all flagged data removed
+        good_rows = np.all([x != -1, y != -1], axis=0)
+        
+        x = x[good_rows]
+        y = y[good_rows]
+        x_err = x_err[good_rows]
+        y_err = y_err[good_rows]
+
+        print ('Accepted {} data out of {}'.format(np.size(x), N))
 
         if N == 0:
             print (
@@ -229,14 +214,11 @@ class Fitter(object):
     def __init__(self, run_options, parameters)
 """
 
-def RunFromCatalog(catalog, xlabel):
-    return
-
 def main():
 
     args = parser.parse_args()
 
-    config_filename = args.config_filename #config file argument input
+    config_filename = args.config_file #config file argument input
 
     config = Config(config_filename) #(2)
 
@@ -249,10 +231,6 @@ def main():
     viable_data = data.get_data #check that this is the correct way to access
 
     fit = Fitter.fit(viable_data) #(6)
-
-    # Just for fun!
-    #catalog.plot_data('lambda', 'r500_band_lumin', ylog=True)
-
 
 if __name__ == '__main__':
     main()
