@@ -72,23 +72,22 @@ class Config:
     # The following are so we can access the config
     # values similarly to a dict
     def __getitem__(self, key):
-        return self._config[key]
+        return self._config.get(key)
 
     def __setitem__(self, key, value):
-        value = self._config[key]
-        return
+        self._config[key] = value
 
     def __delitem__(self, key):
         del self._config[key]
 
     def __contains__(self, key):
-        return key in self._config.__dict__
+        return key in self._config
 
     def __len__(self):
-        return len(self._config.__dict__)
+        return len(self._config)
 
     def __repr__(self):
-        return repr(self._config.__dict__)
+        return repr(self._config)
 
     #def run_name(self):
     #    pass
@@ -133,10 +132,13 @@ class Data:
         return
 
     def get_data(self, config, catalog):
-        xlabel = fits_label(config['x_label'])
-        ylabel = fits_label(config['y_label'])
-        self.x = catalog[label_x]
-        self.y = catalog[label_y]
+        args = parser.parse_args()
+        x_label = args.x
+        y_label = args.y
+        xlabel = fits_label(config.__getitem__(x_label))
+        ylabel = fits_label(config.__getitem__(y_label))
+        x = catalog[xlabel]
+        y = catalog[ylabel]
 
         # Number of original data
         N = np.size(x)
