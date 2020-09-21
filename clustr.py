@@ -19,7 +19,7 @@ valid_axes = ['l500kpc', 'lr2500', 'lr500', 'lr500cc', 't500kpc', 'tr2500',
 parser.add_argument('y', help='what to plot on y axis', choices=valid_axes)
 parser.add_argument('x', help='what to plot on x axis', choices=valid_axes)
 parser.add_argument('config_file',
-    type = str, 
+    type = str,
     help = 'the filename of the config to run')
 # Optional argument for file prefix
 parser.add_argument('-p', '--prefix', help='prefix for output file')
@@ -59,10 +59,15 @@ class Config:
     '''
     _required_keys = []
     _default_run_name = 'clustr'
-    def __init__(self, config_filename):
-        with open(config_filename, 'r') as stream:
+    def __init__(args):
+        self.config_filename = args.config_file
+        self.x = args.x
+        self.y = args.y
+
+        with open(self.config_filename, 'r') as stream:
             self._config = yaml.safe_load(stream)
 
+        return
         #if config_filename.run_name is None:
         #    self.run_name = _default_run_name
         #else:
@@ -169,7 +174,7 @@ class Data:
 
         # Take rows with good data, and all flagged data removed
         good_rows = np.all([x != -1, y != -1], axis=0)
-        
+
         x = x[good_rows]
         y = y[good_rows]
         x_err = x_err[good_rows]
@@ -220,9 +225,7 @@ def main():
 
     args = parser.parse_args()
 
-    config_filename = args.config_file #config file argument input
-
-    config = Config(config_filename,None) #(2)
+    config = Config(args) #(2)
 
     cat_file_name = args.cat_filename
 
