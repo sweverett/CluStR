@@ -1,13 +1,14 @@
 from argparse import ArgumentParser
 import os
-import pickle as cPickle
+#import pickle as cPickle
 from astropy.table import Table
 import numpy as np
-import reglib  # Regression library
+#import reglib  # Regression library
 import matplotlib.pyplot as plt
 import linmix
 import yaml
 
+from astropy.io import fits
 
 ''' Parse command line arguments '''
 parser = ArgumentParser()
@@ -36,6 +37,7 @@ parser.add_argument(
 
 def fits_label(axis_name):
     ''' Get the FITS column label for `axis_name` '''
+#I believe tesla said she just wants one label with no short names
     labels = {
         'lambda': 'lambda',
         'l500kpc': '500_kiloparsecs_band_lumin',
@@ -59,7 +61,7 @@ class Config:
     '''
     _required_keys = []
     _default_run_name = 'clustr'
-    def __init__(args):
+    def __init__(self, args):
         self.config_filename = args.config_file
         self.x = args.x
         self.y = args.y
@@ -72,7 +74,7 @@ class Config:
         #    self.run_name = _default_run_name
         #else:
         #    self.run_name = config_filename.run_name
-        return
+        #return
 
     # The following are so we can access the config
     # values similarly to a dict
@@ -109,6 +111,7 @@ class Catalog:
         return
 
     def _load_catalog(self):
+        self.hdu_list = fits.open('y3a2-6.4.22+2_peak_fixed_maybe_final_merged.fits')
         self.cat_table = Table.read(self.file_name)
 
         # could do other things...
@@ -140,10 +143,10 @@ class Data:
         args = parser.parse_args()
         x_label = args.x
         y_label = args.y
-        xlabel = fits_label(config.__getitem__(x_label))
-        ylabel = fits_label(config.__getitem__(y_label))
-        x = catalog[xlabel]
-        y = catalog[ylabel]
+        xlabel = fits_label(x_label)
+        ylabel = fits_label(y_label)
+        x = catalog['xlabel']
+        y = catalog['ylabel']
 
         # Number of original data
         N = np.size(x)
