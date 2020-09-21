@@ -22,6 +22,10 @@ parser.add_argument('x', help='what to plot on x axis', choices=valid_axes)
 parser.add_argument('config_file',
     type = str,
     help = 'the filename of the config to run')
+
+parser.add_argument('plotting_filename',
+    type = str,
+    help = 'the filename of the plotting file to run')
 # Optional argument for file prefix
 parser.add_argument('-p', '--prefix', help='prefix for output file')
 # Optional arguments for any flag cuts
@@ -188,8 +192,8 @@ class Data:
         #        '\n\nClosing program...\n')
         #    raise SystemExit(2)
 
-        #print ('mean x error:', np.mean(x_err))
-        #print ('mean y error:', np.mean(y_err))
+        print ('mean x error:', np.mean(self.x_err))
+        print ('mean y error:', np.mean(self.y_err))
 
         return (x, y, self.x_err, self.y_err)
 
@@ -207,7 +211,7 @@ class Fitter(object):
         #run linmix
         print ("Using Kelly Algorithm...")
         kelly_b, kelly_m, kelly_sig = reglib.run_linmix(x_obs, y_obs, x_err, y_err)
-
+        print(kelly_b)
         #use before plotting
         log_x = np.log(x_obs)
         x_piv = np.median(log_x)
@@ -233,8 +237,10 @@ def main():
     data = Data(config, catalog) #(4)
 
     viable_data = data.get_data #check that this is the correct way to access
-#what would to plotting filename be i put a placeholder
-    fit = Fitter(viable_data, linmix) #(6)
+#what would to plotting filename be i put a placepholder
+    plot_filename = args.plotting_filename
+
+    fit = Fitter(viable_data, plot_filename) #(6)
 
 if __name__ == '__main__':
     main()
