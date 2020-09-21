@@ -139,10 +139,6 @@ class Data:
         return
 
     def get_data(self, config, catalog):
-<<<<<<< HEAD
-
-=======
->>>>>>> 7152c2ec54b61c603181a5321c2859c2f5cc0e26
         xlabel = fits_label(config.x)
         ylabel = fits_label(config.y)
         x = catalog.cat_table[xlabel]
@@ -154,79 +150,71 @@ class Data:
         # Scale data if a luminosity
         if config['scale_x_by_ez']:
             x /= Ez(catalog.cat_table['redshift'])
-<<<<<<< HEAD
-        if config.cat_table['scale_y_by_ez']:
-            y /= Ez(catalog['redshift'])
-
-        self.x_err = (catalog.cat_table[xlabel+'_err_low'] + catalog[xlabel+'_err_high']) / 2.
-        self.y_err = (catalog.cat_table[ylabel+'_err_low'] + catalog[ylabel+'_err_high']) / 2.
-=======
         if config['scale_y_by_ez']:
             y /= Ez(catalog.cat_table['redshift'])
 
         self.x_err = (catalog.cat_table[xlabel+'_err_low'] + catalog.cat_table[xlabel+'_err_high']) / 2.
         self.y_err = (catalog.cat_table[ylabel+'_err_low'] + catalog.cat_table[ylabel+'_err_high']) / 2.
->>>>>>> 7152c2ec54b61c603181a5321c2859c2f5cc0e26
 
         # For now, we expect flag cuts to have already been made
-        flags = config.flags
-        if flags is not None:
+        #flags = config.flags
+        #if flags is not None:
             # FIX: Should be more error handling than this!
             # FIX: Should write method to ensure all the counts are what we expect
 
-            mask = f.create_cuts(self)
-            self.x[mask] = -1
-            self.y[mask] = -1
+            #mask = f.create_cuts(self)
+            #self.x[mask] = -1
+            #self.y[mask] = -1
 
-            print (
-                'NOTE: `Removed` counts may be redundant, '
-                'as some data fail multiple flags.'
-            )
+            #print (
+            #    'NOTE: `Removed` counts may be redundant, '
+            #    'as some data fail multiple flags.'
+            #)
 
         # Take rows with good data, and all flagged data removed
         good_rows = np.all([x != -1, y != -1], axis=0)
 
         x = x[good_rows]
         y = y[good_rows]
-        x_err = x_err[good_rows]
-        y_err = y_err[good_rows]
+        self.x_err = self.x_err[good_rows]
+        self.y_err = self.y_err[good_rows]
 
-        print ('Accepted {} data out of {}'.format(np.size(x), N))
+        #print ('Accepted {} data out of {}'.format(np.size(x), N))
 
-        if N == 0:
-            print (
-                '\nWARNING: No data survived flag removal. '
-                'Suggest changing flag parameters in `param.config`.'
-                '\n\nClosing program...\n')
-            raise SystemExit(2)
+        #if N == 0:
+        #    print (
+        #        '\nWARNING: No data survived flag removal. '
+        #        'Suggest changing flag parameters in `param.config`.'
+        #        '\n\nClosing program...\n')
+        #    raise SystemExit(2)
 
-        print ('mean x error:', np.mean(x_err))
-        print ('mean y error:', np.mean(y_err))
+        #print ('mean x error:', np.mean(x_err))
+        #print ('mean y error:', np.mean(y_err))
 
-        return
+        return (x, y, self.x_err, self.y_err)
 
 
 class Fitter(object):
     def __init__(self, data, plotting_filename):
-        self.viable_data = viable_data
+        self.viable_data = data
         self.plotting_filename = plotting_filename
         return
     def fit(self):
-        x_obs = viable_data[0]
-        y_obs = viable_data[1]
-        x_err = viable_data[2]
-        y_err = viable_data[3]
+        x_obs = self.viable_data[0]
+        y_obs = self.viable_data[1]
+        x_err = self.viable_data[2]
+        y_err = self.viable_data[3]
         #run linmix
         print ("Using Kelly Algorithm...")
         kelly_b, kelly_m, kelly_sig = reglib.run_linmix(x_obs, y_obs, x_err, y_err)
 
         #use before plotting
-        log_x = np.log(self.x_obs)
+        log_x = np.log(x_obs)
         x_piv = np.median(log_x)
-        log_y = np.log(self.y_obs)
+        log_y = np.log(y_obs)
 
 
-        return [log_x-x_piv, log_y, x_err/self.x_obs, y_err/self.y_obs, x_piv]
+        return [log_x-x_piv, log_y, x_err/x_obs, y_err/y_obs, x_piv]
 
 """class SaveData(Fitter):
     def __init__(self, run_options, parameters)
@@ -245,8 +233,8 @@ def main():
     data = Data(config, catalog) #(4)
 
     viable_data = data.get_data #check that this is the correct way to access
-
-    fit = Fitter.fit(viable_data) #(6)
+#what would to plotting filename be i put a placeholder
+    fit = Fitter(viable_data, linmix) #(6)
 
 if __name__ == '__main__':
     main()
