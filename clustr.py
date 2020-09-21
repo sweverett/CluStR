@@ -111,7 +111,6 @@ class Catalog:
         return
 
     def _load_catalog(self):
-        self.hdu_list = fits.open('y3a2-6.4.22+2_peak_fixed_maybe_final_merged.fits')
         self.cat_table = Table.read(self.file_name)
 
         # could do other things...
@@ -140,13 +139,12 @@ class Data:
         return
 
     def get_data(self, config, catalog):
-        args = parser.parse_args()
-        x_label = args.x
-        y_label = args.y
+        x_label = config.x
+        y_label = config.x
         xlabel = fits_label(x_label)
         ylabel = fits_label(y_label)
-        x = catalog['xlabel']
-        y = catalog['ylabel']
+        x = catalog[xlabel]
+        y = catalog[ylabel]
 
         # Number of original data
         N = np.size(x)
