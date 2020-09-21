@@ -139,24 +139,31 @@ class Data:
         return
 
     def get_data(self, config, catalog):
+<<<<<<< HEAD
         x_label = config.x
         y_label = config.x
         xlabel = fits_label(x_label)
         ylabel = fits_label(y_label)
         x = catalog[xlabel]
         y = catalog[ylabel]
+=======
+        xlabel = fits_label(config.x)
+        ylabel = fits_label(config.y)
+        x = catalog.cat_table[xlabel]
+        y = catalog.cat_table[ylabel]
+>>>>>>> 7152c2ec54b61c603181a5321c2859c2f5cc0e26
 
         # Number of original data
         N = np.size(x)
 
         # Scale data if a luminosity
         if config['scale_x_by_ez']:
-            x /= Ez(catalog['redshift'])
+            x /= Ez(catalog.cat_table['redshift'])
         if config['scale_y_by_ez']:
-            y /= Ez(catalog['redshift'])
+            y /= Ez(catalog.cat_table['redshift'])
 
-        self.x_err = (catalog[xlabel+'_err_low'] + catalog[xlabel+'_err_high']) / 2.
-        self.y_err = (catalog[ylabel+'_err_low'] + catalog[ylabel+'_err_high']) / 2.
+        self.x_err = (catalog.cat_table[xlabel+'_err_low'] + catalog.cat_table[xlabel+'_err_high']) / 2.
+        self.y_err = (catalog.cat_table[ylabel+'_err_low'] + catalog.cat_table[ylabel+'_err_high']) / 2.
 
         # For now, we expect flag cuts to have already been made
         flags = config.flags
