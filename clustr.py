@@ -195,15 +195,16 @@ class Data:
         print ('mean x error:', np.mean(self.x_err))
         print ('mean y error:', np.mean(self.y_err))
 
-        return (x, y, self.x_err, self.y_err)
+        return [x, y, self.x_err, self.y_err]
 
 
 class Fitter(object):
     def __init__(self, data, plotting_filename):
         self.viable_data = data
         self.plotting_filename = plotting_filename
-        return
+        print('test1')
     def fit(self):
+        print('test2')
         x_obs = self.viable_data[0]
         y_obs = self.viable_data[1]
         x_err = self.viable_data[2]
@@ -216,7 +217,6 @@ class Fitter(object):
         log_x = np.log(x_obs)
         x_piv = np.median(log_x)
         log_y = np.log(y_obs)
-
 
         return [log_x-x_piv, log_y, x_err/x_obs, y_err/y_obs, x_piv]
 
@@ -240,7 +240,8 @@ def main():
 #what would to plotting filename be i put a placepholder
     plot_filename = args.plotting_filename
 
-    fit = Fitter(viable_data, plot_filename) #(6)
+    fits = Fitter(viable_data, plot_filename) #(6)
+
 
 if __name__ == '__main__':
     main()
