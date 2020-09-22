@@ -242,6 +242,5 @@ def main():
 
     fits = Fitter(viable_data, plot_filename) #(6)
 
-
 if __name__ == '__main__':
     main()
