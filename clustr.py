@@ -143,13 +143,13 @@ class Data:
         return
 
     def get_data(self, config, catalog):
-        xlabel = fits_label(config.x)
-        ylabel = fits_label(config.y)
-        x = catalog.cat_table[xlabel]
-        y = catalog.cat_table[ylabel]
+        self.xlabel = fits_label(config.x)
+        self.ylabel = fits_label(config.y)
+        x = catalog.cat_table[self.xlabel]
+        y = catalog.cat_table[self.ylabel]
 
         # Number of original data
-        N = np.size(x)
+        #N = np.size(x)
 
         # Scale data if a luminosity
         if config['scale_x_by_ez']:
@@ -157,45 +157,33 @@ class Data:
         if config['scale_y_by_ez']:
             y /= Ez(catalog.cat_table['redshift'])
 
-        self.x_err = (catalog.cat_table[xlabel+'_err_low'] + catalog.cat_table[xlabel+'_err_high']) / 2.
-        self.y_err = (catalog.cat_table[ylabel+'_err_low'] + catalog.cat_table[ylabel+'_err_high']) / 2.
-
-        # For now, we expect flag cuts to have already been made
-        #flags = config.flags
-        #if flags is not None:
-            # FIX: Should be more error handling than this!
-            # FIX: Should write method to ensure all the counts are what we expect
-
-            #mask = f.create_cuts(self)
-            #self.x[mask] = -1
-            #self.y[mask] = -1
-
-            #print (
-            #    'NOTE: `Removed` counts may be redundant, '
-            #    'as some data fail multiple flags.'
-            #)
+        self.x_err = (catalog.cat_table[self.xlabel+'_err_low'] + catalog.cat_table[self.xlabel+'_err_high']) / 2.
+        self.y_err = (catalog.cat_table[self.ylabel+'_err_low'] + catalog.cat_table[self.ylabel+'_err_high']) / 2.
 
         # Take rows with good data, and all flagged data removed
         good_rows = np.all([x != -1, y != -1], axis=0)
 
-        x = x[good_rows]
-        y = y[good_rows]
+        self.x = x[good_rows]
+        self.y = y[good_rows]
         self.x_err = self.x_err[good_rows]
         self.y_err = self.y_err[good_rows]
 
-        #print ('Accepted {} data out of {}'.format(np.size(x), N))
-
-        #if N == 0:
-        #    print (
-        #        '\nWARNING: No data survived flag removal. '
-        #        'Suggest changing flag parameters in `param.config`.'
-        #        '\n\nClosing program...\n')
-        #    raise SystemExit(2)
-
+        print(self.xlabel)
+        print(self.ylabel)
         print ('mean x error:', np.mean(self.x_err))
         print ('mean y error:', np.mean(self.y_err))
 
-        return (x, y, self.x_err, self.y_err)
+        return (self.xlabel, self.ylabel, self.x, self.y, self.x_err, self.y_err)
+
+    # Plotting the x and y data. 
+    def plot_data(self, x_axis, y_axis):
+        plt.scatter(self.x, self.y)
+        plt.title(f'{self.xlabel} vs. {self.ylabel}')
+        plt.xlabel(f'{self.xlabel}')
+        plt.ylabel(f'{self.ylabel}')
+        plt.show()
+
+        return
 
 
 class Fitter(object):
@@ -211,12 +199,10 @@ class Fitter(object):
         #run linmix
         print ("Using Kelly Algorithm...")
         kelly_b, kelly_m, kelly_sig = reglib.run_linmix(x_obs, y_obs, x_err, y_err)
-        print(kelly_b)
         #use before plotting
         log_x = np.log(x_obs)
         x_piv = np.median(log_x)
         log_y = np.log(y_obs)
-
 
         return [log_x-x_piv, log_y, x_err/x_obs, y_err/y_obs, x_piv]
 
@@ -237,10 +223,16 @@ def main():
     data = Data(config, catalog) #(4)
 
     viable_data = data.get_data #check that this is the correct way to access
-#what would to plotting filename be i put a placepholder
+    
+    #what would to plotting filename be i put a placepholder
     plot_filename = args.plotting_filename
 
     fit = Fitter(viable_data, plot_filename) #(6)
+
+    # Scatter plot
+    x_axis = data.x
+    y_axis = data.y
+    print(data.plot_data(x_axis,y_axis))
 
 if __name__ == '__main__':
     main()
