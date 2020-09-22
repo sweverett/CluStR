@@ -6,7 +6,7 @@ import numpy as np
 import linmix
 
 # Imports the necessary R packages needed to run lrgs in python
-RLRGS = importr('lrgs')  # Multivariate regression package by Adam Mantz
+#RLRGS = importr('lrgs')  # Multivariate regression package by Adam Mantz
 
 # Set some aliases for useful R functions
 RARRAY = robjects.r('array')
@@ -17,61 +17,60 @@ RLM = robjects.r('lm')
 
 # pylint: disable=invalid-name
 
-def run_lrgs(x, y, err_x, err_y, _xycov=None, nmc=500, dirichlet=True):
-    '''
-    Runs the lrgs regression algorithm written in R by interfacing through
-    rpy2. For our purposes, inputs should be in scaled (log) form. (For the
-    moment, only works for on-diagonal elements of the covariance matrix.) nmc
-    is the length of the markov chain.
-    '''
+#def run_lrgs(x, y, err_x, err_y, _xycov=None, nmc=500, dirichlet=True):
+    #'''
+    #Runs the lrgs regression algorithm written in R by interfacing through
+    #rpy2. For our purposes, inputs should be in scaled (log) form. (For the
+    #moment, only works for on-diagonal elements of the covariance matrix.) nmc
+    #is the length of the markov chain.
+    #'''
 
     # pylint: disable = too-many-arguments
     # pylint: disable = too-many-locals
 
     # Make sure dimensions are correct
-    assert np.size(x) == np.size(y)
-    assert np.size(err_x) == np.size(err_y)
-    assert np.size(x) == np.size(err_x)
+    #assert np.size(x) == np.size(y)
+    #assert np.size(err_x) == np.size(err_y)
+    #assert np.size(x) == np.size(err_x)
 
     # Convert x and y to r vectors
-    rx = robjects.FloatVector(x)
-    ry = robjects.FloatVector(y)
-    rx_err = robjects.FloatVector(err_x)
-    ry_err = robjects.FloatVector(err_y)
+    #rx = robjects.FloatVector(x)
+    #ry = robjects.FloatVector(y)
+    #rx_err = robjects.FloatVector(err_x)
+    #ry_err = robjects.FloatVector(err_y)
 
     # Set up covariance matrix
-    M = RARRAY(0.0, dim=RC(2, 2, np.size(rx)))
+    #M = RARRAY(0.0, dim=RC(2, 2, np.size(rx)))
 
-    for i in range(np.size(rx)):
-        M.rx[1, 1, i+1] = rx_err[i]
-        M.rx[2, 2, i+1] = ry_err[i]
+    #for i in range(np.size(rx)):
+        #M.rx[1, 1, i+1] = rx_err[i]
+        #M.rx[2, 2, i+1] = ry_err[i]
 
     # Set some R equivalents
-    TRUE = robjects.BoolVector([True])
-    FALSE = robjects.BoolVector([False])
+    #TRUE = robjects.BoolVector([True])
+    #FALSE = robjects.BoolVector([False])
 
-    if dirichlet:
-        d = TRUE
-    else:
-        d = FALSE
+    #if dirichlet:
+    #    d = TRUE
+    #else:
+    #    d = FALSE
 
     # Run MCMC
-    posterior = RLRGS.Gibbs_regression(rx, ry, M, nmc, dirichlet=d,
-                                       trace='bsg', mention_every=50)
+    #posterior = RLRGS.Gibbs_regression(rx, ry, M, nmc, dirichlet=d,
+                                      # trace='bsg', mention_every=50)
 
     # Extract relevant data from posterior
-    B = np.array(posterior[0])  # Parameter chain
-    S = np.array(posterior[1])[0][0]
+#    B = np.array(posterior[0])  # Parameter chain
+#    S = np.array(posterior[1])[0][0]
     # ^ Scatter chain (only intrinsic scatter for the moment!)
 
     # Prepare lrgs fit chains
-    intercept = B[0][0]
-    slope = B[1][0]
-    sigma = np.sqrt(S)
+    # = B[0][0]
+    #slope = B[1][0]
+    #sigma = np.sqrt(S)
 
     # Return fit parameters consistently with run_linmix
-    return (intercept, slope, sigma)
-
+    #return (intercept, slope, sigma)
 
 def run_linmix(x, y, err_x, err_y, Nmin=5000, Nmax=10000, vb=True):
     # pylint: disable = too-many-arguments

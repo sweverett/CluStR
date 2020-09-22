@@ -3,7 +3,7 @@ import os
 #import pickle as cPickle
 from astropy.table import Table
 import numpy as np
-#import reglib  # Regression library
+import reglib  # Regression library
 import matplotlib.pyplot as plt
 import linmix
 import yaml
@@ -195,10 +195,10 @@ class Fitter(object):
         print('test1')
     def fit(self):
         print('test2')
-        x_obs = self.viable_data[0]
-        y_obs = self.viable_data[1]
-        x_err = self.viable_data[2]
-        y_err = self.viable_data[3]
+        x_obs = self.viable_data[2]
+        y_obs = self.viable_data[3]
+        x_err = self.viable_data[4]
+        y_err = self.viable_data[5]
         #run linmix
         print ("Using Kelly Algorithm...")
         kelly_b, kelly_m, kelly_sig = reglib.run_linmix(x_obs, y_obs, x_err, y_err)
@@ -225,17 +225,18 @@ def main():
 
     data = Data(config, catalog) #(4)
 
-    viable_data = data.get_data #check that this is the correct way to access
+    viable_data = data.get_data(config, catalog) #check that this is the correct way to access
 
     #what would to plotting filename be i put a placepholder
     plot_filename = args.plotting_filename
 
     fits = Fitter(viable_data, plot_filename) #(6)
 
+    run_fit = fits.fit()
     # Scatter plot
     x_axis = data.x
     y_axis = data.y
-    print(data.plot_data(x_axis,y_axis))
+    #print(data.plot_data(x_axis,y_axis))
 
 if __name__ == '__main__':
     main()
