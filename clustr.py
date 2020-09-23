@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
 import os
-#import pickle as cPickle
+import pickle as cPickle
 from astropy.table import Table
 import numpy as np
 import reglib  # Regression library
@@ -20,12 +20,11 @@ valid_axes = ['l500kpc', 'lr2500', 'lr500', 'lr500cc', 't500kpc', 'tr2500',
 parser.add_argument('y', help='what to plot on y axis', choices=valid_axes)
 parser.add_argument('x', help='what to plot on x axis', choices=valid_axes)
 parser.add_argument('config_file',
-    type = str,
     help = 'the filename of the config to run')
 
-parser.add_argument('plotting_filename',
-    type = str,
-    help = 'the filename of the plotting file to run')
+#parser.add_argument('plotting_filename',
+#    type = str,
+#    help = 'the filename of the plotting file to run')
 # Optional argument for file prefix
 parser.add_argument('-p', '--prefix', help='prefix for output file')
 # Optional arguments for any flag cuts
@@ -74,11 +73,6 @@ class Config:
             self._config = yaml.safe_load(stream)
 
         return
-        #if config_filename.run_name is None:
-        #    self.run_name = _default_run_name
-        #else:
-        #    self.run_name = config_filename.run_name
-        #return
 
     # The following are so we can access the config
     # values similarly to a dict
@@ -143,6 +137,9 @@ class Data:
         return
 
     def get_data(self, config, catalog):
+        '''
+        Obtains x, y, x errors, and y errors from config & catalog files. 
+        '''
         self.xlabel = fits_label(config.x)
         self.ylabel = fits_label(config.y)
         x = catalog.cat_table[self.xlabel]
@@ -168,41 +165,57 @@ class Data:
         self.x_err = self.x_err[good_rows]
         self.y_err = self.y_err[good_rows]
 
-        print(self.xlabel)
-        print(self.ylabel)
-        print ('mean x error:', np.mean(self.x_err))
-        print ('mean y error:', np.mean(self.y_err))
-
+        #print(self.xlabel)
+        #print(self.ylabel)
+        #print('mean x error:', np.mean(self.x_err))
+        #print('mean y error:', np.mean(self.y_err))
 
         return (self.xlabel, self.ylabel, self.x, self.y, self.x_err, self.y_err)
 
     # Plotting the x and y data.
     def plot_data(self, x_axis, y_axis):
-        plt.scatter(self.x, self.y)
+        '''
+        Plots x-axis and y-axis data.
+        '''
+        plt.scatter(x_axis, y_axis)
         plt.title(f'{self.xlabel} vs. {self.ylabel}')
         plt.xlabel(f'{self.xlabel}')
         plt.ylabel(f'{self.ylabel}')
+        plt.gca().set_yscale('log')
+        plt.gca().set_xscale('log')
+        plt.grid() #add (True, which='both') to display major and minor grids
         plt.show()
 
         return
 
 
 
-class Fitter(object):
-    def __init__(self, data, plotting_filename):
-        self.viable_data = data
-        self.plotting_filename = plotting_filename
-        print('test1')
-    def fit(self):
-        print('test2')
-        x_obs = self.viable_data[2]
-        y_obs = self.viable_data[3]
-        x_err = self.viable_data[4]
-        y_err = self.viable_data[5]
+class Fitter:
+    def __init__(self, viable_data):
+        self.fit(viable_data)
+        #self.viable_data = data
+        #self.plotting_filename = plotting_filename
+
+        return
+
+    def fit(self, viable_data):
+        '''
+        Calculates fit parameters using the Kelly method (linmix) and returns
+        intercept, slope, and sigma.
+        '''
+        x_obs = viable_data[2]
+        y_obs = viable_data[3]
+        x_err = viable_data[4]
+        y_err = viable_data[5]
+
         #run linmix
-        print ("Using Kelly Algorithm...")
+        print("Using Kelly Algorithm...")
         kelly_b, kelly_m, kelly_sig = reglib.run_linmix(x_obs, y_obs, x_err, y_err)
-        #use before plotting
+
+        return(x_obs, y_obs, x_err, y_err), (kelly_b, kelly_m, kelly_sig)
+
+    def scale(self, x_obs, y_obs, x_err, y_err):
+        ''' Scale data for plotting'''
         log_x = np.log(x_obs)
         x_piv = np.median(log_x)
         log_y = np.log(y_obs)
@@ -228,15 +241,16 @@ def main():
     viable_data = data.get_data(config, catalog) #check that this is the correct way to access
 
     #what would to plotting filename be i put a placepholder
-    plot_filename = args.plotting_filename
+    #plot_filename = args.plotting_filename
 
-    fits = Fitter(viable_data, plot_filename) #(6)
+    #fitter = Fitter(viable_data) #(6)
 
-    run_fit = fits.fit()
+    #linmixfit = fitter.fit(viable_data)
+    
     # Scatter plot
     x_axis = data.x
     y_axis = data.y
-    #print(data.plot_data(x_axis,y_axis))
+    data.plot_data(x_axis,y_axis)
 
 if __name__ == '__main__':
     main()
