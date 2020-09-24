@@ -3,7 +3,7 @@
 #import rpy2.robjects as robjects
 #from rpy2.robjects.packages import importr
 import numpy as np
-import linmix
+from linmix import linmix
 
 # Imports the necessary R packages needed to run lrgs in python
 #RLRGS = importr('lrgs')  # Multivariate regression package by Adam Mantz
@@ -71,7 +71,6 @@ def run_lrgs(x, y, err_x, err_y, _xycov=None, nmc=500, dirichlet=True):
 
     # Return fit parameters consistently with run_linmix
     return (intercept, slope, sigma)
-
 
 def run_linmix(x, y, err_x, err_y, Nmin=5000, Nmax=10000, vb=True):
     # pylint: disable = too-many-arguments
