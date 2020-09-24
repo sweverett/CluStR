@@ -17,6 +17,7 @@ import argparse
 import os
 import cPickle as pickle
 import astropy.io.fits as fits
+from astropy.table import Table
 import numpy as np
 import reglib  # Regression library
 import plotlib  # Plotting library
@@ -61,6 +62,8 @@ def check_flag(flag):
         'analyzed',
         'detected',
         'merger',
+        'masked',
+        'bad_mode',
         'bad_redmapper_pos',
         'bad_xray_pos',
         'bad_pos_other',
@@ -68,10 +71,14 @@ def check_flag(flag):
         'edge_exclude_centering',
         'edge_exclude_r2500',
         'edge_exclude_r500',
+        'edge_r500',
+        'edge_r2500',
+        'edge_bkgd',
         'off_axis_chip',
         'serendipitous',
         'overlap_r2500',
-        'overlap_r500'
+        'overlap_r500',
+        'overlap_bkgd'
     }
 
     # List of possible cutoff and range flags
@@ -220,9 +227,6 @@ def get_data(options):
     x = data[label_x]
     y = data[label_y]
 
-    # Number of original data
-    N = np.size(x)
-
     # divide luminosities by e[z]
     # FIX: Probably shouldn't hardcode this!
     if label_x[0] == 'l' and label_y != 'lambda':
@@ -232,6 +236,9 @@ def get_data(options):
 
     x_err = (data[label_x+'_err_low'] + data[label_x+'_err_high']) / 2.
     y_err = (data[label_y+'_err_low'] + data[label_y+'_err_high']) / 2.
+
+    # Number of original data
+    N = np.size(x)
 
     # Now take out any flagged data
     flags = options.flags
@@ -255,6 +262,14 @@ def get_data(options):
     y = y[good_rows]
     x_err = x_err[good_rows]
     y_err = y_err[good_rows]
+
+    # Cut out any NaNs
+    cuts = np.where( (~np.isnan(x)) & (~np.isnan(y)) & (~np.isnan(x_err)) & (~np.isnan(y_err)) )
+
+    x = x[cuts]
+    y = y[cuts]
+    x_err = x_err[cuts]
+    y_err = y_err[cuts]
 
     print 'Accepted {} data out of {}'.format(np.size(x), N)
 
@@ -505,6 +520,13 @@ def main():  # pylint: disable=missing-docstring
     # Grab and process data from catalog, including flag removal
     data_obs = get_data(options)
 
+    # TODO: Remove this!
+    #print('Writing out temp clustr catalog after cuts...')
+    #(x, y, x_err, y_err) = data_obs
+    #from astropy.Table import Table
+    #t = Table(
+    #data_obs.write('temp_clustr_catalog_check.fits')
+
     # Scale for linear fitting
     scaled_data = scale(*data_obs)
 
@@ -513,6 +535,23 @@ def main():  # pylint: disable=missing-docstring
     # Fit data using linmix, lrgs, or both
     kelly_scaled_fit, mantz_scaled_fit = fit(*scaled_data[:4])
     (x_min, x_max) = (np.min(scaled_data[0]), np.max(scaled_data[0]))
+
+    #print('Saving data...')
+    #x_obs, y_obs, x_err_obs, y_err_obs = data_obs
+    #data = Table()
+    #data['x'] = x_obs
+    #data['y'] = y_obs
+    #data['x_err'] = x_err_obs
+    #data['y_err'] = y_err_obs
+    #data.write('clustr_data.fits')
+
+    #fit = Table()
+    #fit_int, fit_slope, fit_sig = kelly_scaled_fit
+    #fit['int'] = fit_int
+    #fit['slope'] = fit_slope
+    #fit['sigma'] = fit_sig
+    #fit['piv'] = piv
+    #fit.wirte('clustr_fit.fits')
 
     print '\nMaking plots...'
 
