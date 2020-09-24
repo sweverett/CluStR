@@ -1,19 +1,19 @@
 ''' Regression library for CluStR '''
 
-import rpy2.robjects as robjects
-from rpy2.robjects.packages import importr
+#import rpy2.robjects as robjects
+#from rpy2.robjects.packages import importr
 import numpy as np
 import linmix
 
 # Imports the necessary R packages needed to run lrgs in python
-RLRGS = importr('lrgs')  # Multivariate regression package by Adam Mantz
+#RLRGS = importr('lrgs')  # Multivariate regression package by Adam Mantz
 
 # Set some aliases for useful R functions
-RARRAY = robjects.r('array')
-RMATRIX = robjects.r('matrix')
-RNORM = robjects.r('rnorm')
-RC = robjects.r('c')
-RLM = robjects.r('lm')
+#RARRAY = robjects.r('array')
+#RMATRIX = robjects.r('matrix')
+#RNORM = robjects.r('rnorm')
+#RC = robjects.r('c')
+#RLM = robjects.r('lm')
 
 # pylint: disable=invalid-name
 
