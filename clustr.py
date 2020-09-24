@@ -536,23 +536,6 @@ def main():  # pylint: disable=missing-docstring
     kelly_scaled_fit, mantz_scaled_fit = fit(*scaled_data[:4])
     (x_min, x_max) = (np.min(scaled_data[0]), np.max(scaled_data[0]))
 
-    #print('Saving data...')
-    #x_obs, y_obs, x_err_obs, y_err_obs = data_obs
-    #data = Table()
-    #data['x'] = x_obs
-    #data['y'] = y_obs
-    #data['x_err'] = x_err_obs
-    #data['y_err'] = y_err_obs
-    #data.write('clustr_data.fits')
-
-    #fit = Table()
-    #fit_int, fit_slope, fit_sig = kelly_scaled_fit
-    #fit['int'] = fit_int
-    #fit['slope'] = fit_slope
-    #fit['sigma'] = fit_sig
-    #fit['piv'] = piv
-    #fit.wirte('clustr_fit.fits')
-
     print '\nMaking plots...'
 
     # Make all desired plots
