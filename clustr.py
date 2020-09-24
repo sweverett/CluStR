@@ -178,9 +178,9 @@ class Data:
         Plots x-axis and y-axis data.
         '''
         plt.scatter(x_axis, y_axis)
-        plt.title(f'{self.xlabel} vs. {self.ylabel}')
-        plt.xlabel(f'{self.xlabel}')
-        plt.ylabel(f'{self.ylabel}')
+        plt.title('{} vs. {}'.format(self.xlabel, self.ylabel))
+        plt.xlabel('{}'.format(self.xlabel))
+        plt.ylabel('{}'.format(self.ylabel))
         plt.gca().set_yscale('log')
         plt.gca().set_xscale('log')
         plt.grid() #add (True, which='both') to display major and minor grids
