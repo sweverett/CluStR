@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 import linmix
 import yaml
 
+#import pudb
+
 from astropy.io import fits
 
 ''' Parse command line arguments '''
@@ -34,6 +36,7 @@ parser.add_argument(
     '--flags',
     nargs='+',
     type=str,
+    default=None,
     help=('Input any desired flag cuts as a list of flag names '
     '(with "" and no spaces!)')
 )
@@ -55,6 +58,12 @@ def fits_label(axis_name):
 
     return labels[axis_name]
 
+def Ez(z):
+    Om = 0.3
+    H_0 = 0.7
+    h = H_0/100
+    return np.sqrt(Om*(1.+z)**3 + h)
+
 # We'll define useful classes here
 class Config:
     '''
@@ -65,11 +74,15 @@ class Config:
     _required_keys = []
     _default_run_name = 'clustr'
     def __init__(self, args):
-        self.config_filename = args.config_file
+        # We'll save args as class variables
+        self.filename = args.config_file
+        self.args = args
         self.x = args.x
         self.y = args.y
+        self.flags = args.flags
+        self.prefix = args.prefix
 
-        with open(self.config_filename, 'r') as stream:
+        with open(self.filename, 'r') as stream:
             self._config = yaml.safe_load(stream)
 
         return
@@ -94,35 +107,43 @@ class Config:
     def __repr__(self):
         return repr(self._config)
 
-    #def run_name(self):
-    #    pass
-
 class Catalog:
     #read/load the fits table that contains the data
     def __init__(self,cat_file_name,config):
         self.file_name = cat_file_name
-
-        #self.property = config.property # for example
 
         self._load_catalog()
 
         return
 
     def _load_catalog(self):
-        self.cat_table = Table.read(self.file_name)
+        self._catalog = Table.read(self.file_name)
 
         # could do other things...
 
         return
 
+    # The following are so we can access the catalog
+    # values similarly to a dict
+    def __getitem__(self, key):
+        return self._catalog[key]
 
-def Ez(z):
-    Om = 0.3
-    H_0 = 0.7
-    h = H_0/100
-    return np.sqrt(Om*(1.+z)**3 + h)
+    def __setitem__(self, key, value):
+        self._catalog[key] = value
 
-class Data:
+    def __delitem__(self, key):
+        del self._catalog[key]
+
+    def __contains__(self, key):
+        return key in self._catalog
+
+    def __len__(self):
+        return len(self._catalog)
+
+    def __repr__(self):
+        return repr(self._catalog)
+
+class Data(Catalog):
     '''
     This class takes a catalog table, and grabs only the relevant columns
     for the desired fit using the config dictionary.
@@ -132,125 +153,197 @@ class Data:
     #take data frome the Catalog Class and pick rows and columns we want to fit
     #dont call flag in main call it here
     def __init__(self, config, catalog):
-        self.get_data(config, catalog)
+        self._load_data(config, catalog)
 
         return
 
-    def get_data(self, config, catalog):
+    def _load_data(self, config, catalog):
         '''
-        Obtains x, y, x errors, and y errors from config & catalog files. 
+        Obtains x, y, x errors, and y errors from config & catalog files.
         '''
         self.xlabel = fits_label(config.x)
         self.ylabel = fits_label(config.y)
-        x = catalog.cat_table[self.xlabel]
-        y = catalog.cat_table[self.ylabel]
+        x = catalog[self.xlabel]
+        y = catalog[self.ylabel]
 
-        # Number of original data
-        #N = np.size(x)
+        # Size of original data
+        N = np.size(x)
+        assert N == np.size(y)
 
         # Scale data if a luminosity
         if config['scale_x_by_ez']:
             x /= Ez(catalog.cat_table['redshift'])
+        else:
+            if self.xlabel[0] == 'l' and self.xlabel != 'lambda':
+                print('WARNING: looks like you may be passing a luminosity without'+
+                        'setting `scale_x_by_ez: True`. Is that correct?')
         if config['scale_y_by_ez']:
             y /= Ez(catalog.cat_table['redshift'])
+        else:
+            if self.ylabel[0] == 'l' and self.ylabel != 'lambda':
+                print('WARNING: looks like you may be passing a luminosity without'+
+                        'setting `scale_y_by_ez: True`. Is that correct?')
 
-        self.x_err = (catalog.cat_table[self.xlabel+'_err_low'] + catalog.cat_table[self.xlabel+'_err_high']) / 2.
-        self.y_err = (catalog.cat_table[self.ylabel+'_err_low'] + catalog.cat_table[self.ylabel+'_err_high']) / 2.
+        self.x_err = (catalog[self.xlabel+'_err_low'] + catalog[self.xlabel+'_err_high']) / 2.
+        self.y_err = (catalog[self.ylabel+'_err_low'] + catalog[self.ylabel+'_err_high']) / 2.
+
+        flags = config.flags
+        if flags is not None:
+            # FIX: Should be more error handling than this!
+            # FIX: Should write method to ensure all the counts are what we expect
+
+            mask = create_cuts(data, flags)
+            x[mask] = -1
+            y[mask] = -1
+
+            print (
+                'NOTE: `Removed` counts may be redundant, '
+                'as some data fail multiple flags.'
+            )
 
         # Take rows with good data, and all flagged data removed
         good_rows = np.all([x != -1, y != -1], axis=0)
 
-        self.x = x[good_rows]
-        self.y = y[good_rows]
-        self.x_err = self.x_err[good_rows]
-        self.y_err = self.y_err[good_rows]
+        x = x[good_rows]
+        y = y[good_rows]
+        x_err = self.x_err[good_rows]
+        y_err = self.y_err[good_rows]
 
-        #print(self.xlabel)
-        #print(self.ylabel)
-        #print('mean x error:', np.mean(self.x_err))
-        #print('mean y error:', np.mean(self.y_err))
+        # Cut out any NaNs
+        cuts = np.where( (~np.isnan(x)) &
+                         (~np.isnan(y)) &
+                         (~np.isnan(x_err)) &
+                         (~np.isnan(y_err)) )
 
-        return (self.xlabel, self.ylabel, self.x, self.y, self.x_err, self.y_err)
+        self.x = x[cuts]
+        self.y = y[cuts]
+        self.x_err = x_err[cuts]
+        self.y_err = y_err[cuts]
+
+        print('Accepted {} data out of {}'.format(np.size(x), N))
+
+        if np.size(x) == 0:
+            print (
+                '\nWARNING: No data survived flag removal. '
+                'Suggest changing flag parameters in `param.config`.'
+                '\n\nClosing program...\n'
+            )
+            raise SystemExit(2)
+
+        #if config.vb is True:
+        print('mean x error:', np.mean(self.x_err))
+        print('mean y error:', np.mean(self.y_err))
+
+        return
 
     # Plotting the x and y data.
-    def plot_data(self, x_axis, y_axis):
+    def plot_data(self, show=True):
         '''
         Plots x-axis and y-axis data.
         '''
-        plt.scatter(x_axis, y_axis)
+        plt.errorbar(self.x, self.y, self.y_err)
         plt.title('{} vs. {}'.format(self.xlabel, self.ylabel))
         plt.xlabel('{}'.format(self.xlabel))
         plt.ylabel('{}'.format(self.ylabel))
-        plt.gca().set_yscale('log')
-        plt.gca().set_xscale('log')
+        plt.xscale('log')
+        plt.yscale('log')
         plt.grid() #add (True, which='both') to display major and minor grids
-        plt.show()
+
+        if show is True:
+            plt.show()
 
         return
-
-
 
 class Fitter:
-    def __init__(self, viable_data):
-        self.fit(viable_data)
-        #self.viable_data = data
-        #self.plotting_filename = plotting_filename
+    def __init__(self):
+        self.algorithm = 'linmix'
 
         return
 
-    def fit(self, viable_data):
+    def fit(self, data):
         '''
         Calculates fit parameters using the Kelly method (linmix) and returns
         intercept, slope, and sigma.
         '''
-        x_obs = viable_data[2]
-        y_obs = viable_data[3]
-        x_err = viable_data[4]
-        y_err = viable_data[5]
 
-        #run linmix
+        log_x, log_y, log_x_err, log_y_err, piv = self.scale_data(data)
+
+        # run linmix
         print("Using Kelly Algorithm...")
-        kelly_b, kelly_m, kelly_sig = reglib.run_linmix(x_obs, y_obs, x_err, y_err)
+        kelly_b, kelly_m, kelly_sig = reglib.run_linmix(log_x, log_y, log_x_err, log_y_err)
 
-        return(x_obs, y_obs, x_err, y_err), (kelly_b, kelly_m, kelly_sig)
+        return kelly_b, kelly_m, kelly_sig
 
-    def scale(self, x_obs, y_obs, x_err, y_err):
-        ''' Scale data for plotting'''
-        log_x = np.log(x_obs)
-        x_piv = np.median(log_x)
-        log_y = np.log(y_obs)
+    def scale_data(self, data, piv_type='median'):
+        ''' Scale data for fitting'''
 
-        return [log_x-x_piv, log_y, x_err/x_obs, y_err/y_obs, x_piv]
+        # Log-x before pivot
+        xlog = np.log(data.x)
+
+        # Set pivot
+        if piv_type == 'median':
+            piv = np.median(xlog)
+
+        log_x = xlog - piv
+        log_y = np.log(data.y)
+
+        log_x_err = data.x_err / data.x
+        log_y_err = data.y_err / data.y
+
+        return log_x, log_y, log_x_err, log_y_err, piv
 
 """class SaveData(Fitter):
     def __init__(self, run_options, parameters)
 """
 
+def plot_data(x, y, x_err=None, y_err=None,
+              xlabel=None, ylabel=None, log=False, show=True):
+    '''
+    Independent plotter removed from the Data class
+    '''
+    plt.plot(x, y, 'o', alpha=0.8, color='tab:blue')
+    plt.title('{} vs. {}'.format(xlabel, ylabel))
+    plt.xlabel('{}'.format(xlabel))
+    plt.ylabel('{}'.format(ylabel))
+    if log is True:
+        plt.xscale('log')
+        plt.yscale('log')
+    plt.grid() #add (True, which='both') to display major and minor grids
+
+    if show is True:
+        plt.show()
+
+    return
+
 def main():
 
     args = parser.parse_args()
 
-    config = Config(args) #(2)
+    config = Config(args)
 
-    cat_file_name = args.cat_filename
+    catalog = Catalog(args.cat_filename, config)
 
-    catalog = Catalog(cat_file_name, config) #(3)
+    data = Data(config, catalog)
 
-    data = Data(config, catalog) #(4)
+    fitter = Fitter()
 
-    viable_data = data.get_data(config, catalog) #check that this is the correct way to access
+    b, m, sigma = fitter.fit(data)
 
-    #what would to plotting filename be i put a placepholder
-    #plot_filename = args.plotting_filename
-
-    #fitter = Fitter(viable_data) #(6)
-
-    #linmixfit = fitter.fit(viable_data)
-    
     # Scatter plot
-    x_axis = data.x
-    y_axis = data.y
-    data.plot_data(x_axis,y_axis)
+    #logx, logy, log_x_err, log_y_err, piv = fitter.scale_data(data)
+    logx, logy = fitter.scale_data(data)[0:2]
+    plot_data(logx, logy, show=False, xlabel=config.x, ylabel=config.y)
+
+    xmin = np.min(logx)
+    xmax = np.max(logx)
+    dx = abs(xmin - xmax) / 100
+    xx = np.arange(xmin, xmax + dx, dx)
+    plt.plot(xx, np.mean(m)*xx + np.mean(b), lw=3, ls='--', c='k')
+    plt.show()
+
+    print('Done!')
+
+    return
 
 if __name__ == '__main__':
     main()
