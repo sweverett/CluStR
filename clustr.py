@@ -7,6 +7,7 @@ import reglib  # Regression library
 import matplotlib.pyplot as plt
 import linmix
 import yaml
+import plotlib 
 
 #import pudb
 
@@ -172,13 +173,13 @@ class Data(Catalog):
 
         # Scale data if a luminosity
         if config['scale_x_by_ez']:
-            x /= Ez(catalog.cat_table['redshift'])
+            x /= Ez(catalog['Redshift'])
         else:
             if self.xlabel[0] == 'l' and self.xlabel != 'lambda':
                 print('WARNING: looks like you may be passing a luminosity without'+
                         'setting `scale_x_by_ez: True`. Is that correct?')
         if config['scale_y_by_ez']:
-            y /= Ez(catalog.cat_table['redshift'])
+            y /= Ez(catalog['Redshift'])
         else:
             if self.ylabel[0] == 'l' and self.ylabel != 'lambda':
                 print('WARNING: looks like you may be passing a luminosity without'+
@@ -282,7 +283,7 @@ class Fitter:
 
         # Set pivot
         if piv_type == 'median':
-            piv = np.median(xlog)
+            piv = np.log(np.median(data.x))
 
         log_x = xlog - piv
         log_y = np.log(data.y)
@@ -330,18 +331,22 @@ def main():
     b, m, sigma = fitter.fit(data)
 
     # Scatter plot
-    #logx, logy, log_x_err, log_y_err, piv = fitter.scale_data(data)
-    logx, logy = fitter.scale_data(data)[0:2]
-    plot_data(logx, logy, show=False, xlabel=config.x, ylabel=config.y)
+    logx, logy, log_x_err, log_y_err, piv = fitter.scale_data(data)
+    #logx, logy = fitter.scale_data(data)[0:2]
+    #plot_data(logx, logy, show=False, xlabel=config.x, ylabel=config.y)
 
     xmin = np.min(logx)
     xmax = np.max(logx)
-    dx = abs(xmin - xmax) / 100
-    xx = np.arange(xmin, xmax + dx, dx)
-    plt.plot(xx, np.mean(m)*xx + np.mean(b), lw=3, ls='--', c='k')
-    plt.show()
+    #dx = abs(xmin - xmax) / 100
+    #xx = np.arange(xmin, xmax + dx, dx)
+    #plt.plot(xx, np.mean(m)*xx + np.mean(b), lw=3, ls='--', c='k')
+    #plt.show()
 
     print('Done!')
+
+    print('\nFitting Data...')
+
+    plotlib.make_plots(args, config, b, m, sigma, xmax, xmin, piv) #pass on Data class x, y, xerr, yerr?
 
     return
 
