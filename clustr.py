@@ -24,10 +24,6 @@ parser.add_argument('y', help='what to plot on y axis', choices=valid_axes)
 parser.add_argument('x', help='what to plot on x axis', choices=valid_axes)
 parser.add_argument('config_file',
     help = 'the filename of the config to run')
-
-#parser.add_argument('plotting_filename',
-#    type = str,
-#    help = 'the filename of the plotting file to run')
 # Optional argument for file prefix
 parser.add_argument('-p', '--prefix', help='prefix for output file')
 # Optional arguments for any flag cuts
@@ -44,7 +40,6 @@ parser.add_argument(
 
 def fits_label(axis_name):
     ''' Get the FITS column label for `axis_name` '''
-#I believe tesla said she just wants one label with no short names
     labels = {
         'lambda': 'lambda',
         'l500kpc': '500_kiloparsecs_band_lumin',
@@ -267,7 +262,7 @@ class Fitter:
         intercept, slope, and sigma.
         '''
 
-        log_x, log_y, log_x_err, log_y_err, piv = self.scale_data(data)
+        log_x, log_y, log_x_err, log_y_err = self.scale_data(data)[0:4]
 
         # run linmix
         print("Using Kelly Algorithm...")
@@ -288,10 +283,13 @@ class Fitter:
         log_x = xlog - piv
         log_y = np.log(data.y)
 
+        xmin = np.min(log_x)
+        xmax = np.max(log_x)
+
         log_x_err = data.x_err / data.x
         log_y_err = data.y_err / data.y
 
-        return log_x, log_y, log_x_err, log_y_err, piv
+        return log_x, log_y, log_x_err, log_y_err, xmin, xmax, piv
 
 """class SaveData(Fitter):
     def __init__(self, run_options, parameters)
@@ -331,22 +329,22 @@ def main():
     b, m, sigma = fitter.fit(data)
 
     # Scatter plot
-    logx, logy, log_x_err, log_y_err, piv = fitter.scale_data(data)
+    #logx, logy, log_x_err, log_y_err, piv = fitter.scale_data(data)
     #logx, logy = fitter.scale_data(data)[0:2]
     #plot_data(logx, logy, show=False, xlabel=config.x, ylabel=config.y)
 
-    xmin = np.min(logx)
-    xmax = np.max(logx)
+    #xmin = np.min(logx)
+    #xmax = np.max(logx)
     #dx = abs(xmin - xmax) / 100
     #xx = np.arange(xmin, xmax + dx, dx)
     #plt.plot(xx, np.mean(m)*xx + np.mean(b), lw=3, ls='--', c='k')
     #plt.show()
 
-    print('Done!')
-
     print('\nFitting Data...')
 
-    plotlib.make_plots(args, config, b, m, sigma, xmax, xmin, piv) #pass on Data class x, y, xerr, yerr?
+    plotlib.make_plots(args, config, data, fitter) #pass on Data class x, y, xerr, yerr?
+
+    print('Done!')
 
     return
 
