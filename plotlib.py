@@ -1,7 +1,7 @@
 '''Plotting library for CluStR '''
 
 import os
-from clustr import fits_label
+from clustr import fits_label, Ez
 import corner
 import PyPDF2
 import numpy as np
@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 def axis_label(axis_name):
     ''' Get plot axis name for `axis_name` '''
     labels = {
-        'lambda': 'richness',
+        'lambda': r'Richness ($\lambda$)',
         'l500kpc': '500 Kiloparsec Soft-Band Luminosity (ergs/s)',
         'lr2500': 'r2500 Soft-Band Luminosity (ergs/s)',
         'lr500': 'r500 Soft-Band Luminosity (ergs/s)',
@@ -74,7 +74,13 @@ def plot_scatter(args, config, data, fitter):
     y_err_obs = data.y_err
 
     # Plot data
-    plt.errorbar(x_obs, y_obs, xerr=x_err_obs, yerr=y_err_obs, fmt='o', markeredgecolor='k')
+    plt.errorbar(x_obs, y_obs, xerr=x_err_obs, yerr=y_err_obs, 
+        ecolor='k',
+        fmt='bo', 
+        markersize=3,
+        markeredgecolor='k',
+        capsize=2
+        )
 
     fit_int, fit_slope, fit_sig = fitter.fit(data) 
     data_fit = scaled_fit_to_data(data, fitter)
@@ -86,14 +92,12 @@ def plot_scatter(args, config, data, fitter):
     )
 
     # Plot Fit
-
-    # Doesn't print method label
     plt.loglog(
-        x_fit, y_fit, color='b', linewidth=2.0,
+        x_fit, y_fit, color='darkred', linewidth=2.0, 
         label=(
-            r'$({0:0.2g} \pm {1:0.2g}) '
-            r'(x/x_{{piv}})^{{{2:0.2f} \pm {3:0.2f}}} '
-            r'(\sigma = {4:0.2f} \pm {5:0.2f})$'
+            r'$({0:0.2g} \pm {1:0.2g})'
+            r'(x/x_{{piv}})^{{{2:0.2f} \pm {3:0.2f}}}'
+            r'(\sigma^2 = {4:0.2f} \pm {5:0.2f})$'
         ).format(
             np.exp(np.mean(fit_int)),
             np.exp(np.mean(fit_int)) * np.std(fit_int),
@@ -104,12 +108,12 @@ def plot_scatter(args, config, data, fitter):
         )
     )
 
-    plt.xlabel(axis_label(config.x), fontsize=16)
-    plt.ylabel(axis_label(config.y), fontsize=16)
+    plt.xlabel(axis_label(config.x), fontsize=10)
+    plt.ylabel(axis_label(config.y), fontsize=10)
     plt.xlim([0.8*np.min(x_obs), 1.2*np.max(x_obs)])
     plt.ylim([0.8*np.min(y_obs), 1.2*np.max(y_obs)])
-
-    plt.legend(loc=2)
+    plt.grid()
+    plt.legend(loc=1, fontsize='x-small')
 
     plt.savefig(
         'Scatter-{}{}-{}.pdf'
@@ -129,7 +133,6 @@ def plot_residuals(args, config, data, fitter):
     FIX: Description
     '''
 
-    # (x_obs, y_obs, x_err_obs, y_err_obs) = data_obs
     (lx_obs, ly_obs, _lx_err_obs, _ly_err_obs) = fitter.scale_data(data)[0:4]
     _x_piv = fitter.scale_data(data)[6]
 
@@ -164,19 +167,20 @@ def plot_residuals(args, config, data, fitter):
     nbin = 18
 
     plt.hist(residuals, nbin)
-    plt.xlabel(r'$\Delta(\ln X)/\sigma_{\ln X}$', fontsize=16)
-    plt.ylabel('Count', fontsize=16)
+    plt.xlabel(r'$\Delta(\ln X)/\sigma_{\ln X}$', fontsize=11)
+    plt.ylabel('Count', fontsize=11)
 
     if config['show_method_name']:
         plt.title(
             '{} Residuals for Kelly Method'
-            .format(fits_label(config.y)),
-            fontsize=16
+            .format(axis_label(config.y)),
+            fontsize=11
         )
     else:
         plt.title(
-            '{} Residuals'.format(fits_label(config.y)),
-            fontsize=16
+            '{} Residuals'
+            .format(axis_label(config.y)),
+            fontsize=11
         )
 
     plt.savefig(
@@ -193,7 +197,7 @@ def plot_residuals(args, config, data, fitter):
 
 def plot_corners(args, config, data, fitter):
     '''
-    Makes corner plots for the desired Kelly and/or Mantz method parameter
+    Makes corner plots for the desired Kelly method parameter
     posteriors. Burn is the burn in period parameter.
     '''
 
@@ -236,15 +240,14 @@ def plot_corners(args, config, data, fitter):
         show_titles=True,
         title_args={"fontsize": 18},
         plot_datapoints=True,
-        fill_contours=True,
+        fill_contours=False,
         levels=[0.68, 0.95],
-        color='b',
+        color='mediumblue',
         bins=40,
         smooth=1.0
     )
-
-    fig.suptitle('Posterior',
-                     fontsize=16)
+    fig.suptitle('Posterior Distributioon',
+                     fontsize=14)
 
     plt.savefig(
         'Corner-{}{}-{}.pdf'
@@ -305,7 +308,11 @@ def plot_chains(args, config, data, fitter):
     plt.ylabel(r'$\sigma^2$')
 
     fig.suptitle(
-        'Markov Chains for Kelly Method'
+        '{} vs. {} \n\nMarkov Chains for Kelly Method'
+        .format(axis_label(config.x),
+        axis_label(config.y)
+        ),
+        fontsize=16
     )
 
     fig.set_size_inches(10, 10)
