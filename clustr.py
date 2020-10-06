@@ -232,24 +232,6 @@ class Data(Catalog):
 
         return
 
-    # Plotting the x and y data.
-    def plot_data(self, show=True):
-        '''
-        Plots x-axis and y-axis data.
-        '''
-        plt.errorbar(self.x, self.y, self.y_err)
-        plt.title('{} vs. {}'.format(self.xlabel, self.ylabel))
-        plt.xlabel('{}'.format(self.xlabel))
-        plt.ylabel('{}'.format(self.ylabel))
-        plt.xscale('log')
-        plt.yscale('log')
-        plt.grid() #add (True, which='both') to display major and minor grids
-
-        if show is True:
-            plt.show()
-
-        return
-
 class Fitter:
     def __init__(self):
         self.algorithm = 'linmix'
@@ -265,7 +247,6 @@ class Fitter:
         log_x, log_y, log_x_err, log_y_err = self.scale_data(data)[0:4]
 
         # run linmix
-        print("Using Kelly Algorithm...")
         kelly_b, kelly_m, kelly_sig = reglib.run_linmix(log_x, log_y, log_x_err, log_y_err)
 
         return kelly_b, kelly_m, kelly_sig
@@ -291,29 +272,6 @@ class Fitter:
 
         return log_x, log_y, log_x_err, log_y_err, xmin, xmax, piv
 
-"""class SaveData(Fitter):
-    def __init__(self, run_options, parameters)
-"""
-
-def plot_data(x, y, x_err=None, y_err=None,
-              xlabel=None, ylabel=None, log=False, show=True):
-    '''
-    Independent plotter removed from the Data class
-    '''
-    plt.plot(x, y, 'o', alpha=0.8, color='tab:blue')
-    plt.title('{} vs. {}'.format(xlabel, ylabel))
-    plt.xlabel('{}'.format(xlabel))
-    plt.ylabel('{}'.format(ylabel))
-    if log is True:
-        plt.xscale('log')
-        plt.yscale('log')
-    plt.grid() #add (True, which='both') to display major and minor grids
-
-    if show is True:
-        plt.show()
-
-    return
-
 def main():
 
     args = parser.parse_args()
@@ -326,23 +284,11 @@ def main():
 
     fitter = Fitter()
 
-    b, m, sigma = fitter.fit(data)
+    print("Using Kelly Algorithm...")
 
-    # Scatter plot
-    #logx, logy, log_x_err, log_y_err, piv = fitter.scale_data(data)
-    #logx, logy = fitter.scale_data(data)[0:2]
-    #plot_data(logx, logy, show=False, xlabel=config.x, ylabel=config.y)
+    print('\nMaking Plots...')
 
-    #xmin = np.min(logx)
-    #xmax = np.max(logx)
-    #dx = abs(xmin - xmax) / 100
-    #xx = np.arange(xmin, xmax + dx, dx)
-    #plt.plot(xx, np.mean(m)*xx + np.mean(b), lw=3, ls='--', c='k')
-    #plt.show()
-
-    print('\nFitting Data...')
-
-    plotlib.make_plots(args, config, data, fitter) #pass on Data class x, y, xerr, yerr?
+    plotlib.make_plots(args, config, data, fitter)
 
     print('Done!')
 
