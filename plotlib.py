@@ -130,7 +130,7 @@ def plot_residuals(args, config, data, fitter):
     '''
 
     # (x_obs, y_obs, x_err_obs, y_err_obs) = data_obs
-    (lx_obs, ly_obs, _lx_err_obs, _ly_err_obs) = fitter.scale_data(data)
+    (lx_obs, ly_obs, _lx_err_obs, _ly_err_obs) = fitter.scale_data(data)[0:4]
     _x_piv = fitter.scale_data(data)[6]
 
     (B, M, _S) = fitter.fit(data)
@@ -167,7 +167,7 @@ def plot_residuals(args, config, data, fitter):
     plt.xlabel(r'$\Delta(\ln X)/\sigma_{\ln X}$', fontsize=16)
     plt.ylabel('Count', fontsize=16)
 
-    if config['show_method_name'] is True or len(METHODS) > 1:
+    if config['show_method_name']:
         plt.title(
             '{} Residuals for Kelly Method'
             .format(fits_label(config.y)),
@@ -200,7 +200,7 @@ def plot_corners(args, config, data, fitter):
     burn = config['burn']
 
     # FIX: Is this still being used?
-    N = np.size(METHODS)  # Number of subplots
+    N = np.size(9)  # Number of subplots
     n = 1  # Subplot counter
 
     # Set up subplot
@@ -313,9 +313,9 @@ def plot_chains(args, config, data, fitter):
     plt.savefig(
         'Chains-{}{}-{}.pdf'
         .format( 
-            options.prefix, 
-            fits_label(options.y),
-            fits_label(options.x)
+            args.prefix, 
+            fits_label(config.y),
+            fits_label(config.x)
         )
     )
 
@@ -357,9 +357,9 @@ def make_plots(args, config, data, fitter):
         plot_residuals(args, config, data, fitter)
         # Add residual plot(s)
         pdfs.append(
-            'Residuals-{}-{}{}-{}.pdf'.format(
-                method,
-                args.prefix, fits_label(config.y),
+            'Residuals-{}{}-{}.pdf'.format(
+                args.prefix, 
+                fits_label(config.y),
                 fits_label(config.x)
             )
         )
@@ -368,9 +368,8 @@ def make_plots(args, config, data, fitter):
         plot_corners(args, config, data, fitter)
         # Add corner plot(s)
         pdfs.append(
-            'Corner-{}-{}{}-{}.pdf'
+            'Corner-{}{}-{}.pdf'
             .format(
-                method,
                 args.prefix,
                 fits_label(config.y),
                 fits_label(config.x)
@@ -381,9 +380,8 @@ def make_plots(args, config, data, fitter):
         plot_chains(args, config, data, fitter)
         # Add chain plot(s)
         pdfs.append(
-            'Chains-{}-{}{}-{}.pdf'
+            'Chains-{}{}-{}.pdf'
             .format(
-                method,
                 args.prefix,
                 fits_label(config.y),
                 fits_label(config.x)
