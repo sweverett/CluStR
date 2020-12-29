@@ -26,17 +26,6 @@ parser.add_argument('config_file',
     help = 'the filename of the config to run')
 # Optional argument for file prefix
 parser.add_argument('-p', '--prefix', help='prefix for output file')
-# Optional arguments for any flag cuts
-# FIX: in the future, make an allowed choices vector work!
-parser.add_argument(
-    '-f',
-    '--flags',
-    nargs='+',
-    type=str,
-    default=None,
-    help=('Input any desired flag cuts as a list of flag names '
-    '(with "" and no spaces!)')
-)
 
 def fits_label(axis_name):
     ''' Get the FITS column label for `axis_name` '''
@@ -75,7 +64,6 @@ class Config:
         self.args = args
         self.x = args.x
         self.y = args.y
-        self.flags = args.flags
         self.prefix = args.prefix
 
         with open(self.filename, 'r') as stream:
@@ -146,17 +134,58 @@ class Data(Catalog):
 
     config is expected to act like a dictionary
     '''
-    #take data frome the Catalog Class and pick rows and columns we want to fit
-    #dont call flag in main call it here
+
     def __init__(self, config, catalog):
         self._load_data(config, catalog)
 
         return
 
+    def create_cuts(self, config, catalog):
+            """
+            Apply cuts to data.
+            """
+
+            boolean = {
+            'analyzed',
+            'detected',
+            'merger',
+            'masked',
+            'bad_mode',
+            'bad_redmapper_pos',
+            'bad_xray_pos',
+            'bad_pos_other',
+            'on_chip_edge',
+            'edge_exclude_centering',
+            'edge_exclude_r2500',
+            'edge_exclude_r500',
+            'edge_r500',
+            'edge_r2500',
+            'edge_bkgd',
+            'off_axis_chip',
+            'serendipitous',
+            'overlap_r2500',
+            'overlap_r500',
+            'overlap_bkgd'
+        }
+
+            mask = np.zeros(len(catalog), dtype=bool)
+
+            for bflag in boolean:
+                bool_type = config[bflag + '_bool_type']
+                if isinstance(bool_type, bool):
+                    if config[bflag + '_bool_type'] == True:
+                        cut = catalog[bflag]
+                        continue
+
+            mask |= cut
+
+            return mask 
+
     def _load_data(self, config, catalog):
         '''
         Obtains x, y, x errors, and y errors from config & catalog files.
         '''
+
         self.xlabel = fits_label(config.x)
         self.ylabel = fits_label(config.y)
         x = catalog[self.xlabel]
@@ -183,19 +212,14 @@ class Data(Catalog):
         self.x_err = (catalog[self.xlabel+'_err_low'] + catalog[self.xlabel+'_err_high']) / 2.
         self.y_err = (catalog[self.ylabel+'_err_low'] + catalog[self.ylabel+'_err_high']) / 2.
 
-        flags = config.flags
-        if flags is not None:
-            # FIX: Should be more error handling than this!
-            # FIX: Should write method to ensure all the counts are what we expect
+        mask = self.create_cuts(config, catalog)
+        x[mask] = -1
+        y[mask] = -1
 
-            mask = create_cuts(data, flags)
-            x[mask] = -1
-            y[mask] = -1
-
-            print (
-                'NOTE: `Removed` counts may be redundant, '
-                'as some data fail multiple flags.'
-            )
+        print (
+            'NOTE: `Removed` counts may be redundant, '
+            'as some data fail multiple flags.'
+        )
 
         # Take rows with good data, and all flagged data removed
         good_rows = np.all([x != -1, y != -1], axis=0)
