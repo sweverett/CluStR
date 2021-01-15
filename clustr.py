@@ -146,8 +146,8 @@ class Data(Catalog):
             """
 
             boolean = {
-            'analyzed',
-            'detected',
+            'Analyzed',
+            'Detected',
             'merger',
             'masked',
             'bad_mode',
@@ -170,11 +170,21 @@ class Data(Catalog):
 
             mask = np.zeros(len(catalog), dtype=bool)
 
+            # Boolean Flags
             for bflag in boolean:
                 bool_type = config[bflag + '_bool_type']
                 if isinstance(bool_type, bool):
                     cut = catalog[bflag] == (not bool_type)
-                        
+
+                else: 
+                    print(
+                        "Warning: Boolean type must be `True` or  `False` - "
+                        "you entered `{}`. Ignoring `{}` flag."
+                        .format(bool_type, bflag)
+                    )
+
+            # Cutoff Flags
+
                     mask |= cut
 
             return mask 
@@ -210,14 +220,16 @@ class Data(Catalog):
         self.x_err = (catalog[self.xlabel+'_err_low'] + catalog[self.xlabel+'_err_high']) / 2.
         self.y_err = (catalog[self.ylabel+'_err_low'] + catalog[self.ylabel+'_err_high']) / 2.
 
-        mask = self.create_cuts(config, catalog)
-        x[mask] = -1
-        y[mask] = -1
+        if config['Flags'] == 'ON':
 
-        print (
+            mask = self.create_cuts(config, catalog)
+            x[mask] = -1
+            y[mask] = -1
+
+            print (
             'NOTE: `Removed` counts may be redundant, '
             'as some data fail multiple flags.'
-        )
+            )
 
         # Take rows with good data, and all flagged data removed
         good_rows = np.all([x != -1, y != -1], axis=0)
