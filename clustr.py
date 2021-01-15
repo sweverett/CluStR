@@ -173,11 +173,9 @@ class Data(Catalog):
             for bflag in boolean:
                 bool_type = config[bflag + '_bool_type']
                 if isinstance(bool_type, bool):
-                    if config[bflag + '_bool_type'] == True:
-                        cut = catalog[bflag]
-                        continue
-
-            mask |= cut
+                    cut = catalog[bflag] == (not bool_type)
+                        
+                    mask |= cut
 
             return mask 
 
