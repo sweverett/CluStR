@@ -401,10 +401,11 @@ def make_plots(args, config, data, fitter):
         merger.append(pdf)
 
     # Save combined output file
-    merger.write(
-        '{}{}-{}.pdf'
-        .format(args.prefix, fits_label(config.y), fits_label(config.x))
-    )
+    if config['save_all_plots'] is True: 
+        merger.write(
+            '{}{}-{}.pdf'
+            .format(args.prefix, fits_label(config.y), fits_label(config.x))
+        )
 
     # Unless otherwise specified, delete individual plots
     if config['save_all_plots'] is False:
