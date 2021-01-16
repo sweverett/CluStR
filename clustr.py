@@ -147,34 +147,27 @@ class Data(Catalog):
 
             boolean = {
             'Analyzed',
-            #'Detected',
+            'Detected',
             'merger',
-            #'masked',
+            'masked',
             'bad_mode',
-            #'bad_redmapper_pos',
-            #'bad_xray_pos',
-            #'bad_pos_other',
-            #'on_chip_edge',
-            #'edge_exclude_centering',
-            #'edge_exclude_r2500',
-            #'edge_exclude_r500',
-            #'edge_r500',
-            #'edge_r2500',
-            #'edge_bkgd',
-            #'off_axis_chip',
-            #'serendipitous',
-            #'overlap_r2500',
-            #'overlap_r500',
-            #'overlap_bkgd'
+            'edge_r500',
+            'edge_r2500',
+            'edge_bkgd',
+            'Serendipitous',
+            'overlap_r2500',
+            'overlap_r500',
+            'overlap_bkgd'
             }
 
             mask = np.zeros(len(catalog), dtype=bool)
+            print("Number of True's before flag:", sum(mask))
             # Boolean Flags
             for bflag in boolean:
                 bool_type = config[bflag + '_bool_type']
                 if isinstance(bool_type, bool):
                     cut = catalog[bflag] == (not bool_type)
-                    print(cut)
+                    
                 else:
                     print(
                         "Warning: Boolean type must be `True` or  `False` - "
@@ -185,6 +178,8 @@ class Data(Catalog):
             # Cutoff Flags
 
             mask |= cut
+            print("Number of True's after:", sum(mask))
+            
             return mask
 
     def _load_data(self, config, catalog):
@@ -218,16 +213,16 @@ class Data(Catalog):
 
         self.x_err = (catalog[self.xlabel+'_err_low'] + catalog[self.xlabel+'_err_high']) / 2.
         self.y_err = (catalog[self.ylabel+'_err_low'] + catalog[self.ylabel+'_err_high']) / 2.
+        
+        mask = self.create_cuts(config, catalog)
+        
+        x[mask] = -1
+        y[mask] = -1
 
-        if config['Flags'] == 'ON':
-            mask = self.create_cuts(config, catalog)
-            x[mask] = -1
-            y[mask] = -1
-
-            print (
-            'NOTE: `Removed` counts may be redundant, '
-            'as some data fail multiple flags.'
-            )
+        print (
+        'NOTE: `Removed` counts may be redundant, '
+        'as some data fail multiple flags.'
+        )
 
         # Take rows with good data, and all flagged data removed
         good_rows = np.all([x != -1, y != -1], axis=0)
