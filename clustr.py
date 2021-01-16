@@ -146,11 +146,11 @@ class Data(Catalog):
             """
 
             boolean = {
-            #'Analyzed',
+            'Analyzed',
             #'Detected',
             'merger',
             #'masked',
-            #'bad_mode',
+            'bad_mode',
             #'bad_redmapper_pos',
             #'bad_xray_pos',
             #'bad_pos_other',
@@ -169,12 +169,12 @@ class Data(Catalog):
             }
 
             mask = np.zeros(len(catalog), dtype=bool)
-
             # Boolean Flags
             for bflag in boolean:
                 bool_type = config[bflag + '_bool_type']
                 if isinstance(bool_type, bool):
                     cut = catalog[bflag] == (not bool_type)
+                    print(cut)
                 else:
                     print(
                         "Warning: Boolean type must be `True` or  `False` - "
@@ -219,7 +219,7 @@ class Data(Catalog):
         self.x_err = (catalog[self.xlabel+'_err_low'] + catalog[self.xlabel+'_err_high']) / 2.
         self.y_err = (catalog[self.ylabel+'_err_low'] + catalog[self.ylabel+'_err_high']) / 2.
 
-        if config['Flags'] == True:
+        if config['Flags'] == 'ON':
             mask = self.create_cuts(config, catalog)
             x[mask] = -1
             y[mask] = -1
