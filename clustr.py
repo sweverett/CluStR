@@ -146,8 +146,6 @@ class Data(Catalog):
             """
 
             boolean = {
-            'Analyzed',
-            'Detected',
             'merger',
             'masked',
             'bad_mode',
@@ -166,6 +164,8 @@ class Data(Catalog):
             for bflag in boolean:
                 bool_type = config[bflag + '_bool_type']
                 if isinstance(bool_type, bool):
+                    
+                    print("{} used".format(bflag))
                     cut = catalog[bflag] == (not bool_type)
                     
                 else:
@@ -175,10 +175,14 @@ class Data(Catalog):
                         .format(bool_type, bflag)
                     )
 
-            # Cutoff Flags
-
-            mask |= cut
-            print("Number of True's after:", sum(mask))
+                mask |= cut
+            
+                print( 
+                    'Removed {} clusters due to `{}` flag of type `{}`'
+                    .format(np.size(np.where(cut)), bflag, bool_type)
+                )
+            
+                #print("Number of True's after:", sum(mask))
             
             return mask
 
