@@ -159,29 +159,31 @@ class Data(Catalog):
                 'overlap_bkgd',
                 'Serendipitous'
             }
-            
+
             cutoff = {
                 'offset_r500',
                 'offset_r2500'
             }
-            
+
             ranges = {
-                'redshift'
+                'Redshift'
             }
 
             mask = np.zeros(len(catalog), dtype=bool)
-            
+            maskr = np.zeros(len(catalog), dtype=bool)
+            maskd = np.zeros(len(catalog), dtype=bool)
+
             # Boolean Flags
             for bflag in boolean:
                 bool_flag = bflag + "_bool_type"
                 if bool_flag in config:
-                    
+
                     bool_type = config[bflag + '_bool_type']
-                    
+
                     if isinstance(bool_type, bool):
-                        
+
                         cut = catalog[bflag] == (bool_type)
-                        
+
                     else:
                         print(
                             "Warning: Boolean type must be `True` or  `False` - "
@@ -191,37 +193,44 @@ class Data(Catalog):
                         continue
                 else:
                     continue
-                    
-            #for bflag in cutoff:
-            #    cutoff = config[bflag + '_cut']
-            #    cut_type = config[bflag + '_cut_type']
-            #    if cut_type == 'above':
-            #        cut = catalog[bflag] < cutoff
-            #    elif cut_type == 'below':
-            #        cut = catalog[bflag] > cutoff
-            #    else:
-            #        print (
-            #            'WARNING: Cutoff type must be `above` or `below` - '
-            #            'you entered `{}`. Ignoring `{}` flag.'
-            #            .format(cut_type, bflag)
-            #        )
-            #        continue
-            #        
-            #    for bflag in range:
-            #        fmin = config[bflag + '_range_min']
-            #        fmax = config[bflag + '_range_max']
-            #        range_type = config[bflag + '_range_type']
-            #        if range_type == 'inside':
-            #            cut = (catalog[bflag] < fmin) | (catalog[bflag] > fmax)
-            #        elif range_type == 'outside':
-            #            cut = (catalog[bflag] > fmin) & (catalog[bflag] < fmax)
-            #        else:
-            #            print (
-            #                'WARNING: Range type must be `inside` or `outside` - '
-            #                'you entered `{}`. Ignoring `{}` flag.'
-            #                .format(range_type, bflag)
-            #            )
-            #            continue
+        #    for cflag in cutoff:
+        #        print(config[cflag])
+        #        print(cflag)
+        #        cutoff = config[cflag + '_cut']
+        #        print(cutoff)
+        #        cut_type = config[cflag + '_cut_type']
+        #        print('THIS:')
+        #        print(cut_type)
+        #        if config == 'above':
+        #            cut = catalog[cutoff] < cutoff
+        #        elif cut_type == 'below':
+        #            print(cutoff)
+        #            cut = catalog[cutoff] > cutoff
+        #        else:
+        #            print (
+        #                'WARNING: Cutoff type must be `above` or `below` - '
+        #                'you entered `{}`. Ignoring `{}` flag.'
+        #                .format(cut_type, cflag)
+        #            )
+        #            continue
+
+                for rflag in ranges:
+                    fmin = config[rflag + '_range_min']
+                    fmax = config[rflag + '_range_max']
+                    range_type = config[rflag + '_range_type']
+                    print(range_type)
+                    if range_type == 'inside':
+                        cutr = (catalog[rflag] < fmin) | (catalog[rflag] > fmax)
+                    elif range_type == 'outside':
+                        cutr = (catalog[rflag] > fmin) & (catalog[rflag] < fmax)
+                    else:
+                        print (
+                            'WARNING: Range type must be `inside` or `outside` - '
+                            'you entered `{}`. Ignoring `{}` flag.'
+                            .format(range_type, rflag)
+                        )
+                        continue
+                maskr |= cutr
                 mask |= cut
 
                 print(
@@ -229,9 +238,10 @@ class Data(Catalog):
                     .format(np.size(np.where(cut)), bflag, bool_type)
                 )
 
+
                 #print("Number of True's after:", sum(mask))
 
-            return mask
+            return mask, maskr, maskd
 
     def _load_data(self, config, catalog):
         '''
@@ -265,10 +275,14 @@ class Data(Catalog):
         self.x_err = (catalog[self.xlabel+'_err_low'] + catalog[self.xlabel+'_err_high']) / 2.
         self.y_err = (catalog[self.ylabel+'_err_low'] + catalog[self.ylabel+'_err_high']) / 2.
 
-        mask = self.create_cuts(config, catalog)
+        mask, maskr, maskd = self.create_cuts(config, catalog)
 
         x[mask] = -1
         y[mask] = -1
+        x[maskr] = -1
+        y[maskr] = -1
+        x[maskd] = -1
+        y[maskd] = -1
 
         print (
         'NOTE: `Removed` counts may be redundant, '
