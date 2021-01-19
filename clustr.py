@@ -146,71 +146,82 @@ class Data(Catalog):
             """
 
             boolean = {
-            'merger',
-            'masked',
-            'bad_mode',
-            'edge_r500',
-            'edge_r2500',
-            'edge_bkgd',
-            'Serendipitous',
-            'overlap_r2500',
-            'overlap_r500',
-            'overlap_bkgd'
+                'Analyzed',
+                'Detected',
+                'bad_mode',
+                'edge_r500',
+                'edge_r2500',
+                'edge_bkgd',
+                'merger',
+                'masked',
+                'overlap_r2500',
+                'overlap_r500',
+                'overlap_bkgd',
+                'Serendipitous'
             }
+            
             cutoff = {
-            'offset_r500',
-            'offset_r2500'
+                'offset_r500',
+                'offset_r2500'
             }
-            range = {
-            'redshift'
+            
+            ranges = {
+                'redshift'
             }
 
             mask = np.zeros(len(catalog), dtype=bool)
-            print("Number of True's before flag:", sum(mask))
+            
             # Boolean Flags
             for bflag in boolean:
-                bool_type = config[bflag + '_bool_type']
-                if isinstance(bool_type, bool):
-
-                    print("{} used".format(bflag))
-                    cut = catalog[bflag] == (not bool_type)
-
-                else:
-                    print(
-                        "Warning: Boolean type must be `True` or  `False` - "
-                        "you entered `{}`. Ignoring `{}` flag."
-                        .format(bool_type, bflag)
-                    )
-                    continue
-            for bflag in cutoff:
-                cutoff = config[bflag + '_cut']
-                cut_type = config[bflag + '_cut_type']
-                if cut_type == 'above':
-                    cut = catalog[bflag] < cutoff
-                elif cut_type == 'below':
-                    cut = catalog[bflag] > cutoff
-                else:
-                    print (
-                        'WARNING: Cutoff type must be `above` or `below` - '
-                        'you entered `{}`. Ignoring `{}` flag.'
-                        .format(cut_type, bflag)
-                    )
-                    continue
-                for bflag in range:
-                    fmin = config[bflag + '_range_min']
-                    fmax = config[bflag + '_range_max']
-                    range_type = config[bflag + '_range_type']
-                    if range_type == 'inside':
-                        cut = (catalog[bflag] < fmin) | (catalog[bflag] > fmax)
-                    elif range_type == 'outside':
-                        cut = (catalog[bflag] > fmin) & (catalog[bflag] < fmax)
+                bool_flag = bflag + "_bool_type"
+                if bool_flag in config:
+                    
+                    bool_type = config[bflag + '_bool_type']
+                    
+                    if isinstance(bool_type, bool):
+                        
+                        cut = catalog[bflag] == (bool_type)
+                        
                     else:
-                        print (
-                            'WARNING: Range type must be `inside` or `outside` - '
-                            'you entered `{}`. Ignoring `{}` flag.'
-                            .format(range_type, bflag)
+                        print(
+                            "Warning: Boolean type must be `True` or  `False` - "
+                            "you entered `{}`. Ignoring `{}` flag."
+                            .format(bool_type, bflag)
                         )
                         continue
+                else:
+                    continue
+                    
+            #for bflag in cutoff:
+            #    cutoff = config[bflag + '_cut']
+            #    cut_type = config[bflag + '_cut_type']
+            #    if cut_type == 'above':
+            #        cut = catalog[bflag] < cutoff
+            #    elif cut_type == 'below':
+            #        cut = catalog[bflag] > cutoff
+            #    else:
+            #        print (
+            #            'WARNING: Cutoff type must be `above` or `below` - '
+            #            'you entered `{}`. Ignoring `{}` flag.'
+            #            .format(cut_type, bflag)
+            #        )
+            #        continue
+            #        
+            #    for bflag in range:
+            #        fmin = config[bflag + '_range_min']
+            #        fmax = config[bflag + '_range_max']
+            #        range_type = config[bflag + '_range_type']
+            #        if range_type == 'inside':
+            #            cut = (catalog[bflag] < fmin) | (catalog[bflag] > fmax)
+            #        elif range_type == 'outside':
+            #            cut = (catalog[bflag] > fmin) & (catalog[bflag] < fmax)
+            #        else:
+            #            print (
+            #                'WARNING: Range type must be `inside` or `outside` - '
+            #                'you entered `{}`. Ignoring `{}` flag.'
+            #                .format(range_type, bflag)
+            #            )
+            #            continue
                 mask |= cut
 
                 print(
