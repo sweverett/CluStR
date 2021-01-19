@@ -218,7 +218,6 @@ class Data(Catalog):
                     fmin = config[rflag + '_range_min']
                     fmax = config[rflag + '_range_max']
                     range_type = config[rflag + '_range_type']
-                    print(range_type)
                     if range_type == 'inside':
                         cutr = (catalog[rflag] < fmin) | (catalog[rflag] > fmax)
                     elif range_type == 'outside':
@@ -252,8 +251,6 @@ class Data(Catalog):
         self.ylabel = fits_label(config.y)
         x = catalog[self.xlabel]
         y = catalog[self.ylabel]
-
-        print(config['Flags'])
         # Size of original data
         N = np.size(x)
         assert N == np.size(y)
