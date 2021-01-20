@@ -164,7 +164,7 @@ class Data(Catalog):
                 'r500_SNR',
                 'r2500_SNR'
             }
-            
+
             ranges = {
                 'Redshift'
             }
@@ -177,9 +177,9 @@ class Data(Catalog):
             for bflag in boolean:
                 bool_flag = bflag + "_bool_type"
                 if bool_flag in config:
-                    
+
                     bool_type = config[bflag + '_bool_type']
-                    
+
                     if isinstance(bool_type, bool):
                         
                         cutb = catalog[bflag] == (bool_type)
@@ -268,8 +268,6 @@ class Data(Catalog):
         self.ylabel = fits_label(config.y)
         x = catalog[self.xlabel]
         y = catalog[self.ylabel]
-
-        print(config['Flags'])
         # Size of original data
         N = np.size(x)
         assert N == np.size(y)
