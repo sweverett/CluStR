@@ -159,10 +159,12 @@ class Data(Catalog):
                 'overlap_bkgd',
                 'Serendipitous'
             }
-            
-            cutoffs = {
-                'r500_SNR',
-                'r2500_SNR'
+
+            SNR = {
+                '500_kiloparsecs'
+                #'r2500',
+                #'r500',
+                #'r500_core_cropped'
             }
 
             ranges = {
@@ -170,9 +172,8 @@ class Data(Catalog):
             }
 
             maskb = np.zeros(len(catalog), dtype=bool)
-            maskc = np.zeros(len(catalog), dtype=bool)
             maskr = np.zeros(len(catalog), dtype=bool)
-            
+            masksnr = np.zeros(len(catalog), dtype=bool)
             # Boolean Flags
             for bflag in boolean:
                 bool_flag = bflag + "_bool_type"
@@ -181,67 +182,58 @@ class Data(Catalog):
                     bool_type = config[bflag + '_bool_type']
 
                     if isinstance(bool_type, bool):
-                        
+
                         cutb = catalog[bflag] == (bool_type)
-                        
+
                     else:
                         print(
                             "Warning: Boolean type must be `True` or  `False` - "
                             "you entered `{}`. Ignoring `{}` flag."
                             .format(bool_type, bflag)
                         )
-                       
+
                         continue
                 else:
                     continue
-                    
+
                 maskb |= cutb
                 print(
                     'Removed {} clusters due to `{}` flag of `{}`'
                     .format(np.size(np.where(cutb)), bflag, type(bool_type))
                 )
-                    
-            for cflag in cutoffs:
-                cutoff = cflag + "_cut"
-                cuttype = cflag + "_cut_type"
-                if cutoff and cuttype in config:
-                    
+            for snrflag in SNR:
+                cutoff = snrflag + "_SNR"
+                print(cutoff)
+                if cutoff in config:
                     cut_off = config[cutoff]
-                    cut_type = config[cuttype]
-                    
-                    if cut_type == 'above':
-                        cutc = catalog[cflag] < cutoff
-                        
-                    elif cut_type == 'below':
-                        cutc = catalog[cflag] > cutoff
-                        
-                    else:
-                        print (
-                            'WARNING: Cutoff type must be `above` or `below` - '
-                            'you entered `{}`. Ignoring `{}` flag.'
-                            .format(cut_type, cflag)
-                        )
-                        continue
+                    print(cut_off)
+                    SNR_min_value = config['SNR_min']
+                    cutsnr = catalog[cutoff] > SNR_min_value
+
+
                 else:
+                    print (
+                        'ok'
+                    )
                     continue
-                
-                maskc |= cutc
+
+                masksnr |= cutsnr
                 print(
                     'Removed {} clusters due to `{}` flag of `{}`'
-                    .format(np.size(np.where(cutc)), cflag, type(cut_type))
+                    .format(np.size(np.where(cutsnr)), snrflag, type(cutoff))
                 )
-                  
+
             for rflag in ranges:
                 fmin = config[rflag + '_range_min']
                 fmax = config[rflag + '_range_max']
                 range_type = config[rflag + '_range_type']
-                
+
                 if range_type == 'inside':
                     cutr = (catalog[rflag] < fmin) | (catalog[rflag] > fmax)
-                    
+
                 elif range_type == 'outside':
                     cutr = (catalog[rflag] > fmin) & (catalog[rflag] < fmax)
-                    
+
                 else:
                     print (
                         'WARNING: Range type must be `inside` or `outside` - '
@@ -249,15 +241,15 @@ class Data(Catalog):
                         .format(range_type, rflag)
                     )
                     continue
-                    
+
                 maskr |= cutr
-                
+
                 print(
                     'Removed {} clusters due to `{}` flag of `{}`'
                     .format(np.size(np.where(cutr)), rflag, type(range_type))
                 )
 
-            return maskb, maskc, maskr
+            return maskb, masksnr, maskr
 
     def _load_data(self, config, catalog):
         '''
@@ -289,15 +281,15 @@ class Data(Catalog):
         self.x_err = (catalog[self.xlabel+'_err_low'] + catalog[self.xlabel+'_err_high']) / 2.
         self.y_err = (catalog[self.ylabel+'_err_low'] + catalog[self.ylabel+'_err_high']) / 2.
 
-        maskb, maskc, maskr = self.create_cuts(config, catalog)
+        maskb, masksnr, maskr = self.create_cuts(config, catalog)
 
         x[maskb] = -1
-        x[maskc] = -1
         x[maskr] = -1
-        
+        x[masksnr] = -1
+
         y[maskb] = -1
-        y[maskc] = -1
         y[maskr] = -1
+        y[masksnr] = -1
 
         print (
         '\nNOTE: `Removed` counts may be redundant, '
@@ -322,7 +314,7 @@ class Data(Catalog):
         self.y = y[cuts]
         self.x_err = x_err[cuts]
         self.y_err = y_err[cuts]
-        
+
         print('Accepted {} data out of {}\n'.format(np.size(x), N))
 
         if np.size(x) == 0:
@@ -336,7 +328,7 @@ class Data(Catalog):
         #if config.vb is True:
         print('mean x error:', np.mean(self.x_err))
         print('mean y error:', np.mean(self.y_err))
-        print '\n'
+        print ('\n')
 
         return
 
