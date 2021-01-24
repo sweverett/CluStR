@@ -161,7 +161,7 @@ class Data(Catalog):
             }
 
             SNR = {
-                '500_kiloparsecs'
+                '500_kiloparsecs_SNR'
                 #'r2500',
                 #'r500',
                 #'r500_core_cropped'
@@ -202,25 +202,12 @@ class Data(Catalog):
                     .format(np.size(np.where(cutb)), bflag, type(bool_type))
                 )
             for snrflag in SNR:
-                cutoff = snrflag + "_SNR"
-                print(cutoff)
-                if cutoff in config:
-                    cut_off = config[cutoff]
-                    print(cut_off)
-                    SNR_min_value = config['SNR_min']
-                    cutsnr = catalog[cutoff] > SNR_min_value
-
-
-                else:
-                    print (
-                        'ok'
-                    )
-                    continue
-
+                SNR_min_value = config['SNR_min']
+                cutsnr = catalog[snrflag] < SNR_min_value
                 masksnr |= cutsnr
                 print(
                     'Removed {} clusters due to `{}` flag of `{}`'
-                    .format(np.size(np.where(cutsnr)), snrflag, type(cutoff))
+                    .format(np.size(np.where(cutsnr)), snrflag, type(snrflag))
                 )
 
             for rflag in ranges:
