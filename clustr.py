@@ -145,96 +145,80 @@ class Data(Catalog):
             Apply cuts to data.
             """
 
-            boolean = {
-                'Analyzed',
-                'Detected',
-                'bad_mode',
-                'edge_r500',
-                'edge_r2500',
-                'edge_bkgd',
-                'merger',
-                'masked',
-                'overlap_r2500',
-                'overlap_r500',
-                'overlap_bkgd',
-                'Serendipitous'
-            }
-
-            SNR = {
-                '500_kiloparsecs_SNR'
-                #'r2500',
-                #'r500',
-                #'r500_core_cropped'
-            }
-
-            ranges = {
-                'Redshift'
-            }
-
             maskb = np.zeros(len(catalog), dtype=bool)
             maskr = np.zeros(len(catalog), dtype=bool)
             masksnr = np.zeros(len(catalog), dtype=bool)
+            
             # Boolean Flags
-            for bflag in boolean:
-                bool_flag = bflag + "_bool_type"
-                if bool_flag in config:
-
-                    bool_type = config[bflag + '_bool_type']
-
-                    if isinstance(bool_type, bool):
-
+            for bflag_ in config['Bool_Flag']:
+                bool_type = config['Bool_Flag'][bflag_]
+                
+                if isinstance(bool_type, bool):
+                    if bool_type:
+                        
+                        bflag = bflag_.replace("_bool_type", "")
+                        
                         cutb = catalog[bflag] == (bool_type)
-
+                    
                     else:
-                        print(
-                            "Warning: Boolean type must be `True` or  `False` - "
-                            "you entered `{}`. Ignoring `{}` flag."
-                            .format(bool_type, bflag)
-                        )
-
                         continue
+
                 else:
-                    continue
+                    print(
+                        "Warning: Boolean type must be `True` or  `False` - "
+                        "you entered `{}`. Ignoring `{}` flag."
+                        .format(bool_type, bflag)
+                    )
 
                 maskb |= cutb
                 print(
                     'Removed {} clusters due to `{}` flag of `{}`'
-                    .format(np.size(np.where(cutb)), bflag, type(bool_type))
+                    .format(np.size(np.where(cutb)), bflag_, type(bool_type))
                 )
-            for snrflag in SNR:
-                SNR_min_value = config['SNR_min']
-                cutsnr = catalog[snrflag] < SNR_min_value
-                masksnr |= cutsnr
-                print(
-                    'Removed {} clusters due to `{}` flag of `{}`'
-                    .format(np.size(np.where(cutsnr)), snrflag, type(snrflag))
-                )
+            
+            # Cutoff Flags
+            #for cutoff_ in config['Cutoff_Flag']:
+            #    cutoff_val = config['Config_Flag'][cutoff_]
+            #    
+            #    cutc = catalog[snrflag] < SNR_min_value
+            #    masksnr |= cutsnr
+            #    print(
+            #        'Removed {} clusters due to `{}` flag of `{}`'
+            #        .format(np.size(np.where(cutsnr)), snrflag, type(snrflag))
+            #    )
 
-            for rflag in ranges:
-                fmin = config[rflag + '_range_min']
-                fmax = config[rflag + '_range_max']
-                range_type = config[rflag + '_range_type']
-
-                if range_type == 'inside':
-                    cutr = (catalog[rflag] < fmin) | (catalog[rflag] > fmax)
-
-                elif range_type == 'outside':
-                    cutr = (catalog[rflag] > fmin) & (catalog[rflag] < fmax)
-
-                else:
-                    print (
-                        'WARNING: Range type must be `inside` or `outside` - '
-                        'you entered `{}`. Ignoring `{}` flag.'
-                        .format(range_type, rflag)
-                    )
-                    continue
-
-                maskr |= cutr
-
-                print(
-                    'Removed {} clusters due to `{}` flag of `{}`'
-                    .format(np.size(np.where(cutr)), rflag, type(range_type))
-                )
+            for rflag_ in config['Range_Flag']:
+                if rflag_ not in ('Other'):
+                    
+                    rflag = config['Range_Flag'][rflag_]
+                    
+                    for rkeys in rflag:
+                        minmax_ = rflag[rkeys].values()
+                        
+                        rmin = minmax_[0]
+                        rmax = minmax_[0]
+                        range_type = minmax_[2]
+        
+                        if range_type == 'inside':
+                            cutr = (catalog[rflag_] < rmin) | (catalog[rflag_] > rmax)
+        
+                        elif range_type == 'outside':
+                            cutr = (catalog[rflag_] > rmin) & (catalog[rflag_] < rmax)
+        
+                        else:
+                            print (
+                                'WARNING: Range type must be `inside` or `outside` - '
+                                'you entered `{}`. Ignoring `{}` flag.'
+                                .format(range_type, rflag)
+                            )
+                            continue
+        
+                        maskr |= cutr
+        
+                        print(
+                            'Removed {} clusters due to `{}` flag of `{}`'
+                            .format(np.size(np.where(cutr)), rflag_, type(range_type))
+                        )
 
             return maskb, masksnr, maskr
 
