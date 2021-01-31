@@ -188,15 +188,16 @@ class Data(Catalog):
             #    )
 
             for rflag_ in config['Range_Flag']:
-                if rflag_ not in ('Other'):
+                TF = config['Range_Flag'][rflag_]
+                if rflag_ not in ('Other') and TF.keys()[0] != False:
                     
-                    rflag = config['Range_Flag'][rflag_]
+                    rflag = TF[True]
                     
-                    for rkeys in rflag:
-                        minmax_ = rflag[rkeys].values()
+                    for _, rvalues in rflag.items():
+                        minmax_ = rvalues.values()
                         
                         rmin = minmax_[0]
-                        rmax = minmax_[0]
+                        rmax = minmax_[1]
                         range_type = minmax_[2]
         
                         if range_type == 'inside':
