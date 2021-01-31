@@ -148,18 +148,18 @@ class Data(Catalog):
             maskb = np.zeros(len(catalog), dtype=bool)
             maskr = np.zeros(len(catalog), dtype=bool)
             masksnr = np.zeros(len(catalog), dtype=bool)
-            
+
             # Boolean Flags
             for bflag_ in config['Bool_Flag']:
                 bool_type = config['Bool_Flag'][bflag_]
-                
+
                 if isinstance(bool_type, bool):
                     if bool_type:
-                        
+
                         bflag = bflag_.replace("_bool_type", "")
-                        
+
                         cutb = catalog[bflag] == (bool_type)
-                    
+
                     else:
                         continue
 
@@ -175,37 +175,42 @@ class Data(Catalog):
                     'Removed {} clusters due to `{}` flag of `{}`'
                     .format(np.size(np.where(cutb)), bflag_, type(bool_type))
                 )
-            
-            # Cutoff Flags
-            #for cutoff_ in config['Cutoff_Flag']:
-            #    cutoff_val = config['Config_Flag'][cutoff_]
-            #    
-            #    cutc = catalog[snrflag] < SNR_min_value
-            #    masksnr |= cutsnr
-            #    print(
-            #        'Removed {} clusters due to `{}` flag of `{}`'
-            #        .format(np.size(np.where(cutsnr)), snrflag, type(snrflag))
-            #    )
+
+            #Cutoff Flags
+            for cutoff_ in config['Cutoff_Flag']:
+                #cutoff_val = config['Config_Flag'][cutoff_]
+                SNR = config['Cutoff_Flag'][cutoff_]
+                if cutoff_ not in ('Other') and list(SNR.keys())[0] != False:
+
+                    cutoff = SNR[True]
+                    for _, snrmax in cutoff.items():
+                        cutsnr = catalog[cutoff_] < snrmax
+                    masksnr |= cutsnr
+                    print(
+                        'Removed {} clusters due to `{}` flag of `{}`'
+                        .format(np.size(np.where(cutsnr)), cutoff_, type(cutoff_))
+                        )
 
             for rflag_ in config['Range_Flag']:
                 TF = config['Range_Flag'][rflag_]
-                if rflag_ not in ('Other') and TF.keys()[0] != False:
-                    
+                if rflag_ not in ('Other') and list(TF.keys())[0] != False:
+
                     rflag = TF[True]
-                    
+
                     for _, rvalues in rflag.items():
-                        minmax_ = rvalues.values()
-                        
+                        minmax_ = list(rvalues.values())
+
                         rmin = minmax_[0]
                         rmax = minmax_[1]
                         range_type = minmax_[2]
-        
+                        #print(range_type)
+
                         if range_type == 'inside':
                             cutr = (catalog[rflag_] < rmin) | (catalog[rflag_] > rmax)
-        
+
                         elif range_type == 'outside':
                             cutr = (catalog[rflag_] > rmin) & (catalog[rflag_] < rmax)
-        
+
                         else:
                             print (
                                 'WARNING: Range type must be `inside` or `outside` - '
@@ -213,9 +218,9 @@ class Data(Catalog):
                                 .format(range_type, rflag)
                             )
                             continue
-        
+
                         maskr |= cutr
-        
+
                         print(
                             'Removed {} clusters due to `{}` flag of `{}`'
                             .format(np.size(np.where(cutr)), rflag_, type(range_type))
