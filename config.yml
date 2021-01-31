@@ -1,12 +1,12 @@
 # ======================================================================
-#
+
 # CluStR configuration file.
 #
 # Lines starting with '#' are ignored; all other lines must contain a
 # Name : Value pair to be read into the parameters dictionary.
-#
-# Spencer Everett, UCSC, 3/2017
-#
+
+# Spencer Everett, Jose E. Jobel, Paige Kelly, UCSC, 2017 - 2021
+
 # ======================================================================
 
 # ----------------------------------------------------------------------
@@ -20,8 +20,8 @@ H_0: 0.7
 #-----------------------------------------------------------------------
 # Scale
 #--------
-#scale_x_by_ez : scale_x_by_ez
-#scale_y_by_ez : scale_y_by_ez
+scale_x_by_ez : scale_x_by_ez
+scale_y_by_ez : scale_y_by_ez
 #------------------------------------------------------------------------
 
 # NB: Not all default options are implemented yet!
@@ -39,26 +39,16 @@ default_x: None
 default_y: None
 
 # Column name conventions:
-lambda : lambda
-l500kpc : 500_kiloparsecs_band_lumin
-lr2500 : r2500_band_lumin
-lr500 : r500_band_lumin
-lr500cc : r500_core_cropped_band_lumin
-t500kpc : 500_kiloparsecs_temperature
-tr2500 : r2500_temperature
-tr500 : r500_temperature
-tr500cc : r500_core_cropped_temperature
-
-# ----------------------------------------------------------------------
-# Methods
-# --------
-
-# Set which default regression method to use. `kelly` uses the `linmix`
-# implementation of the Kelly method, `mantz` uses the `lrgs` implementation of
-# the Mantz method, and `both` will calculate both regressions and compare them
-# in various plots.
-
-default_methods: kelly
+Column_Names: 
+    lambda: lambda
+    l500kpc: 500_kiloparsecs_band_lumin
+    lr2500: r2500_band_lumin
+    lr500: r500_band_lumin
+    lr500cc: r500_core_cropped_band_lumin
+    t500kpc: 500_kiloparsecs_temperature
+    tr2500: r2500_temperature
+    tr500: r500_temperature
+    tr500cc: r500_core_cropped_temperature
 
 # ----------------------------------------------------------------------
 # Flags
@@ -68,63 +58,83 @@ default_methods: kelly
 # For each type, indicate which values you want used in the analysis (e.g.
 # `True`/`False` for bool, `above`/`below` for cutoff, `inside`/`outside` for
 # range).
-#
+
 # NOTE: Any given column can only be flagged as one flag type - not more!
+
+# NOTE: These flag cut values are not used by default. To apply these flags
+#           change the KEY to TRUE.
+
+# To add a new boolean flag use the following structure,
+
+# Bool_Flags:
+#   New_flag1_bool_type: True/False
+#   New_flag2_bool_type: True/False
+#   New_flag3_bool_type: True/False
+
+# To add a new cutoff flag,
 #
-# NOTE: These flag cut values are not used by default.
+# Cutoff_Flag:
+#   New_flag4:
+#       True/Flase:
+#           New_flag4_cutoff: value
+#           New_flag4_cut_type: above/below
 #
-# To add cutoff or range values for a desired flag, simply add the exact column
-# name to the list with the suffix `_cut` or `_range_min/max` along with the
-# cut value separated by a colon. Then on a new row, use the same column name
-# with the suffix `_cut_type` or `_range_type` and specify the type.
-#
+# To add a new range flag, 
+
+# Range_Flag: 
+#   New_flag5:
+#       True/False:
+#           New_flag5_minmax: 
+#               New_flag5_range_min: value,
+#               New_flag5_range_max: value,
+#               New_flag5_range_type: outside/inside
+
 # For bools, add the suffix `_bool_type` to the column name.
 
 # cutoff example:
 # offset_r500_cut : 0.5
 # offset_r500_cut_type : below
 
-#(UPDATE)
-# *** Commenting out a bool flag is equivalent to not wanting that flag applied (False).
-# *** Removing the hashtag is equivalent to wanting the bool flag applied (True).
-# *** Set to True to remove rows with value = 1. In general, True = 1 and False = 0.
-#       This means rows with column flag label value = 1 will be removed from data.
-
 # Bools:
-Bool_Flag: { 
-    Analyzed_bool_type: False,
-    bad_mode_bool_type: False,
-    Detected_bool_type: False,
-    edge_r500_bool_type: False,
-    edge_r2500_bool_type: False,
-    edge_bkgd_bool_type: False,
-    merger_bool_type: True,
-    masked_bool_type: True,
-    overlap_r500_bool_type: False,
-    overlap_r2500_bool_type: False,
-    overlap_bkgd_bool_type: False,
+Bool_Flag: 
+    Analyzed_bool_type: False
+    bad_mode_bool_type: False
+    Detected_bool_type: False
+    edge_r500_bool_type: False
+    edge_r2500_bool_type: False
+    edge_bkgd_bool_type: False
+    merger_bool_type: True
+    masked_bool_type: True
+    overlap_r500_bool_type: False
+    overlap_r2500_bool_type: False
+    overlap_bkgd_bool_type: False
     Serendipitous_bool_type: False
-}
 
 # Cutoff:
-Cutoff_Flag: {
-    SNR_cutoff: 9.0,
-    SNR_cut_type: below
-}
+Cutoff_Flag:
+    SNR:
+        False:
+            SNR_cutoff: 9.0
+            SNR_cut_type: below
+    Other:
+        True/False:
+            _cutoff: value
+            _cut_type: above/below
 
 # Ranges:
-Range_Flag: {
-    Redshift: {
-        red_minmax: {
-            Redshift_range_min: 0.0,
-            Redshift_range_max: 0.5,
-            Redshift_range_type: outside}},
-    Other: {
-        _minmax: {
-            _range_min: value,
-            _range_max: value,
-            _range_type: value}}
-}
+Range_Flag: 
+    Redshift: 
+        True:
+            Redshift_minmax: 
+                Redshift_range_min: 0.0
+                Redshift_range_max: 0.5
+                Redshift_range_type: outside
+    Other: 
+        True/False:
+            _minmax: 
+                _range_min: value
+                _range_max: value
+                _range_type: outside/inside
 
 # ----------------------------------------------------------------------
 # Plots
