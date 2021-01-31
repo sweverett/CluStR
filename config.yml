@@ -39,7 +39,7 @@ default_x: None
 default_y: None
 
 # Column name conventions:
-Column_Names: 
+Column_Names:
     lambda: lambda
     l500kpc: 500_kiloparsecs_band_lumin
     lr2500: r2500_band_lumin
@@ -79,12 +79,12 @@ Column_Names:
 #           New_flag4_cutoff: value
 #           New_flag4_cut_type: above/below
 #
-# To add a new range flag, 
+# To add a new range flag,
 
-# Range_Flag: 
+# Range_Flag:
 #   New_flag5:
 #       True/False:
-#           New_flag5_minmax: 
+#           New_flag5_minmax:
 #               New_flag5_range_min: value,
 #               New_flag5_range_max: value,
 #               New_flag5_range_type: outside/inside
@@ -96,42 +96,42 @@ Column_Names:
 # offset_r500_cut_type : below
 
 # Bools:
-Bool_Flag: 
+Bool_Flag:
     Analyzed_bool_type: False
-    bad_mode_bool_type: False
+    bad_mode_bool_type: True
     Detected_bool_type: False
     edge_r500_bool_type: False
-    edge_r2500_bool_type: False
-    edge_bkgd_bool_type: False
-    merger_bool_type: True
+    edge_r2500_bool_type: True
+    edge_bkgd_bool_type: True
+    merger_bool_type: False
     masked_bool_type: True
-    overlap_r500_bool_type: False
-    overlap_r2500_bool_type: False
-    overlap_bkgd_bool_type: False
+    overlap_r500_bool_type: True
+    overlap_r2500_bool_type: True
+    overlap_bkgd_bool_type: True
     Serendipitous_bool_type: False
 
 # Cutoff:
 Cutoff_Flag:
-    SNR:
-        False:
+    500_kiloparsecs_SNR:
+        True:
             SNR_cutoff: 9.0
-            SNR_cut_type: below
-    Other:
-        True/False:
-            _cutoff: value
-            _cut_type: above/below
+            #SNR_cut_type: below
+  #  Other:
+  #      True/False:
+  #          _cutoff: value
+  #          _cut_type: above/below
 
 # Ranges:
-Range_Flag: 
-    Redshift: 
+Range_Flag:
+    Redshift:
         True:
-            Redshift_minmax: 
+            Redshift_minmax:
                 Redshift_range_min: 0.0
-                Redshift_range_max: 0.5
-                Redshift_range_type: outside
-    Other: 
+                Redshift_range_max: 1.0
+                Redshift_range_type: inside
+    Other:
         True/False:
-            _minmax: 
+            _minmax:
                 _range_min: value
                 _range_max: value
                 _range_type: outside/inside
@@ -142,11 +142,11 @@ Range_Flag:
 
 # Set which plots you want saved in the output .pdf file. Combines all plots
 # into a single file unless `save_all_plots` is set to True.
-scatter: False
-corner: False
-chains: False
-residuals: False
-save_all_plots: False
+scatter: True
+corner: True
+chains: True
+residuals: True
+save_all_plots: True
 
 # Show the method name used in the scatter plot?
 show_method_name: False
