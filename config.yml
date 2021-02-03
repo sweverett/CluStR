@@ -30,7 +30,7 @@ scale_y_by_ez : scale_y_by_ez
 default_catalog: None
 
 # Default output file prexfix (includes x and y labels automatically)
-default_prefix: Jose
+default_prefix: Test
 
 # Default covariate variable (independent variable)
 default_x: None
@@ -70,6 +70,27 @@ Column_Names:
 #   New_flag1_bool_type: True/False
 #   New_flag2_bool_type: True/False
 #   New_flag3_bool_type: True/False
+# 
+# User may choose from the following list of bool flags:
+#
+#   - Analyzed
+#   - bad_mode
+#   - Detected
+#   - edge_r500
+#   - edge_r2500
+#   - edge_bkgd
+#   - merger
+#   - masked
+#   - overlap_r500
+#   - overlap_r2500
+#   - overlap_bkgd
+#   - Serendipitous
+#
+# Boolean flags set to True will remove obs that have 
+#   catalog[bflag] = 1
+# 
+# Boolean flags set to False will remove obs that have
+#   catalog[bflag] = 0
 
 # To add a new cutoff flag,
 #
@@ -78,6 +99,13 @@ Column_Names:
 #       True/Flase:
 #           New_flag4_cutoff: value
 #           New_flag4_cut_type: above/below
+#
+# Above -> Cuts observations from sample below 'value'.
+#           Will run analysis on obs above 'value'.
+#
+# Below -> Cuts observations from sample above 'value'.
+#           Will run analysis on obs below 'value'. 
+
 #
 # To add a new range flag,
 
@@ -88,43 +116,36 @@ Column_Names:
 #               New_flag5_range_min: value,
 #               New_flag5_range_max: value,
 #               New_flag5_range_type: outside/inside
-
-# For bools, add the suffix `_bool_type` to the column name.
-
-# cutoff example:
-# offset_r500_cut : 0.5
-# offset_r500_cut_type : below
+#
+# Outside -> Removes observations inside (min, max). Runs analysis on 
+#               obs outside range. 
+# 
+# Inside -> Removes observations outside (min, max). Runs analysis on 
+#               obs inside range.
 
 # Bools:
 Bool_Flag:
-    Analyzed_bool_type: False
     bad_mode_bool_type: True
-    Detected_bool_type: False
-    edge_r500_bool_type: False
     edge_r2500_bool_type: True
-    edge_bkgd_bool_type: True
-    merger_bool_type: False
+    merger_bool_type: True
     masked_bool_type: True
-    overlap_r500_bool_type: True
     overlap_r2500_bool_type: True
-    overlap_bkgd_bool_type: True
-    Serendipitous_bool_type: False
 
 # Cutoff:
 Cutoff_Flag:
     500_kiloparsecs_SNR:
-        True:
-            SNR_cutoff: 9.0
-            #SNR_cut_type: below
-  #  Other:
-  #      True/False:
-  #          _cutoff: value
-  #          _cut_type: above/below
+        False:
+            500_kpcs_SNR_cutoff: 9.0
+            500_kpcs_SNR_cut_type: above
+    Other:
+        True/False:
+            _cutoff: value
+            _cut_type: above/below
 
 # Ranges:
 Range_Flag:
     Redshift:
-        True:
+        False:
             Redshift_minmax:
                 Redshift_range_min: 0.0
                 Redshift_range_max: 1.0
@@ -142,11 +163,11 @@ Range_Flag:
 
 # Set which plots you want saved in the output .pdf file. Combines all plots
 # into a single file unless `save_all_plots` is set to True.
-scatter: True
-corner: True
-chains: True
-residuals: True
-save_all_plots: True
+scatter: False
+corner: False
+chains: False
+residuals: False
+save_all_plots: False
 
 # Show the method name used in the scatter plot?
 show_method_name: False
