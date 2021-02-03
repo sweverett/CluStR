@@ -146,22 +146,18 @@ class Data(Catalog):
             """
 
             maskb = np.zeros(len(catalog), dtype=bool)
+            maskc = np.zeros(len(catalog), dtype=bool)
             maskr = np.zeros(len(catalog), dtype=bool)
-            masksnr = np.zeros(len(catalog), dtype=bool)
 
             # Boolean Flags
             for bflag_ in config['Bool_Flag']:
                 bool_type = config['Bool_Flag'][bflag_]
 
                 if isinstance(bool_type, bool):
-                    if bool_type:
 
-                        bflag = bflag_.replace("_bool_type", "")
+                    bflag = bflag_.replace("_bool_type", "")
 
-                        cutb = catalog[bflag] == (bool_type)
-
-                    else:
-                        continue
+                    cutb = catalog[bflag] == (bool_type)
 
                 else:
                     print(
@@ -176,21 +172,41 @@ class Data(Catalog):
                     .format(np.size(np.where(cutb)), bflag_, type(bool_type))
                 )
 
-            #Cutoff Flags
-            for cutoff_ in config['Cutoff_Flag']:
-                #cutoff_val = config['Config_Flag'][cutoff_]
-                SNR = config['Cutoff_Flag'][cutoff_]
-                if cutoff_ not in ('Other') and list(SNR.keys())[0] != False:
+            # Cutoff Flags
+            for cflag_ in config['Cutoff_Flag']:
+                
+                TFc = config['Cutoff_Flag'][cflag_]
+            
+                if cflag_ not in ('Other') and TFc.keys()[0] != False:
+                    cvalues = TFc[True].values()
+                    
+                    cut_type = cvalues[0]
+                    cutoff = cvalues[1]
+                    
+                    if cut_type == "above":
+                         
+                        # Nan's interfere with evaluation
 
-                    cutoff = SNR[True]
-                    for _, snrmax in cutoff.items():
-                        cutsnr = catalog[cutoff_] < snrmax
-                    masksnr |= cutsnr
+                        cutc = catalog[cflag_] < cutoff
+
+                    elif cut_type == "below":
+                        
+                        cutc = catalog[cflag_] > cutoff
+                    
+                    else:
+                        print(
+                            'WARNING: Cutoff type must be `above` or `below` - '
+                            'you entered `{}`. Ignoring `{}` flag.'
+                            .format(cut_type, cflag_))
+                    
+                    maskc |= cutc
+                
                     print(
                         'Removed {} clusters due to `{}` flag of `{}`'
-                        .format(np.size(np.where(cutsnr)), cutoff_, type(cutoff_))
-                        )
-
+                        .format(np.size(np.where(cutc)), cflag_, type(cflag_)) 
+                    )
+            
+            # Range Flags
             for rflag_ in config['Range_Flag']:
                 TF = config['Range_Flag'][rflag_]
                 if rflag_ not in ('Other') and list(TF.keys())[0] != False:
@@ -226,7 +242,7 @@ class Data(Catalog):
                             .format(np.size(np.where(cutr)), rflag_, type(range_type))
                         )
 
-            return maskb, masksnr, maskr
+            return maskb, maskc, maskr
 
     def _load_data(self, config, catalog):
         '''
@@ -258,15 +274,15 @@ class Data(Catalog):
         self.x_err = (catalog[self.xlabel+'_err_low'] + catalog[self.xlabel+'_err_high']) / 2.
         self.y_err = (catalog[self.ylabel+'_err_low'] + catalog[self.ylabel+'_err_high']) / 2.
 
-        maskb, masksnr, maskr = self.create_cuts(config, catalog)
+        maskb, maskc, maskr = self.create_cuts(config, catalog)
 
-        x[maskb] = -1
-        x[maskr] = -1
-        x[masksnr] = -1
+        x[maskb] = -1       # All bools_type observations will equal '-1'.
+        x[maskr] = -1       # All range_type observations will equal '-1' 
+        x[maskc] = -1       # All cut_type observations will equal '-1'.
 
         y[maskb] = -1
         y[maskr] = -1
-        y[masksnr] = -1
+        y[maskc] = -1
 
         print (
         '\nNOTE: `Removed` counts may be redundant, '
