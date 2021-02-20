@@ -174,38 +174,37 @@ class Data(Catalog):
 
             # Cutoff Flags
             for cflag_ in config['Cutoff_Flag']:
-                
+
                 TFc = config['Cutoff_Flag'][cflag_]
-            
-                if cflag_ not in ('Other') and TFc.keys()[0] != False:
+
+                if cflag_ not in ('Other') and list(TFc.keys())[0] != False:
                     cvalues = TFc[True].values()
-                    
-                    cut_type = cvalues[0]
-                    cutoff = cvalues[1]
-                    
-                    if cut_type == "above":
-                         
+                    cut_type = list(cvalues)[1]
+                    cutoff = list(cvalues)[0]
+
+                    if cut_type == 'above':
+
                         # Nan's interfere with evaluation
 
                         cutc = catalog[cflag_] < cutoff
 
-                    elif cut_type == "below":
-                        
+                    elif cut_type == 'below':
+
                         cutc = catalog[cflag_] > cutoff
-                    
+
                     else:
                         print(
                             'WARNING: Cutoff type must be `above` or `below` - '
                             'you entered `{}`. Ignoring `{}` flag.'
                             .format(cut_type, cflag_))
-                    
+
                     maskc |= cutc
-                
+
                     print(
                         'Removed {} clusters due to `{}` flag of `{}`'
-                        .format(np.size(np.where(cutc)), cflag_, type(cflag_)) 
+                        .format(np.size(np.where(cutc)), cflag_, type(cflag_))
                     )
-            
+
             # Range Flags
             for rflag_ in config['Range_Flag']:
                 TF = config['Range_Flag'][rflag_]
@@ -277,7 +276,7 @@ class Data(Catalog):
         maskb, maskc, maskr = self.create_cuts(config, catalog)
 
         x[maskb] = -1       # All bools_type observations will equal '-1'.
-        x[maskr] = -1       # All range_type observations will equal '-1' 
+        x[maskr] = -1       # All range_type observations will equal '-1'
         x[maskc] = -1       # All cut_type observations will equal '-1'.
 
         y[maskb] = -1
@@ -302,6 +301,10 @@ class Data(Catalog):
                          (~np.isnan(y)) &
                          (~np.isnan(x_err)) &
                          (~np.isnan(y_err)) )
+        print(
+            'Removed {} nans'
+            .format(np.size(np.where(cuts)))
+        )
 
         self.x = x[cuts]
         self.y = y[cuts]
@@ -379,7 +382,7 @@ def main():
 
     print("x-pivot = {}".format(fitter.scale_data(data)[6]))
     print('\n')
-    
+
     print("Using Kelly Algorithm...")
 
     print('\nMaking Plots...')
