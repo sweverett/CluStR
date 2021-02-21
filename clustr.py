@@ -308,7 +308,7 @@ class Data(Catalog):
         self.x_err = x_err[cuts]
         self.y_err = y_err[cuts]
 
-        print('Accepted {} data out of {}\n'.format(np.size(x), N))
+        print('Accepted {} data out of {}\n'.format(np.size(self.x), N))
 
         if np.size(x) == 0:
             print (
@@ -377,6 +377,9 @@ def main():
 
     fitter = Fitter()
 
+    print("x-pivot = {}".format(fitter.scale_data(data)[6]))
+    print('\n')
+    
     print("Using Kelly Algorithm...")
 
     print('\nMaking Plots...')
