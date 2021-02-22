@@ -70,7 +70,7 @@ Column_Names:
 #   New_flag1_bool_type: True/False
 #   New_flag2_bool_type: True/False
 #   New_flag3_bool_type: True/False
-# 
+#
 # User may choose from the following list of bool flags:
 #
 #   - Analyzed
@@ -86,9 +86,9 @@ Column_Names:
 #   - overlap_bkgd
 #   - Serendipitous
 #
-# Boolean flags set to True will remove obs that have 
+# Boolean flags set to True will remove obs that have
 #   catalog[bflag] = 1
-# 
+#
 # Boolean flags set to False will remove obs that have
 #   catalog[bflag] = 0
 
@@ -104,7 +104,7 @@ Column_Names:
 #           Will run analysis on obs above 'value'.
 #
 # Below -> Cuts observations from sample above 'value'.
-#           Will run analysis on obs below 'value'. 
+#           Will run analysis on obs below 'value'.
 
 #
 # To add a new range flag,
@@ -117,17 +117,18 @@ Column_Names:
 #               New_flag5_range_max: value,
 #               New_flag5_range_type: outside/inside
 #
-# Outside -> Removes observations inside (min, max). Runs analysis on 
-#               obs outside range. 
-# 
-# Inside -> Removes observations outside (min, max). Runs analysis on 
+# Outside -> Removes observations inside (min, max). Runs analysis on
+#               obs outside range.
+#
+# Inside -> Removes observations outside (min, max). Runs analysis on
 #               obs inside range.
 
 # Bools:
 Bool_Flag:
     bad_mode_bool_type: True
     edge_r2500_bool_type: True
-    edge_r500_bool_type: True
+    #edge_r500_bool_type: False
+    edge_bkgd: True
     masked_bool_type: True
     overlap_r500_bool_type: True
     overlap_r2500_bool_type: True
@@ -136,9 +137,9 @@ Bool_Flag:
 # Cutoff:
 Cutoff_Flag:
     500_kiloparsecs_SNR:
-        False:
-            500_kpcs_SNR_cutoff: 0.5
-            500_kpcs_SNR_cut_type: below
+        True:
+            500_kpcs_SNR_cutoff: 9.0
+            500_kpcs_SNR_cut_type: above
     Other:
         True/False:
             _cutoff: value

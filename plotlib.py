@@ -74,15 +74,15 @@ def plot_scatter(args, config, data, fitter):
     y_err_obs = data.y_err
 
     # Plot data
-    plt.errorbar(x_obs, y_obs, xerr=x_err_obs, yerr=y_err_obs, 
+    plt.errorbar(x_obs, y_obs, xerr=x_err_obs, yerr=y_err_obs,
         ecolor='k',
-        fmt='bo', 
+        fmt='bo',
         markersize=3,
         markeredgecolor='k',
         capsize=2
         )
 
-    fit_int, fit_slope, fit_sig = fitter.fit(data) 
+    fit_int, fit_slope, fit_sig = fitter.fit(data)
     data_fit = scaled_fit_to_data(data, fitter)
     (x_fit, y_fit, _, _) = data_fit
 
@@ -93,7 +93,7 @@ def plot_scatter(args, config, data, fitter):
 
     # Plot Fit
     plt.loglog(
-        x_fit, y_fit, color='darkred', linewidth=2.0, 
+        x_fit, y_fit, color='darkred', linewidth=2.0,
         label=(
             r'$({0:0.2g} \pm {1:0.2g})'
             r'(x/x_{{piv}})^{{{2:0.2f} \pm {3:0.2f}}}'
@@ -112,14 +112,16 @@ def plot_scatter(args, config, data, fitter):
     plt.ylabel(axis_label(config.y), fontsize=10)
     plt.xlim([0.8*np.min(x_obs), 1.2*np.max(x_obs)])
     plt.ylim([0.8*np.min(y_obs), 1.2*np.max(y_obs)])
-    plt.grid()
+    #plt.grid()
     plt.legend(loc=1, fontsize='x-small')
-
+    y1 = y_fit + np.log(np.mean(fit_sig))
+    y2 = y_fit - np.log(np.mean(fit_sig))
+    matplotlib.pyplot.fill_between(x_fit, y2, y1, where=None, interpolate=False, step=None, data=None)
     plt.savefig(
         'Scatter-{}{}-{}.pdf'
         .format(
-            args.prefix, 
-            fits_label(config.y), 
+            args.prefix,
+            fits_label(config.y),
             fits_label(config.x)
         ),
         bbox_inches='tight'
@@ -319,8 +321,8 @@ def plot_chains(args, config, data, fitter):
 
     plt.savefig(
         'Chains-{}{}-{}.pdf'
-        .format( 
-            args.prefix, 
+        .format(
+            args.prefix,
             fits_label(config.y),
             fits_label(config.x)
         )
@@ -365,7 +367,7 @@ def make_plots(args, config, data, fitter):
         # Add residual plot(s)
         pdfs.append(
             'Residuals-{}{}-{}.pdf'.format(
-                args.prefix, 
+                args.prefix,
                 fits_label(config.y),
                 fits_label(config.x)
             )
@@ -401,7 +403,7 @@ def make_plots(args, config, data, fitter):
         merger.append(pdf)
 
     # Save combined output file
-    if config['save_all_plots'] is True: 
+    if config['save_all_plots'] is True:
         merger.write(
             '{}{}-{}.pdf'
             .format(args.prefix, fits_label(config.y), fits_label(config.x))
