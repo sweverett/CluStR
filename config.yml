@@ -50,7 +50,7 @@ Column_Names:
     tr500: r500_temperature
     tr500cc: r500_core_cropped_temperature
     lam: LAM 
-    lx: Lx
+    lx: Lx 
 
 # ----------------------------------------------------------------------
 # Flags
