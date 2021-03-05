@@ -20,28 +20,14 @@ parser.add_argument('cat_filename', help='FITS catalog to open')
 # Required arguement for axes
 valid_axes = ['l500kpc', 'lr2500', 'lr500', 'lr500cc', 't500kpc', 'tr2500',
               'tr500', 'tr500cc', 'lambda']
+parser.add_argument('x', help='what to plot on x axis', choices=valid_axes)              
 parser.add_argument('y', help='what to plot on y axis', choices=valid_axes)
-parser.add_argument('x', help='what to plot on x axis', choices=valid_axes)
 parser.add_argument('config_file',
     help = 'the filename of the config to run')
 # Optional argument for file prefix
 parser.add_argument('-p', '--prefix', help='prefix for output file')
 
-def fits_label(axis_name):
-    ''' Get the FITS column label for `axis_name` '''
-    labels = {
-        'lambda': 'lambda',
-        'l500kpc': '500_kiloparsecs_band_lumin',
-        'lr2500': 'r2500_band_lumin',
-        'lr500': 'r500_band_lumin',
-        'lr500cc': 'r500_core_cropped_band_lumin',
-        't500kpc': '500_kiloparsecs_temperature',
-        'tr2500': 'r2500_temperature',
-        'tr500': 'r500_temperature',
-        'tr500cc': 'r500_core_cropped_temperature'
-    }
-
-    return labels[axis_name]
+#----------------------CluStR----------------------------------------
 
 def Ez(z):
     Om = 0.3
@@ -74,7 +60,7 @@ class Config:
     # The following are so we can access the config
     # values similarly to a dict
     def __getitem__(self, key):
-        return self._config.get(key)
+        return self._config[key]
 
     def __setitem__(self, key, value):
         self._config[key] = value
@@ -177,10 +163,10 @@ class Data(Catalog):
 
                 TFc = config['Cutoff_Flag'][cflag_]
 
-                if cflag_ not in ('Other') and list(TFc.keys())[0] != False:
+                if cflag_ not in ('Other') and TFc.keys()[0] != False:
                     cvalues = TFc[True].values()
-                    cut_type = list(cvalues)[1]
-                    cutoff = list(cvalues)[0]
+                    cut_type = cvalues
+                    cutoff = cvalues[0]
 
                     if cut_type == 'above':
 
@@ -248,10 +234,13 @@ class Data(Catalog):
         Obtains x, y, x errors, and y errors from config & catalog files.
         '''
 
-        self.xlabel = fits_label(config.x)
-        self.ylabel = fits_label(config.y)
+        x_arg = config.x
+        y_arg = config.y
+        self.xlabel = config['Column_Names'][x_arg]
+        self.ylabel = config['Column_Names'][y_arg]
         x = catalog[self.xlabel]
         y = catalog[self.ylabel]
+
         # Size of original data
         N = np.size(x)
         assert N == np.size(y)
@@ -329,6 +318,8 @@ class Data(Catalog):
         return
 
 class Fitter:
+    """Runs linmix"""
+
     def __init__(self):
         self.algorithm = 'linmix'
 
@@ -355,9 +346,9 @@ class Fitter:
 
         # Set pivot
         if piv_type == 'median':
-            piv = np.log(np.median(data.x))
+            self.piv = np.log(np.median(data.x))
 
-        log_x = xlog - piv
+        log_x = xlog - self.piv
         log_y = np.log(data.y)
 
         xmin = np.min(log_x)
@@ -366,7 +357,7 @@ class Fitter:
         log_x_err = data.x_err / data.x
         log_y_err = data.y_err / data.y
 
-        return log_x, log_y, log_x_err, log_y_err, xmin, xmax, piv
+        return log_x, log_y, log_x_err, log_y_err, xmin, xmax, self.piv
 
 def main():
 
