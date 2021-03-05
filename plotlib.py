@@ -28,7 +28,9 @@ def axis_label(axis_name):
         't500kpc': '500 Kiloparsec Temperature (keV)',
         'tr2500': 'r2500 Temperature (keV)',
         'tr500': 'r500 Temperature (keV)',
-        'tr500cc': 'Core-Cropped r500 Temperature (keV)'
+        'tr500cc': 'Core-Cropped r500 Temperature (keV)',
+        'lam': 'LAM',
+        'lx': 'Lx'
     }
     return labels[axis_name]
 

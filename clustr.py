@@ -19,7 +19,7 @@ parser = ArgumentParser()
 parser.add_argument('cat_filename', help='FITS catalog to open')
 # Required arguement for axes
 valid_axes = ['l500kpc', 'lr2500', 'lr500', 'lr500cc', 't500kpc', 'tr2500',
-              'tr500', 'tr500cc', 'lambda']
+              'tr500', 'tr500cc', 'lambda', 'lx', 'lam']
 parser.add_argument('x', help='what to plot on x axis', choices=valid_axes)              
 parser.add_argument('y', help='what to plot on y axis', choices=valid_axes)
 parser.add_argument('config_file',
@@ -259,8 +259,8 @@ class Data(Catalog):
                 print('WARNING: looks like you may be passing a luminosity without'+
                         'setting `scale_y_by_ez: True`. Is that correct?')
 
-        self.x_err = (catalog[self.xlabel+'m'] + catalog[self.xlabel+'p']) / 2.     # Changed _err_low == m
-        self.y_err = (catalog[self.ylabel+'m'] + catalog[self.ylabel+'p']) / 2.     # Changed _err_high == p
+        self.x_err = (catalog['R_' + self.xlabel] - catalog['R_' + self.xlabel]) / 2.     # Changed _err_low == m
+        self.y_err = (catalog[self.ylabel+'_m'] + catalog[self.ylabel+'_p'] - (2*catalog[self.ylabel])) / 2. # Changed _err_high == p
 
         maskb, maskc, maskr = self.create_cuts(config, catalog)
 
