@@ -1,7 +1,7 @@
 '''Plotting library for CluStR '''
 
 import os
-from clustr import fits_label, Ez
+import clustr
 import corner
 import PyPDF2
 import numpy as np
@@ -121,8 +121,8 @@ def plot_scatter(args, config, data, fitter):
         'Scatter-{}{}-{}.pdf'
         .format(
             args.prefix,
-            fits_label(config.y),
-            fits_label(config.x)
+            config['Column_Names'][config.y],
+            config['Column_Names'][config.x]
         ),
         bbox_inches='tight'
     )
@@ -189,8 +189,8 @@ def plot_residuals(args, config, data, fitter):
         'Residuals-{}{}-{}.pdf'
         .format(
             args.prefix,
-            fits_label(args.y),
-            fits_label(args.x)
+            config['Column_Names'][config.y],
+            config['Column_Names'][config.x]
         )
     )
 
@@ -255,8 +255,8 @@ def plot_corners(args, config, data, fitter):
         'Corner-{}{}-{}.pdf'
         .format(
             args.prefix,
-            fits_label(config.y),
-            fits_label(config.x)
+            config['Column_Names'][config.y],
+            config['Column_Names'][config.x]
         )
     )
 
@@ -323,8 +323,8 @@ def plot_chains(args, config, data, fitter):
         'Chains-{}{}-{}.pdf'
         .format(
             args.prefix,
-            fits_label(config.y),
-            fits_label(config.x)
+            config['Column_Names'][config.y],
+            config['Column_Names'][config.x]
         )
     )
 
@@ -357,8 +357,8 @@ def make_plots(args, config, data, fitter):
             'Scatter-{}{}-{}.pdf'
             .format(
                 args.prefix,
-                fits_label(config.y),
-                fits_label(config.x)
+                config['Column_Names'][config.y],
+                config['Column_Names'][config.x]
             )
         )
 
@@ -368,8 +368,8 @@ def make_plots(args, config, data, fitter):
         pdfs.append(
             'Residuals-{}{}-{}.pdf'.format(
                 args.prefix,
-                fits_label(config.y),
-                fits_label(config.x)
+                config['Column_Names'][config.y],
+                config['Column_Names'][config.x]
             )
         )
 
@@ -380,8 +380,8 @@ def make_plots(args, config, data, fitter):
             'Corner-{}{}-{}.pdf'
             .format(
                 args.prefix,
-                fits_label(config.y),
-                fits_label(config.x)
+                config['Column_Names'][config.y],
+                config['Column_Names'][config.x]
             )
         )
 
@@ -392,8 +392,8 @@ def make_plots(args, config, data, fitter):
             'Chains-{}{}-{}.pdf'
             .format(
                 args.prefix,
-                fits_label(config.y),
-                fits_label(config.x)
+                config['Column_Names'][config.y],
+                config['Column_Names'][config.x]
             )
         )
 
@@ -406,7 +406,7 @@ def make_plots(args, config, data, fitter):
     if config['save_all_plots'] is True:
         merger.write(
             '{}{}-{}.pdf'
-            .format(args.prefix, fits_label(config.y), fits_label(config.x))
+            .format(args.prefix, config['Column_Names'][config.y], config['Column_Names'][config.x])
         )
 
     # Unless otherwise specified, delete individual plots
