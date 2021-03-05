@@ -247,20 +247,20 @@ class Data(Catalog):
 
         # Scale data if a luminosity
         if config['scale_x_by_ez']:
-            x /= Ez(catalog['Redshift'])
+            x /= Ez(catalog['Z_1'])     #Changed Redshift == Z_1
         else:
-            if self.xlabel[0] == 'l' and self.xlabel != 'lambda':
+            if self.xlabel[0] == 'L' and self.xlabel != 'LAM':
                 print('WARNING: looks like you may be passing a luminosity without'+
                         'setting `scale_x_by_ez: True`. Is that correct?')
         if config['scale_y_by_ez']:
-            y /= Ez(catalog['Redshift'])
+            y /= Ez(catalog['Z_1'])
         else:
             if self.ylabel[0] == 'l' and self.ylabel != 'lambda':
                 print('WARNING: looks like you may be passing a luminosity without'+
                         'setting `scale_y_by_ez: True`. Is that correct?')
 
-        self.x_err = (catalog[self.xlabel+'_err_low'] + catalog[self.xlabel+'_err_high']) / 2.
-        self.y_err = (catalog[self.ylabel+'_err_low'] + catalog[self.ylabel+'_err_high']) / 2.
+        self.x_err = (catalog[self.xlabel+'m'] + catalog[self.xlabel+'p']) / 2.     # Changed _err_low == m
+        self.y_err = (catalog[self.ylabel+'m'] + catalog[self.ylabel+'p']) / 2.     # Changed _err_high == p
 
         maskb, maskc, maskr = self.create_cuts(config, catalog)
 
