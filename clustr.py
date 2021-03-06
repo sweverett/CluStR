@@ -259,7 +259,7 @@ class Data(Catalog):
                 print('WARNING: looks like you may be passing a luminosity without'+
                         'setting `scale_y_by_ez: True`. Is that correct?')
 
-        self.x_err = (catalog['R_' + self.xlabel] - catalog['R_' + self.xlabel]) / 2.     # Changed _err_low == m
+        self.x_err = (catalog['R_' + self.xlabel] + catalog['R_' + self.xlabel]) / 2.     # Changed _err_low == m
         self.y_err = (catalog[self.ylabel+'_m'] + catalog[self.ylabel+'_p'] - (2*catalog[self.ylabel])) / 2. # Changed _err_high == p
 
         maskb, maskc, maskr = self.create_cuts(config, catalog)
@@ -292,7 +292,7 @@ class Data(Catalog):
                          (~np.isnan(y_err)) )
         print(
             'Removed {} nans'
-            .format(np.size(np.where(cuts)))
+            .format(len(cuts))
         )
 
         self.x = x[cuts]
@@ -317,11 +317,20 @@ class Data(Catalog):
 
         return
 
-class Fitter:
+class Fitter(Data):
     """Runs linmix"""
 
-    def __init__(self):
+    def __init__(self, data):
         self.algorithm = 'linmix'
+        self.data_x = data.x
+        self.data_y = data.y
+        self.data_x_err_obs = data.x_err
+        self.data_y_err_obs = data.y_err
+        self.data_xlabel = data.xlabel
+        self.data_ylabel = data.ylabel
+        self.log_data(data)
+        self.fit(data)
+        self.scaled_fit_to_data(data)
 
         return
 
@@ -331,15 +340,17 @@ class Fitter:
         intercept, slope, and sigma.
         '''
 
-        log_x, log_y, log_x_err, log_y_err = self.scale_data(data)[0:4]
-
         # run linmix
-        kelly_b, kelly_m, kelly_sig = reglib.run_linmix(log_x, log_y, log_x_err, log_y_err)
+        self.kelly_b, self.kelly_m, self.kelly_sig = reglib.run_linmix(
+                                                        self.log_x, 
+                                                        self.log_y, 
+                                                        self.log_x_err, 
+                                                        self.log_y_err)
 
-        return kelly_b, kelly_m, kelly_sig
+        return
 
-    def scale_data(self, data, piv_type='median'):
-        ''' Scale data for fitting'''
+    def log_data(self, data, piv_type='median'):
+        ''' Scale data to log'''
 
         # Log-x before pivot
         xlog = np.log(data.x)
@@ -348,16 +359,33 @@ class Fitter:
         if piv_type == 'median':
             self.piv = np.log(np.median(data.x))
 
-        log_x = xlog - self.piv
-        log_y = np.log(data.y)
+        self.log_x = xlog - self.piv
+        self.log_y = np.log(data.y)
 
-        xmin = np.min(log_x)
-        xmax = np.max(log_x)
+        self.xmin = np.min(self.log_x)
+        self.xmax = np.max(self.log_x)
 
-        log_x_err = data.x_err / data.x
-        log_y_err = data.y_err / data.y
+        self.log_x_err = data.x_err / data.x
+        self.log_y_err = data.y_err / data.y
 
-        return log_x, log_y, log_x_err, log_y_err, xmin, xmax, self.piv
+        return
+
+    def scaled_fit_to_data(self, data):
+        ''' Get a data set from a scaled fit '''
+
+        #Scale for line fitting
+        scaled_x = np.linspace(self.xmin, self.xmax, 150)
+        scaled_y = np.mean(self.kelly_b) + np.mean(self.kelly_m) * scaled_x
+        scaled_x_errs = np.zeros(150)
+        scaled_y_errs = np.ones(150)*np.mean(self.kelly_m)
+
+        self.unscaled_data = self.unscale(scaled_x, scaled_y, scaled_x_errs, scaled_y_errs,
+                                self.piv)
+        return
+
+    def unscale(self, x, y, x_err, y_err, x_piv):
+        ''' Recover original data from fit-scaled data '''
+        return (np.exp(x + x_piv), np.exp(y), x_err * x, y_err * y)
 
 def main():
 
@@ -369,16 +397,16 @@ def main():
 
     data = Data(config, catalog)
 
-    fitter = Fitter()
+    fitter = Fitter(data)
 
-    print("x-pivot = {}".format(fitter.scale_data(data)[6]))
+    print("x-pivot = {}".format(fitter.piv))
     print('\n')
 
     print("Using Kelly Algorithm...")
 
     print('\nMaking Plots...')
 
-    plotlib.make_plots(args, config, data, fitter)
+    plotlib.make_plots(args, config, fitter)
 
     print('Done!')
 
