@@ -14,66 +14,19 @@ import matplotlib.pyplot as plt
 # pylint: disable=invalid-name
 
 # ----------------------------------------------------------------------
-
-# Helper functions
-
-def axis_label(axis_name):
-    ''' Get plot axis name for `axis_name` '''
-    labels = {
-        'lambda': r'Richness ($\lambda$)',
-        'l500kpc': '500 Kiloparsec Soft-Band Luminosity (ergs/s)',
-        'lr2500': 'r2500 Soft-Band Luminosity (ergs/s)',
-        'lr500': 'r500 Soft-Band Luminosity (ergs/s)',
-        'lr500cc': 'Core-Cropped r500 Soft-Band Luminosity (ergs/s)',
-        't500kpc': '500 Kiloparsec Temperature (keV)',
-        'tr2500': 'r2500 Temperature (keV)',
-        'tr500': 'r500 Temperature (keV)',
-        'tr500cc': 'Core-Cropped r500 Temperature (keV)',
-        'lam': 'LAM',
-        'lx': 'Lx'
-    }
-    return labels[axis_name]
-
-
-def scaled_fit_to_data(data, fitter):
-    ''' Get a data set from a scaled fit '''
-    fit_int, fit_slope, fit_sig = fitter.fit(data)
-    x_min, x_max, x_piv = fitter.scale_data(data)[4:]
-    scaled_x = np.linspace(x_min, x_max, 101)
-    scaled_y = np.mean(fit_int) + np.mean(fit_slope) * scaled_x
-    scaled_x_errs = np.zeros(101)
-    scaled_y_errs = np.ones(101)*np.mean(fit_sig)
-    unscaled_data = unscale(scaled_x, scaled_y, scaled_x_errs, scaled_y_errs,
-                            x_piv)
-    return unscaled_data
-
-
-def unscale(x, y, x_err, y_err, x_piv):
-    ''' Recover original data from fit-scaled data '''
-    return (np.exp(x + x_piv), np.exp(y), x_err * x, y_err * y)
-
-
-def check_convergence():
-    '''
-    FIX: In future, will use autocorrelations to check convergence of MCMC
-    chains.
-    '''
-    pass
-
-
-# ----------------------------------------------------------------------
 # Inividual plotting functions
 
 # pylint: disable=too-many-arguments
 # pylint: disable=too-many-locals
 
-def plot_scatter(args, config, data, fitter):
+def plot_scatter(args, fitter):
     ''' Plot data '''
 
-    x_obs = data.x
-    y_obs = data.y
-    x_err_obs = data.x_err
-    y_err_obs = data.y_err
+    #Grab data references
+    x_obs = fitter.data_x
+    y_obs = fitter.data_y
+    x_err_obs = fitter.data_x_err_obs
+    y_err_obs = fitter.data_y_err_obs
 
     # Plot data
     plt.errorbar(x_obs, y_obs, xerr=x_err_obs, yerr=y_err_obs,
@@ -84,8 +37,9 @@ def plot_scatter(args, config, data, fitter):
         capsize=2
         )
 
-    fit_int, fit_slope, fit_sig = fitter.fit(data)
-    data_fit = scaled_fit_to_data(data, fitter)
+    # Grab linmix data
+    fit_int, fit_slope, fit_sig = fitter.kelly_b, fitter.kelly_m, fitter.kelly_sig
+    data_fit = fitter.unscaled_data
     (x_fit, y_fit, _, _) = data_fit
 
     print (
@@ -109,22 +63,30 @@ def plot_scatter(args, config, data, fitter):
             np.std(fit_sig)
         )
     )
-
-    plt.xlabel(axis_label(config.x), fontsize=10)
-    plt.ylabel(axis_label(config.y), fontsize=10)
-    plt.xlim([0.8*np.min(x_obs), 1.2*np.max(x_obs)])
-    plt.ylim([0.8*np.min(y_obs), 1.2*np.max(y_obs)])
-    #plt.grid()
-    plt.legend(loc=1, fontsize='x-small')
     y1 = y_fit + np.log(np.mean(fit_sig))
     y2 = y_fit - np.log(np.mean(fit_sig))
-    matplotlib.pyplot.fill_between(x_fit, y2, y1, where=None, interpolate=False, step=None, data=None)
+    
+    matplotlib.pyplot.fill_between(x_fit, y2, y1, 
+        where=None, 
+        interpolate=False, 
+        step=None, 
+        data=None, 
+        alpha=0.4
+        )
+    
+    plt.xlabel(fitter.data_xlabel, fontsize=10)
+    plt.ylabel(fitter.data_ylabel, fontsize=10)
+    plt.xlim([0.95*np.min(x_obs), 1.05*np.max(x_obs)])
+    plt.ylim([0.75*np.min(y_obs), 1.3*np.max(y_obs)])
+    plt.grid()
+    plt.legend(loc=0, fontsize='x-small')
+
     plt.savefig(
         'Scatter-{}{}-{}.pdf'
         .format(
             args.prefix,
-            config['Column_Names'][config.y],
-            config['Column_Names'][config.x]
+            fitter.data_ylabel,
+            fitter.data_xlabel
         ),
         bbox_inches='tight'
     )
@@ -132,15 +94,15 @@ def plot_scatter(args, config, data, fitter):
     return
 
 
-def plot_residuals(args, config, data, fitter):
+def plot_residuals(args, fitter):
     '''
     FIX: Description
     '''
 
-    (lx_obs, ly_obs, _lx_err_obs, _ly_err_obs) = fitter.scale_data(data)[0:4]
-    _x_piv = fitter.scale_data(data)[6]
+    (lx_obs, ly_obs, _lx_err_obs, _ly_err_obs) = fitter.log_x, fitter.log_y, fitter.log_x_err, fitter.log_y_err
+    _x_piv = fitter.piv
 
-    (B, M, _S) = fitter.fit(data)
+    (B, M, _S) = fitter.kelly_b, fitter.kelly_m, fitter.kelly_sig
 
     b, m = np.mean(B), np.mean(M)
 
@@ -177,13 +139,13 @@ def plot_residuals(args, config, data, fitter):
     if config['show_method_name']:
         plt.title(
             '{} Residuals for Kelly Method'
-            .format(axis_label(config.y)),
+            .format(fitter.data_ylabel),
             fontsize=11
         )
     else:
         plt.title(
             '{} Residuals'
-            .format(axis_label(config.y)),
+            .format(fitter.data_ylabel),
             fontsize=11
         )
 
@@ -191,15 +153,15 @@ def plot_residuals(args, config, data, fitter):
         'Residuals-{}{}-{}.pdf'
         .format(
             args.prefix,
-            config['Column_Names'][config.y],
-            config['Column_Names'][config.x]
+            fitter.data_ylabel,
+            fitter.data_ylabel
         )
     )
 
     return
 
 
-def plot_corners(args, config, data, fitter):
+def plot_corners(args, config, fitter):
     '''
     Makes corner plots for the desired Kelly method parameter
     posteriors. Burn is the burn in period parameter.
@@ -214,7 +176,7 @@ def plot_corners(args, config, data, fitter):
     # Set up subplot
     plt.subplot(N, 1, n)
 
-    (B, M, S) = fitter.fit(data)
+    (B, M, S) = fitter.kelly_b, fitter.kelly_m, fitter.kelly_sig
 
     # Paramter Limits
     blo, bhi = min(B[burn:]), max(B[burn:])
@@ -257,8 +219,8 @@ def plot_corners(args, config, data, fitter):
         'Corner-{}{}-{}.pdf'
         .format(
             args.prefix,
-            config['Column_Names'][config.y],
-            config['Column_Names'][config.x]
+            fitter.data_ylabel,
+            fitter.data_xlabel
         )
     )
 
@@ -267,7 +229,7 @@ def plot_corners(args, config, data, fitter):
     return
 
 
-def plot_chains(args, config, data, fitter):
+def plot_chains(args, config, fitter):
     '''
     Use this to examine chain convergence. May implement convergence tests in
     future.
@@ -279,7 +241,7 @@ def plot_chains(args, config, data, fitter):
     B, M, S = None, None, None
 
     # Unpack fit parameters
-    (B, M, S) = fitter.fit(data)
+    (B, M, S) = fitter.kelly_b, fitter.kelly_m, fitter.kelly_sig
     # Remove burn-in period
     B, M, S = B[burn:], M[burn:], S[burn:]
     # Take averages
@@ -313,8 +275,8 @@ def plot_chains(args, config, data, fitter):
 
     fig.suptitle(
         '{} vs. {} \n\nMarkov Chains for Kelly Method'
-        .format(axis_label(config.x),
-        axis_label(config.y)
+        .format(fitter.data_ylabel,
+        fitter.data_xlabel
         ),
         fontsize=16
     )
@@ -325,8 +287,8 @@ def plot_chains(args, config, data, fitter):
         'Chains-{}{}-{}.pdf'
         .format(
             args.prefix,
-            config['Column_Names'][config.y],
-            config['Column_Names'][config.x]
+            fitter.data_ylabel,
+            fitter.data_xlabel
         )
     )
 
@@ -338,7 +300,7 @@ def plot_chains(args, config, data, fitter):
 # ----------------------------------------------------------------------
 # Make all plots
 
-def make_plots(args, config, data, fitter):
+def make_plots(args, config, fitter):
     '''
     Calls both plotting functions and then combines all outputs into a single
     PDF.
@@ -353,67 +315,63 @@ def make_plots(args, config, data, fitter):
     pdfs = []
 
     if config['scatter'] is True:
-        plot_scatter(args, config, data, fitter)
+        plot_scatter(args, fitter)
         # Add scatter/fit plot
         pdfs.append(
             'Scatter-{}{}-{}.pdf'
             .format(
                 args.prefix,
-                config['Column_Names'][config.y],
-                config['Column_Names'][config.x]
+                fitter.data_ylabel,
+                fitter.data_xlabel
             )
         )
 
     if config['residuals'] is True:
-        plot_residuals(args, config, data, fitter)
+        plot_residuals(args, fitter)
         # Add residual plot(s)
         pdfs.append(
             'Residuals-{}{}-{}.pdf'.format(
                 args.prefix,
-                config['Column_Names'][config.y],
-                config['Column_Names'][config.x]
+                fitter.data_ylabel,
+                fitter.data_xlabel
             )
         )
 
     if config['corner'] is True:
-        plot_corners(args, config, data, fitter)
+        plot_corners(args, config, fitter)
         # Add corner plot(s)
         pdfs.append(
             'Corner-{}{}-{}.pdf'
             .format(
                 args.prefix,
-                config['Column_Names'][config.y],
-                config['Column_Names'][config.x]
+                fitter.data_ylabel,
+                fitter.data_xlabel
             )
         )
 
     if config['chains'] is True:
-        plot_chains(args, config, data, fitter)
+        plot_chains(args, config, fitter)
         # Add chain plot(s)
         pdfs.append(
             'Chains-{}{}-{}.pdf'
             .format(
                 args.prefix,
-                config['Column_Names'][config.y],
-                config['Column_Names'][config.x]
+                fitter.data_ylabel,
+                fitter.data_xlabel
             )
         )
-
-    merger = PyPDF2.PdfFileMerger()
-
-    for pdf in pdfs:
-        merger.append(pdf)
-
-    # Save combined output file
     if config['save_all_plots'] is True:
+        merger = PyPDF2.PdfFileMerger()
+
+        for pdf in pdfs:
+            merger.append(pdf)
+
+        # Save combined output file
         merger.write(
             '{}{}-{}.pdf'
-            .format(args.prefix, config['Column_Names'][config.y], config['Column_Names'][config.x])
+            .format(args.prefix, fitter.data_ylabel, fitter.data_xlabel)
         )
-
-    # Unless otherwise specified, delete individual plots
-    if config['save_all_plots'] is False:
-        for pdf in pdfs:
-            os.remove(pdf)
+    else:
+        pass
 
     return
