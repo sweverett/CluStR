@@ -27,10 +27,10 @@ scale_y_by_ez : scale_y_by_ez
 # NB: Not all default options are implemented yet!
 
 # Default observed data catalog:
-default_catalog: None
+default_catalog: Test2
 
 # Default output file prexfix (includes x and y labels automatically)
-default_prefix: Test
+default_prefix: Test2
 
 # Default covariate variable (independent variable)
 default_x: None
@@ -173,7 +173,7 @@ scatter: True
 corner: False
 chains: False
 residuals: False
-save_all_plots: True
+save_all_plots: False
 
 # Show the method name used in the scatter plot?
 show_method_name: False
