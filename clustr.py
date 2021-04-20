@@ -19,7 +19,7 @@ parser = ArgumentParser()
 parser.add_argument('cat_filename', help='FITS catalog to open')
 # Required arguement for axes
 valid_axes = ['l500kpc', 'lr2500', 'lr500', 'lr500cc', 't500kpc', 'tr2500',
-              'tr500', 'tr500cc', 'lambda', 'lx', 'lam']
+              'tr500', 'tr500cc', 'lambda', 'lx', 'tx', 'lam']
 parser.add_argument('x', help='what to plot on x axis', choices=valid_axes)              
 parser.add_argument('y', help='what to plot on y axis', choices=valid_axes)
 parser.add_argument('config_file',
@@ -131,9 +131,7 @@ class Data(Catalog):
             Apply cuts to data.
             """
 
-            maskb = np.zeros(len(catalog), dtype=bool)
-            maskc = np.zeros(len(catalog), dtype=bool)
-            maskr = np.zeros(len(catalog), dtype=bool)
+            mask = np.zeros(len(catalog), dtype=bool)
 
             # Boolean Flags
             for bflag_ in config['Bool_Flag']:
@@ -145,14 +143,14 @@ class Data(Catalog):
 
                     cutb = catalog[bflag] == (bool_type)
 
-                else:
+                else: 
                     print(
                         "Warning: Boolean type must be `True` or  `False` - "
                         "you entered `{}`. Ignoring `{}` flag."
                         .format(bool_type, bflag)
                     )
 
-                maskb |= cutb
+                mask |= cutb
                 print(
                     'Removed {} clusters due to `{}` flag of `{}`'
                     .format(np.size(np.where(cutb)), bflag_, type(bool_type))
@@ -165,8 +163,8 @@ class Data(Catalog):
 
                 if cflag_ not in ('Other') and TFc.keys()[0] != False:
                     cvalues = TFc[True].values()
-                    cut_type = cvalues
-                    cutoff = cvalues[0]
+                    cutoff = cvalues[1]
+                    cut_type = cvalues[0]
 
                     if cut_type == 'above':
 
@@ -184,7 +182,7 @@ class Data(Catalog):
                             'you entered `{}`. Ignoring `{}` flag.'
                             .format(cut_type, cflag_))
 
-                    maskc |= cutc
+                    mask |= cutc
 
                     print(
                         'Removed {} clusters due to `{}` flag of `{}`'
@@ -220,14 +218,14 @@ class Data(Catalog):
                             )
                             continue
 
-                        maskr |= cutr
+                        mask |= cutr
 
                         print(
                             'Removed {} clusters due to `{}` flag of `{}`'
                             .format(np.size(np.where(cutr)), rflag_, type(range_type))
                         )
 
-            return maskb, maskc, maskr
+            return mask
 
     def _load_data(self, config, catalog):
         '''
@@ -246,31 +244,27 @@ class Data(Catalog):
         assert N == np.size(y)
 
         # Scale data if a luminosity
-        if config['scale_x_by_ez']:
-            x /= Ez(catalog['Z_1'])     #Changed Redshift == Z_1
-        else:
-            if self.xlabel[0] == 'L' and self.xlabel != 'LAM':
-                print('WARNING: looks like you may be passing a luminosity without'+
-                        'setting `scale_x_by_ez: True`. Is that correct?')
-        if config['scale_y_by_ez']:
-            y /= Ez(catalog['Z_1'])
-        else:
-            if self.ylabel[0] == 'l' and self.ylabel != 'lambda':
-                print('WARNING: looks like you may be passing a luminosity without'+
-                        'setting `scale_y_by_ez: True`. Is that correct?')
+        if config['scale_x_by_ez'] == True:
+            redshift = config['Redshift']
+            x /= Ez(catalog[redshift])
+        if config['scale_y_by_ez'] == True:
+            redshift = config['Redshift']
+            y /= Ez(catalog[redshift])
 
-        self.x_err = (catalog['R_' + self.xlabel] + catalog['R_' + self.xlabel]) / 2.     # Changed _err_low == m
-        self.y_err = (catalog[self.ylabel+'_m'] + catalog[self.ylabel+'_p'] - (2*catalog[self.ylabel])) / 2. # Changed _err_high == p
+        # Error Labels
+        xlabel_error_low = config["xlabel_err_low"]
+        xlabel_error_high = config["xlabel_err_high"]
+        ylabel_error_low = config["ylabel_err_low"]
+        ylabel_error_high = config["ylabel_err_high"]
 
-        maskb, maskc, maskr = self.create_cuts(config, catalog)
+        x_err = (catalog[xlabel_error_low] + catalog[xlabel_error_high]) / 2.
+        y_err = ((y - catalog[ylabel_error_low]) + (catalog[ylabel_error_high] - y)) / 2.
 
-        x[maskb] = -1       # All bools_type observations will equal '-1'.
-        x[maskr] = -1       # All range_type observations will equal '-1'
-        x[maskc] = -1       # All cut_type observations will equal '-1'.
+        mask = self.create_cuts(config, catalog)
 
-        y[maskb] = -1
-        y[maskr] = -1
-        y[maskc] = -1
+        x[mask] = -1       # All bools_type observations will equal '-1'.
+
+        y[mask] = -1
 
         print (
         '\nNOTE: `Removed` counts may be redundant, '
@@ -282,18 +276,18 @@ class Data(Catalog):
 
         x = x[good_rows]
         y = y[good_rows]
-        x_err = self.x_err[good_rows]
-        y_err = self.y_err[good_rows]
+        x_err = x_err[good_rows]
+        y_err = y_err[good_rows]
 
         # Cut out any NaNs
         cuts = np.where( (~np.isnan(x)) &
                          (~np.isnan(y)) &
                          (~np.isnan(x_err)) &
                          (~np.isnan(y_err)) )
-        print(
-            'Removed {} nans'
-            .format(len(cuts))
-        )
+        #print(
+        #    'Removed {} nans'
+        #    .format(len(cuts))
+        #)
 
         self.x = x[cuts]
         self.y = y[cuts]
@@ -302,7 +296,7 @@ class Data(Catalog):
 
         print('Accepted {} data out of {}\n'.format(np.size(self.x), N))
 
-        if np.size(x) == 0:
+        if np.size(self.x) == 0:
             print (
                 '\nWARNING: No data survived flag removal. '
                 'Suggest changing flag parameters in `param.config`.'
@@ -311,8 +305,8 @@ class Data(Catalog):
             raise SystemExit(2)
 
         #if config.vb is True:
-        print('mean x error:', np.mean(self.x_err))
-        print('mean y error:', np.mean(self.y_err))
+        print('Mean {} error:'.format(self.xlabel), np.mean(self.x_err))
+        print('Mean {} error:'.format(self.ylabel), np.mean(self.y_err))
         print ('\n')
 
         return
@@ -374,10 +368,10 @@ class Fitter(Data):
         ''' Get a data set from a scaled fit '''
 
         #Scale for line fitting
-        scaled_x = np.linspace(self.xmin, self.xmax, 150)
+        scaled_x = np.linspace(self.xmin, self.xmax, len(self.log_x))
         scaled_y = np.mean(self.kelly_b) + np.mean(self.kelly_m) * scaled_x
-        scaled_x_errs = np.zeros(150)
-        scaled_y_errs = np.ones(150)*np.mean(self.kelly_m)
+        scaled_x_errs = np.zeros(len(self.log_x))
+        scaled_y_errs = np.ones(len(self.log_y))*np.mean(self.kelly_m)
 
         self.unscaled_data = self.unscale(scaled_x, scaled_y, scaled_x_errs, scaled_y_errs,
                                 self.piv)
