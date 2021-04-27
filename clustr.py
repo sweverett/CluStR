@@ -19,8 +19,8 @@ parser = ArgumentParser()
 parser.add_argument('cat_filename', help='FITS catalog to open')
 # Required arguement for axes
 valid_axes = ['l500kpc', 'lr2500', 'lr500', 'lr500cc', 't500kpc', 'tr2500',
-              'tr500', 'tr500cc', 'lambda', 'lx', 'lam']
-parser.add_argument('x', help='what to plot on x axis', choices=valid_axes)              
+              'tr500', 'tr500cc', 'lambda', 'lx', 'lam', 'txmm', 'tr2500matcha', 'tr500matcha']
+parser.add_argument('x', help='what to plot on x axis', choices=valid_axes)
 parser.add_argument('y', help='what to plot on y axis', choices=valid_axes)
 parser.add_argument('config_file',
     help = 'the filename of the config to run')
@@ -136,34 +136,34 @@ class Data(Catalog):
             maskr = np.zeros(len(catalog), dtype=bool)
 
             # Boolean Flags
-            for bflag_ in config['Bool_Flag']:
-                bool_type = config['Bool_Flag'][bflag_]
+            #for bflag_ in config['Bool_Flag']:
+            #    bool_type = config['Bool_Flag'][bflag_]
+#
+#                if isinstance(bool_type, bool):
+#
+#                    bflag = bflag_.replace("_bool_type", "")
+#
+#                    cutb = catalog[bflag] == (bool_type)
+#
+#                else:
+#                    print(
+#                        "Warning: Boolean type must be `True` or  `False` - "
+#                        "you entered `{}`. Ignoring `{}` flag."
+#                        .format(bool_type, bflag)
+#                    )
 
-                if isinstance(bool_type, bool):
-
-                    bflag = bflag_.replace("_bool_type", "")
-
-                    cutb = catalog[bflag] == (bool_type)
-
-                else:
-                    print(
-                        "Warning: Boolean type must be `True` or  `False` - "
-                        "you entered `{}`. Ignoring `{}` flag."
-                        .format(bool_type, bflag)
-                    )
-
-                maskb |= cutb
-                print(
-                    'Removed {} clusters due to `{}` flag of `{}`'
-                    .format(np.size(np.where(cutb)), bflag_, type(bool_type))
-                )
+#                maskb |= cutb
+#                print(
+#                    'Removed {} clusters due to `{}` flag of `{}`'
+#                    .format(np.size(np.where(cutb)), bflag_, type(bool_type))
+#                )
 
             # Cutoff Flags
             for cflag_ in config['Cutoff_Flag']:
 
                 TFc = config['Cutoff_Flag'][cflag_]
 
-                if cflag_ not in ('Other') and TFc.keys()[0] != False:
+                if cflag_ not in ('Other') and list(TFc.keys())[0] != False:
                     cvalues = TFc[True].values()
                     cut_type = cvalues
                     cutoff = cvalues[0]
@@ -227,7 +227,7 @@ class Data(Catalog):
                             .format(np.size(np.where(cutr)), rflag_, type(range_type))
                         )
 
-            return maskb, maskc, maskr
+                return maskb, maskc, maskr
 
     def _load_data(self, config, catalog):
         '''
@@ -245,22 +245,22 @@ class Data(Catalog):
         N = np.size(x)
         assert N == np.size(y)
 
-        # Scale data if a luminosity
+         #Scale data if a luminosity
         if config['scale_x_by_ez']:
-            x /= Ez(catalog['Z_1'])     #Changed Redshift == Z_1
+            x /= Ez(catalog['Redshift'])     #Changed Redshift == Z_1
         else:
             if self.xlabel[0] == 'L' and self.xlabel != 'LAM':
                 print('WARNING: looks like you may be passing a luminosity without'+
                         'setting `scale_x_by_ez: True`. Is that correct?')
         if config['scale_y_by_ez']:
-            y /= Ez(catalog['Z_1'])
+            y /= Ez(catalog['Redshift'])
         else:
             if self.ylabel[0] == 'l' and self.ylabel != 'lambda':
                 print('WARNING: looks like you may be passing a luminosity without'+
                         'setting `scale_y_by_ez: True`. Is that correct?')
 
-        self.x_err = (catalog['R_' + self.xlabel] + catalog['R_' + self.xlabel]) / 2.     # Changed _err_low == m
-        self.y_err = (catalog[self.ylabel+'_m'] + catalog[self.ylabel+'_p'] - (2*catalog[self.ylabel])) / 2. # Changed _err_high == p
+        self.x_err = (catalog['Tx_err_high_xmm'] + catalog['Tx_err_low_xmm']) / 2.     # Changed  for cmm vs chdr
+        self.y_err = (catalog['Tx_r2500_err_high_matcha'] + catalog['Tx_r2500_err_low_matcha']) / 2. # Changed for xmm vs chdr
 
         maskb, maskc, maskr = self.create_cuts(config, catalog)
 
@@ -277,7 +277,7 @@ class Data(Catalog):
         'as some data fail multiple flags.'
         )
 
-        # Take rows with good data, and all flagged data removed
+        #Take rows with good data, and all flagged data removed
         good_rows = np.all([x != -1, y != -1], axis=0)
 
         x = x[good_rows]
@@ -342,9 +342,9 @@ class Fitter(Data):
 
         # run linmix
         self.kelly_b, self.kelly_m, self.kelly_sig = reglib.run_linmix(
-                                                        self.log_x, 
-                                                        self.log_y, 
-                                                        self.log_x_err, 
+                                                        self.log_x,
+                                                        self.log_y,
+                                                        self.log_x_err,
                                                         self.log_y_err)
 
         return
