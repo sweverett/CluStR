@@ -49,8 +49,11 @@ Column_Names:
     tr2500: r2500_temperature
     tr500: r500_temperature
     tr500cc: r500_core_cropped_temperature
-    lam: LAM 
-    lx: Lx 
+    lam: LAM
+    lx: Lx
+    txmm : Tx_xmm
+    tr2500matcha: Tx_r2500_matcha
+    tr500matcha : Tx_r500_matcha
 
 # ----------------------------------------------------------------------
 # Flags
@@ -135,7 +138,7 @@ Bool_Flag:
     #overlap_r500_bool_type: True
     #overlap_r2500_bool_type: True
     #overlap_bkgd_bool_type: True
-    Target_bool_type: True
+    #Target_bool_type: True
 
 # Cutoff:
 Cutoff_Flag:
