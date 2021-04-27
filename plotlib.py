@@ -49,7 +49,7 @@ def plot_scatter(args, fitter):
     )
 
     # Plot Fit
-    plt.plot(
+    plt.loglog(
         x_fit, y_fit, color='darkred', linewidth=2.0,
         label=(
             r'$({0:0.2g} \pm {1:0.2g})'
@@ -65,13 +65,13 @@ def plot_scatter(args, fitter):
         )
     )
     # Confidence Interval
-    n = len(y_fit)
-    resid = y_obs - y_fit
-    s_err = np.sqrt(np.sum(resid**2)/(n - 2))
-    t = stats.t.ppf(0.95, n - 2)
-    ci = t * s_err * np.sqrt(1/n + (x_fit - np.mean(x_fit))**2/np.sum(((x_fit - np.mean(x_fit))**2)))
+    #n = len(y_fit)
+    #resid = y_obs - y_fit
+    #s_err = np.sqrt(np.sum(resid**2)/(n - 2))
+    #t = stats.t.ppf(0.95, n - 2)
+    #ci = t * s_err * np.sqrt(1/n + (x_fit - np.mean(x_fit))**2/np.sum((#(x_fit - np.mean(x_fit))**2)))
 
-    plt.plot(x_fit, y_fit - ci)
+    #plt.plot(x_fit, y_fit - ci)
     #plt.plot(x_fit, y_fit - ci)
     #plt.show()
     
@@ -81,8 +81,8 @@ def plot_scatter(args, fitter):
     plt.ylabel(fitter.data_ylabel, fontsize=10)
     plt.xlim([0.85*np.min(x_obs), 1.05*np.max(x_obs)])
     plt.ylim([0.75*np.min(y_obs), 1.3*np.max(y_obs)])
-    plt.xscale('log')
-    plt.yscale('log')
+    #plt.xscale('log')
+    #plt.yscale('log')
     plt.grid()
     plt.legend(loc=0, fontsize='x-small')
     plt.savefig(

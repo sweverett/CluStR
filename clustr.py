@@ -19,13 +19,8 @@ parser = ArgumentParser()
 parser.add_argument('cat_filename', help='FITS catalog to open')
 # Required arguement for axes
 valid_axes = ['l500kpc', 'lr2500', 'lr500', 'lr500cc', 't500kpc', 'tr2500',
-<<<<<<< HEAD
               'tr500', 'tr500cc', 'lambda', 'lx', 'lam', 'txmm', 'tr2500matcha', 'tr500matcha']
 parser.add_argument('x', help='what to plot on x axis', choices=valid_axes)
-=======
-              'tr500', 'tr500cc', 'lambda', 'lx', 'tx', 'lam']
-parser.add_argument('x', help='what to plot on x axis', choices=valid_axes)              
->>>>>>> cf26f704fe45f0457e56aab80062a59c6a67717e
 parser.add_argument('y', help='what to plot on y axis', choices=valid_axes)
 parser.add_argument('config_file',
     help = 'the filename of the config to run')
@@ -139,51 +134,27 @@ class Data(Catalog):
             mask = np.zeros(len(catalog), dtype=bool)
 
             # Boolean Flags
-<<<<<<< HEAD
             #for bflag_ in config['Bool_Flag']:
             #    bool_type = config['Bool_Flag'][bflag_]
 #
-#                if isinstance(bool_type, bool):
+            #    if isinstance(bool_type, bool):
 #
-#                    bflag = bflag_.replace("_bool_type", "")
+            #        bflag = bflag_.replace("_bool_type", "")
 #
-#                    cutb = catalog[bflag] == (bool_type)
+            #        cutb = catalog[bflag] == (bool_type)
 #
-#                else:
-#                    print(
-#                        "Warning: Boolean type must be `True` or  `False` - "
-#                        "you entered `{}`. Ignoring `{}` flag."
-#                        .format(bool_type, bflag)
-#                    )
-
-#                maskb |= cutb
-#                print(
-#                    'Removed {} clusters due to `{}` flag of `{}`'
-#                    .format(np.size(np.where(cutb)), bflag_, type(bool_type))
-#                )
-=======
-            for bflag_ in config['Bool_Flag']:
-                bool_type = config['Bool_Flag'][bflag_]
-
-                if isinstance(bool_type, bool):
-
-                    bflag = bflag_.replace("_bool_type", "")
-
-                    cutb = catalog[bflag] == (bool_type)
-
-                else: 
-                    print(
-                        "Warning: Boolean type must be `True` or  `False` - "
-                        "you entered `{}`. Ignoring `{}` flag."
-                        .format(bool_type, bflag)
-                    )
-
-                mask |= cutb
-                print(
-                    'Removed {} clusters due to `{}` flag of `{}`'
-                    .format(np.size(np.where(cutb)), bflag_, type(bool_type))
-                )
->>>>>>> cf26f704fe45f0457e56aab80062a59c6a67717e
+            #    else: 
+            #        print(
+            #            "Warning: Boolean type must be `True` or  `False` - "
+            #            "you entered `{}`. Ignoring `{}` flag."
+            #            .format(bool_type, bflag)
+            #        )
+#
+            #    mask |= cutb
+            #    print(
+            #        'Removed {} clusters due to `{}` flag of `{}`'
+            #        .format(np.size(np.where(cutb)), bflag_, type(bool_type))
+            #    )
 
             # Cutoff Flags
             for cflag_ in config['Cutoff_Flag']:
@@ -254,11 +225,7 @@ class Data(Catalog):
                             .format(np.size(np.where(cutr)), rflag_, type(range_type))
                         )
 
-<<<<<<< HEAD
-                return maskb, maskc, maskr
-=======
             return mask
->>>>>>> cf26f704fe45f0457e56aab80062a59c6a67717e
 
     def _load_data(self, config, catalog):
         '''
@@ -276,34 +243,6 @@ class Data(Catalog):
         N = np.size(x)
         assert N == np.size(y)
 
-<<<<<<< HEAD
-         #Scale data if a luminosity
-        if config['scale_x_by_ez']:
-            x /= Ez(catalog['Redshift'])     #Changed Redshift == Z_1
-        else:
-            if self.xlabel[0] == 'L' and self.xlabel != 'LAM':
-                print('WARNING: looks like you may be passing a luminosity without'+
-                        'setting `scale_x_by_ez: True`. Is that correct?')
-        if config['scale_y_by_ez']:
-            y /= Ez(catalog['Redshift'])
-        else:
-            if self.ylabel[0] == 'l' and self.ylabel != 'lambda':
-                print('WARNING: looks like you may be passing a luminosity without'+
-                        'setting `scale_y_by_ez: True`. Is that correct?')
-
-        self.x_err = (catalog['Tx_err_high_xmm'] + catalog['Tx_err_low_xmm']) / 2.     # Changed  for cmm vs chdr
-        self.y_err = (catalog['Tx_r2500_err_high_matcha'] + catalog['Tx_r2500_err_low_matcha']) / 2. # Changed for xmm vs chdr
-
-        maskb, maskc, maskr = self.create_cuts(config, catalog)
-
-        x[maskb] = -1       # All bools_type observations will equal '-1'.
-        x[maskr] = -1       # All range_type observations will equal '-1'
-        x[maskc] = -1       # All cut_type observations will equal '-1'.
-
-        y[maskb] = -1
-        y[maskr] = -1
-        y[maskc] = -1
-=======
         # Scale data if a luminosity
         if config['scale_x_by_ez'] == True:
             redshift = config['Redshift']
@@ -318,15 +257,14 @@ class Data(Catalog):
         ylabel_error_low = config["ylabel_err_low"]
         ylabel_error_high = config["ylabel_err_high"]
 
-        x_err = (catalog[xlabel_error_low] + catalog[xlabel_error_high]) / 2.
-        y_err = ((y - catalog[ylabel_error_low]) + (catalog[ylabel_error_high] - y)) / 2.
+        x_err = (-catalog[xlabel_error_low] + catalog[xlabel_error_high]) / 2.
+        y_err = (-catalog[ylabel_error_low] + catalog[ylabel_error_high]) / 2.
 
         mask = self.create_cuts(config, catalog)
 
         x[mask] = -1       # All bools_type observations will equal '-1'.
 
         y[mask] = -1
->>>>>>> cf26f704fe45f0457e56aab80062a59c6a67717e
 
         print (
         '\nNOTE: `Removed` counts may be redundant, '
@@ -346,10 +284,10 @@ class Data(Catalog):
                          (~np.isnan(y)) &
                          (~np.isnan(x_err)) &
                          (~np.isnan(y_err)) )
-        #print(
-        #    'Removed {} nans'
-        #    .format(len(cuts))
-        #)
+        print(
+            'Removed {} nans'
+            .format(np.isnan(x_err))
+        )
 
         self.x = x[cuts]
         self.y = y[cuts]

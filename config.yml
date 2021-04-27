@@ -22,7 +22,7 @@ H_0: 0.7
 #--------
 scale_x_by_ez: False
 scale_y_by_ez: True
-Redshift: "Z_1"
+Redshift: "Redshift"
 #------------------------------------------------------------------------
 
 # NB: Not all default options are implemented yet!
@@ -44,27 +44,20 @@ Column_Names:
     tr2500: r2500_temperature
     tr500: r500_temperature
     tr500cc: r500_core_cropped_temperature
-<<<<<<< HEAD
     lam: LAM
     lx: Lx
     txmm : Tx_xmm
     tr2500matcha: Tx_r2500_matcha
     tr500matcha : Tx_r500_matcha
-=======
-    lam: LAMBDA_CHISQ
-    lx: Lx 
-    tx: Tx 
 
 # ---------------------------------------------------------------------
 # Error Labels
 # ---------------
-xlabel_err_low: "LAMBDA_CHISQ_E"
-xlabel_err_high: "LAMBDA_CHISQ_E"
+xlabel_err_low: "Tx_r2500_err_low_matcha"
+xlabel_err_high: "Tx_r2500_err_high_matcha"
 
-ylabel_err_low: "Lx_m" 
-ylabel_err_high: "Lx_p"
-# ---------------------------------------------------------------------
->>>>>>> cf26f704fe45f0457e56aab80062a59c6a67717e
+ylabel_err_low: "Tx_err_low_xmm" 
+ylabel_err_high: "Tx_err_high_xmm"
 
 # ----------------------------------------------------------------------
 # Flags
