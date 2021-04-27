@@ -20,8 +20,9 @@ H_0: 0.7
 #-----------------------------------------------------------------------
 # Scale
 #--------
-scale_x_by_ez : scale_x_by_ez
-scale_y_by_ez : scale_y_by_ez
+scale_x_by_ez: False
+scale_y_by_ez: True
+Redshift: "Z_1"
 #------------------------------------------------------------------------
 
 # NB: Not all default options are implemented yet!
@@ -31,12 +32,6 @@ default_catalog: Test2
 
 # Default output file prexfix (includes x and y labels automatically)
 default_prefix: Test2
-
-# Default covariate variable (independent variable)
-default_x: None
-
-# Default response variable (dependent variable)
-default_y: None
 
 # Column name conventions:
 Column_Names:
@@ -49,11 +44,27 @@ Column_Names:
     tr2500: r2500_temperature
     tr500: r500_temperature
     tr500cc: r500_core_cropped_temperature
+<<<<<<< HEAD
     lam: LAM
     lx: Lx
     txmm : Tx_xmm
     tr2500matcha: Tx_r2500_matcha
     tr500matcha : Tx_r500_matcha
+=======
+    lam: LAMBDA_CHISQ
+    lx: Lx 
+    tx: Tx 
+
+# ---------------------------------------------------------------------
+# Error Labels
+# ---------------
+xlabel_err_low: "LAMBDA_CHISQ_E"
+xlabel_err_high: "LAMBDA_CHISQ_E"
+
+ylabel_err_low: "Lx_m" 
+ylabel_err_high: "Lx_p"
+# ---------------------------------------------------------------------
+>>>>>>> cf26f704fe45f0457e56aab80062a59c6a67717e
 
 # ----------------------------------------------------------------------
 # Flags
@@ -132,7 +143,7 @@ Column_Names:
 Bool_Flag:
     #bad_mode_bool_type: True
     #edge_r2500_bool_type: True
-    ##edge_r500_bool_type: False
+    #edge_r500_bool_type: False
     #edge_bkgd: True
     #masked_bool_type: True
     #overlap_r500_bool_type: True

@@ -7,6 +7,7 @@ import PyPDF2
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
+import scipy.stats as stats
 #import seaborn as ssb
 #plt.style.use('seaborn')
 #matplotlib.use('Agg')
@@ -48,7 +49,7 @@ def plot_scatter(args, fitter):
     )
 
     # Plot Fit
-    plt.loglog(
+    plt.plot(
         x_fit, y_fit, color='darkred', linewidth=2.0,
         label=(
             r'$({0:0.2g} \pm {1:0.2g})'
@@ -63,24 +64,27 @@ def plot_scatter(args, fitter):
             np.std(fit_sig)
         )
     )
-    y1 = y_fit + np.log(np.mean(fit_sig))
-    y2 = y_fit - np.log(np.mean(fit_sig))
+    # Confidence Interval
+    n = len(y_fit)
+    resid = y_obs - y_fit
+    s_err = np.sqrt(np.sum(resid**2)/(n - 2))
+    t = stats.t.ppf(0.95, n - 2)
+    ci = t * s_err * np.sqrt(1/n + (x_fit - np.mean(x_fit))**2/np.sum(((x_fit - np.mean(x_fit))**2)))
+
+    plt.plot(x_fit, y_fit - ci)
+    #plt.plot(x_fit, y_fit - ci)
+    #plt.show()
     
-    matplotlib.pyplot.fill_between(x_fit, y2, y1, 
-        where=None, 
-        interpolate=False, 
-        step=None, 
-        data=None, 
-        alpha=0.4
-        )
-    
-    plt.xlabel(fitter.data_xlabel, fontsize=10)
+    #plt.fill_between(x_fit, y_fit + ci, y_fit - ci, alpha=0.4, color='teal')
+
+    plt.xlabel(fitter.data_xlabel.capitalize(), fontsize=10)
     plt.ylabel(fitter.data_ylabel, fontsize=10)
-    plt.xlim([0.95*np.min(x_obs), 1.05*np.max(x_obs)])
+    plt.xlim([0.85*np.min(x_obs), 1.05*np.max(x_obs)])
     plt.ylim([0.75*np.min(y_obs), 1.3*np.max(y_obs)])
+    plt.xscale('log')
+    plt.yscale('log')
     plt.grid()
     plt.legend(loc=0, fontsize='x-small')
-
     plt.savefig(
         'Scatter-{}{}-{}.pdf'
         .format(
