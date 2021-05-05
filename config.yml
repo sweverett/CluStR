@@ -53,11 +53,11 @@ Column_Names:
 # ---------------------------------------------------------------------
 # Error Labels
 # ---------------
-xlabel_err_low: "Tx_r2500_err_low_matcha"
-xlabel_err_high: "Tx_r2500_err_high_matcha"
+xlabel_err_low: "lambda_err_low"
+xlabel_err_high: "lambda_err_high"
 
-ylabel_err_low: "Tx_err_low_xmm" 
-ylabel_err_high: "Tx_err_high_xmm"
+ylabel_err_low: "r2500_temperature_err_low" 
+ylabel_err_high: "r2500_temperature_err_high"
 
 # ----------------------------------------------------------------------
 # Flags
@@ -134,11 +134,11 @@ ylabel_err_high: "Tx_err_high_xmm"
 
 # Bools:
 Bool_Flag:
-    #bad_mode_bool_type: True
-    #edge_r2500_bool_type: True
-    #edge_r500_bool_type: False
-    #edge_bkgd: True
-    #masked_bool_type: True
+    bad_mode_bool_type: True
+    edge_r2500_bool_type: True
+    edge_r500_bool_type: True
+    edge_bkgd: True
+    masked_bool_type: True
     #overlap_r500_bool_type: True
     #overlap_r2500_bool_type: True
     #overlap_bkgd_bool_type: True
