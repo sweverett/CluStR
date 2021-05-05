@@ -146,10 +146,19 @@ Bool_Flag:
 
 # Cutoff:
 Cutoff_Flag:
-    500_kiloparsecs_SNR:
+    r500_core_cropped_SNR:
+      False:
+          500_kpcs_SNR_cutoff: 9.0
+          500_kpcs_SNR_cut_type: above
+    r2500_SNR_matcha:
         False:
             500_kpcs_SNR_cutoff: 9.0
             500_kpcs_SNR_cut_type: above
+    r2500_PNSNR_alt_xmm:
+        False:
+            500_kpcs_SNR_cutoff: 9.0
+            500_kpcs_SNR_cut_type: above
+
     Other:
         True/False:
             _cutoff: value
@@ -158,10 +167,10 @@ Cutoff_Flag:
 # Ranges:
 Range_Flag:
     Redshift:
-        False:
+        True:
             Redshift_minmax:
-                Redshift_range_min: 0.0
-                Redshift_range_max: 1.0
+                Redshift_range_min: 0.2
+                Redshift_range_max: 0.65
                 Redshift_range_type: inside
     Other:
         True/False:
@@ -178,7 +187,7 @@ Range_Flag:
 # into a single file unless `save_all_plots` is set to True.
 scatter: True
 corner: False
-chains: False
+chains: True
 residuals: False
 save_all_plots: False
 

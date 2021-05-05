@@ -162,9 +162,9 @@ class Data(Catalog):
                 TFc = config['Cutoff_Flag'][cflag_]
 
                 if cflag_ not in ('Other') and list(TFc.keys())[0] != False:
-                    cvalues = TFc[True].values()
-                    cutoff = cvalues[1]
-                    cut_type = cvalues[0]
+                    cvalues = list(TFc[True].values())
+                    cutoff = cvalues[0]
+                    cut_type = cvalues[1]
 
                     if cut_type == 'above':
 
@@ -258,7 +258,7 @@ class Data(Catalog):
         ylabel_error_high = config["ylabel_err_high"]
 
         x_err = (catalog[xlabel_error_low] + catalog[xlabel_error_high]) / 2.
-        y_err = (-catalog[ylabel_error_low] + catalog[ylabel_error_high]) / 2.
+        y_err = (catalog[ylabel_error_high] + catalog[ylabel_error_low]) / 2.
 
         mask = self.create_cuts(config, catalog)
 
@@ -286,7 +286,7 @@ class Data(Catalog):
                          (~np.isnan(y_err)) )
         #print(
         #    'Removed {} nans'
-        #    .format(cuts))
+        #    .format(np.isnan(x_err))
         #)
 
         self.x = x[cuts]
