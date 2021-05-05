@@ -20,6 +20,42 @@ import scipy.stats as stats
 # pylint: disable=too-many-arguments
 # pylint: disable=too-many-locals
 
+def predband(x, y, yhat, f_vars, conf=0.95):
+    """
+    Code adapted from Rodrigo Nemmen's post:
+    http://astropython.blogspot.com.ar/2011/12/calculating-prediction-band-
+    of-linear.html
+    Calculates the prediction band of the regression model at the
+    desired confidence level.
+    Clarification of the difference between confidence and prediction bands:
+    The 95%
+    prediction band is the area in which you expect 95% of all data points
+    to fall. In contrast, the 95% confidence band is the area that has a
+    95% chance of containing the true regression line."
+    References:
+    1. http://www.JerryDallal.com/LHSP/slr.htm, Introduction to Simple Linear
+    Regression, Gerard E. Dallal, Ph.D.
+    """
+
+    alpha = 1. - conf    # Significance
+    N = x.size          # data sample size
+    var_n = len(f_vars)  # Number of variables used by the fitted function.
+
+    # Quantile of Student's t distribution for p=(1 - alpha/2)
+    q = stats.t.ppf(1. - alpha / 2., N - var_n)
+
+    # Std. deviation of an individual measurement (Bevington, eq. 6.15)
+    se = np.sqrt(1. / (N - var_n) * np.sum((y - yhat) ** 2))
+
+    # Auxiliary definitions
+    sx = (x - x.mean()) ** 2
+    sxd = np.sum((x - x.mean()) ** 2)
+    
+    # Prediction band
+    dy = q * se * np.sqrt((1. / N) + (sx / sxd))
+
+    return dy
+
 def plot_scatter(args, fitter):
     ''' Plot data '''
 
@@ -64,25 +100,18 @@ def plot_scatter(args, fitter):
             np.std(fit_sig)
         )
     )
-    # Confidence Interval
-    #n = len(y_fit)
-    #resid = y_obs - y_fit
-    #s_err = np.sqrt(np.sum(resid**2)/(n - 2))
-    #t = stats.t.ppf(0.95, n - 2)
-    #ci = t * s_err * np.sqrt(1/n + (x_fit - np.mean(x_fit))**2/np.sum((#(x_fit - np.mean(x_fit))**2)))
-
-    #plt.plot(x_fit, y_fit - ci)
-    #plt.plot(x_fit, y_fit - ci)
-    #plt.show()
     
-    #plt.fill_between(x_fit, y_fit + ci, y_fit - ci, alpha=0.4, color='teal')
+    #Confidence Interval
+    popt = (np.mean(fit_int), np.mean(fit_slope)) # Number of variables used in relation
+    
+    dy = predband(x_fit, y_obs, y_fit, popt, conf=0.95)
+
+    plt.fill_between(x_fit, y_fit + dy, y_fit - dy, where=None, alpha=0.2, facecolor='b', edgecolor ='#1f77b4', label='95$\%$ Confidence Band')
 
     plt.xlabel(fitter.data_xlabel.capitalize(), fontsize=10)
     plt.ylabel(fitter.data_ylabel, fontsize=10)
     plt.xlim([0.85*np.min(x_obs), 1.05*np.max(x_obs)])
     plt.ylim([0.75*np.min(y_obs), 1.3*np.max(y_obs)])
-    #plt.xscale('log')
-    #plt.yscale('log')
     plt.grid()
     plt.legend(loc=0, fontsize='x-small')
     plt.savefig(
@@ -96,7 +125,6 @@ def plot_scatter(args, fitter):
     )
 
     return
-
 
 def plot_residuals(args, fitter):
     '''
