@@ -134,27 +134,27 @@ class Data(Catalog):
             mask = np.zeros(len(catalog), dtype=bool)
 
             # Boolean Flags
-            #for bflag_ in config['Bool_Flag']:
-            #    bool_type = config['Bool_Flag'][bflag_]
-#
-            #    if isinstance(bool_type, bool):
-#
-            #        bflag = bflag_.replace("_bool_type", "")
-#
-            #        cutb = catalog[bflag] == (bool_type)
-#
-            #    else: 
-            #        print(
-            #            "Warning: Boolean type must be `True` or  `False` - "
-            #            "you entered `{}`. Ignoring `{}` flag."
-            #            .format(bool_type, bflag)
-            #        )
-#
-            #    mask |= cutb
-            #    print(
-            #        'Removed {} clusters due to `{}` flag of `{}`'
-            #        .format(np.size(np.where(cutb)), bflag_, type(bool_type))
-            #    )
+            for bflag_ in config['Bool_Flag']:
+                bool_type = config['Bool_Flag'][bflag_]
+
+                if isinstance(bool_type, bool):
+
+                    bflag = bflag_.replace("_bool_type", "")
+
+                    cutb = catalog[bflag] == (bool_type)
+
+                else: 
+                    print(
+                        "Warning: Boolean type must be `True` or  `False` - "
+                        "you entered `{}`. Ignoring `{}` flag."
+                        .format(bool_type, bflag)
+                    )
+
+                mask |= cutb
+                print(
+                    'Removed {} clusters due to `{}` flag of `{}`'
+                    .format(np.size(np.where(cutb)), bflag_, type(bool_type))
+                )
 
             # Cutoff Flags
             for cflag_ in config['Cutoff_Flag']:
@@ -257,7 +257,7 @@ class Data(Catalog):
         ylabel_error_low = config["ylabel_err_low"]
         ylabel_error_high = config["ylabel_err_high"]
 
-        x_err = (-catalog[xlabel_error_low] + catalog[xlabel_error_high]) / 2.
+        x_err = (catalog[xlabel_error_low] + catalog[xlabel_error_high]) / 2.
         y_err = (-catalog[ylabel_error_low] + catalog[ylabel_error_high]) / 2.
 
         mask = self.create_cuts(config, catalog)
@@ -284,10 +284,10 @@ class Data(Catalog):
                          (~np.isnan(y)) &
                          (~np.isnan(x_err)) &
                          (~np.isnan(y_err)) )
-        print(
-            'Removed {} nans'
-            .format(np.isnan(x_err))
-        )
+        #print(
+        #    'Removed {} nans'
+        #    .format(cuts))
+        #)
 
         self.x = x[cuts]
         self.y = y[cuts]
