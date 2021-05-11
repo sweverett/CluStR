@@ -281,6 +281,10 @@ class Data(Catalog):
         y = y[good_rows]
         x_err = x_err[good_rows]
         y_err = y_err[good_rows]
+        x_err_low = x_err_low[good_rows]
+        x_err_high = x_err_high[good_rows]
+        y_err_low = y_err_low[good_rows]
+        y_err_high = y_err_high[good_rows]
 
         # Cut out any NaNs
         cuts = np.where( (~np.isnan(x)) &
@@ -312,6 +316,10 @@ class Data(Catalog):
             raise SystemExit(2)
 
         #if config.vb is True:
+        print('Mean {} error low:'.format(self.xlabel), np.mean(self.x_err_low))
+        print('Mean {} error high:'.format(self.xlabel), np.mean(self.x_err_high))
+        print('Mean {} error low:'.format(self.ylabel), np.mean(self.y_err_low))
+        print('Mean {} error high:'.format(self.ylabel), np.mean(self.y_err_high))
         print('Mean {} error:'.format(self.xlabel), np.mean(self.x_err))
         print('Mean {} error:'.format(self.ylabel), np.mean(self.y_err))
         print ('\n')

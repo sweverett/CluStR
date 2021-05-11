@@ -56,7 +56,7 @@ Column_Names:
 xlabel_err_low: "lambda_err_low"
 xlabel_err_high: "lambda_err_high"
 
-ylabel_err_low: "r2500_temperature_err_low" 
+ylabel_err_low: "r2500_temperature_err_low"
 ylabel_err_high: "r2500_temperature_err_high"
 
 # ----------------------------------------------------------------------
@@ -186,9 +186,10 @@ Range_Flag:
 # Set which plots you want saved in the output .pdf file. Combines all plots
 # into a single file unless `save_all_plots` is set to True.
 scatter: True
+asymmetric_err: False
 corner: False
 chains: True
-residuals: False
+residuals: True
 save_all_plots: False
 
 # Show the method name used in the scatter plot?

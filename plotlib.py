@@ -56,7 +56,7 @@ def predband(x, y, yhat, f_vars, conf=0.95):
 
     return dy
 
-def plot_scatter(args, fitter):
+def plot_scatter(args, fitter, config):
     ''' Plot data '''
 
     #Grab data references
@@ -72,13 +72,25 @@ def plot_scatter(args, fitter):
     y_err_obs_asym = [y_err_obs_low, y_err_obs_high]
 
     # Plot data
-    plt.errorbar(x_obs, y_obs, xerr=x_err_obs_asym, yerr=y_err_obs_asym,
-        ecolor='k',
-        fmt='bo',
-        markersize=3,
-        markeredgecolor='k',
-        capsize=2
-        )
+    if config['asymmetric_err'] is True:
+        plt.errorbar(x_obs, y_obs, xerr=x_err_obs_asym, yerr=y_err_obs_asym,
+            ecolor='k',
+            fmt='bo',
+            markersize=3,
+            markeredgecolor='k',
+            capsize=2
+            )
+        print('using asymmetric error bars.')
+    else:
+        plt.errorbar(x_obs, y_obs, xerr=x_err_obs, yerr=y_err_obs,
+            ecolor='k',
+            fmt='bo',
+            markersize=3,
+            markeredgecolor='k',
+            capsize=2
+            )
+        print('using symmetric error bars.')
+
 
     # Grab linmix data
     fit_int, fit_slope, fit_sig = fitter.kelly_b, fitter.kelly_m, fitter.kelly_sig
@@ -116,7 +128,7 @@ def plot_scatter(args, fitter):
 
     plt.xlabel(fitter.data_xlabel.capitalize(), fontsize=10)
     plt.ylabel(fitter.data_ylabel, fontsize=10)
-    plt.xlim([0.85*np.min(x_obs), 1.05*np.max(x_obs)])
+    plt.xlim([0.95*np.min(x_obs), 1.05*np.max(x_obs)])
     plt.ylim([0.75*np.min(y_obs), 1.3*np.max(y_obs)])
     plt.grid()
     plt.legend(loc=0, fontsize='x-small')
@@ -132,7 +144,7 @@ def plot_scatter(args, fitter):
 
     return
 
-def plot_residuals(args, fitter):
+def plot_residuals(args, fitter, config):
     '''
     FIX: Description
     '''
@@ -353,7 +365,7 @@ def make_plots(args, config, fitter):
     pdfs = []
 
     if config['scatter'] is True:
-        plot_scatter(args, fitter)
+        plot_scatter(args, fitter, config)
         # Add scatter/fit plot
         pdfs.append(
             'Scatter-{}{}-{}.pdf'
@@ -365,7 +377,7 @@ def make_plots(args, config, fitter):
         )
 
     if config['residuals'] is True:
-        plot_residuals(args, fitter)
+        plot_residuals(args, fitter, config)
         # Add residual plot(s)
         pdfs.append(
             'Residuals-{}{}-{}.pdf'.format(
