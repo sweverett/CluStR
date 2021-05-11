@@ -291,10 +291,10 @@ class Data(Catalog):
                          (~np.isnan(y)) &
                          (~np.isnan(x_err)) &
                          (~np.isnan(y_err)) )
-        #print(
-        #    'Removed {} nans'
-        #    .format(np.isnan(x_err))
-        #)
+        print(
+            'Removed {} nans'
+            .format(len(np.isnan(x_err)))
+        )
 
         self.x = x[cuts]
         self.y = y[cuts]

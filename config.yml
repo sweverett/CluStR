@@ -136,18 +136,19 @@ ylabel_err_high: "r2500_temperature_err_high"
 Bool_Flag:
     bad_mode_bool_type: True
     edge_r2500_bool_type: True
-    edge_r500_bool_type: True
+    #edge_r500_bool_type: True
     edge_bkgd: True
     masked_bool_type: True
-    #overlap_r500_bool_type: True
-    #overlap_r2500_bool_type: True
-    #overlap_bkgd_bool_type: True
+    overlap_r500_bool_type: True
+    overlap_r2500_bool_type: True
+    overlap_bkgd_bool_type: True
     #Target_bool_type: True
+    Detected_bool_type: False
 
 # Cutoff:
 Cutoff_Flag:
-    r500_core_cropped_SNR:
-      False:
+    r2500_SNR:
+      True:
           500_kpcs_SNR_cutoff: 9.0
           500_kpcs_SNR_cut_type: above
     r2500_SNR_matcha:
