@@ -143,7 +143,7 @@ class Data(Catalog):
 
                     cutb = catalog[bflag] == (bool_type)
 
-                else: 
+                else:
                     print(
                         "Warning: Boolean type must be `True` or  `False` - "
                         "you entered `{}`. Ignoring `{}` flag."
@@ -256,7 +256,10 @@ class Data(Catalog):
         xlabel_error_high = config["xlabel_err_high"]
         ylabel_error_low = config["ylabel_err_low"]
         ylabel_error_high = config["ylabel_err_high"]
-
+        x_err_low = catalog[xlabel_error_low]
+        x_err_high = catalog[xlabel_error_high]
+        y_err_low = catalog[ylabel_error_low]
+        y_err_high = catalog[ylabel_error_high]
         x_err = (catalog[xlabel_error_low] + catalog[xlabel_error_high]) / 2.
         y_err = (catalog[ylabel_error_high] + catalog[ylabel_error_low]) / 2.
 
@@ -293,6 +296,10 @@ class Data(Catalog):
         self.y = y[cuts]
         self.x_err = x_err[cuts]
         self.y_err = y_err[cuts]
+        self.x_err_low = x_err_low[cuts]
+        self.x_err_high = x_err_high[cuts]
+        self.y_err_low = y_err_low[cuts]
+        self.y_err_high = y_err_high[cuts]
 
         print('Accepted {} data out of {}\n'.format(np.size(self.x), N))
 
@@ -320,6 +327,10 @@ class Fitter(Data):
         self.data_y = data.y
         self.data_x_err_obs = data.x_err
         self.data_y_err_obs = data.y_err
+        self.data_x_err_low_obs = data.x_err_low
+        self.data_x_err_high_obs = data.x_err_high
+        self.data_y_err_low_obs = data.y_err_low
+        self.data_y_err_high_obs = data.y_err_high
         self.data_xlabel = data.xlabel
         self.data_ylabel = data.ylabel
         self.log_data(data)

@@ -50,7 +50,7 @@ def predband(x, y, yhat, f_vars, conf=0.95):
     # Auxiliary definitions
     sx = (x - x.mean()) ** 2
     sxd = np.sum((x - x.mean()) ** 2)
-    
+
     # Prediction band
     dy = q * se * np.sqrt((1. / N) + (sx / sxd))
 
@@ -64,9 +64,15 @@ def plot_scatter(args, fitter):
     y_obs = fitter.data_y
     x_err_obs = fitter.data_x_err_obs
     y_err_obs = fitter.data_y_err_obs
+    x_err_obs_low = fitter.data_x_err_low_obs
+    x_err_obs_high = fitter.data_x_err_high_obs
+    y_err_obs_low = fitter.data_y_err_low_obs
+    y_err_obs_high = fitter.data_y_err_high_obs
+    x_err_obs_asym = [x_err_obs_low, x_err_obs_high]
+    y_err_obs_asym = [y_err_obs_low, y_err_obs_high]
 
     # Plot data
-    plt.errorbar(x_obs, y_obs, xerr=x_err_obs, yerr=y_err_obs,
+    plt.errorbar(x_obs, y_obs, xerr=x_err_obs_asym, yerr=y_err_obs_asym,
         ecolor='k',
         fmt='bo',
         markersize=3,
@@ -100,10 +106,10 @@ def plot_scatter(args, fitter):
             np.std(fit_sig)
         )
     )
-    
+
     #Confidence Interval
     popt = (np.mean(fit_int), np.mean(fit_slope)) # Number of variables used in relation
-    
+
     dy = predband(x_fit, y_obs, y_fit, popt, conf=0.95)
 
     plt.fill_between(x_fit, y_fit + dy, y_fit - dy, where=None, alpha=0.2, facecolor='b', edgecolor ='#1f77b4', label='95$\%$ Confidence Band')
