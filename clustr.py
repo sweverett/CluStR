@@ -135,20 +135,31 @@ class Data(Catalog):
 
             # Boolean Flags
             for bflag_ in config['Bool_Flag']:
+
                 bool_type = config['Bool_Flag'][bflag_]
+                print(bool_type)
+                print(list(bool_type.keys())[0])
+                if bflag_ not in ('Other') and list(bool_type.keys())[0] != False:
+                    N = len(list(bool_type[True].keys()))
+                    print(N)
+                    a = 0
+                    bflag = list(bool_type[True].keys())
 
-                if isinstance(bool_type, bool):
+                    while(a < N):
+                        if isinstance(list(bool_type[True].values())[a], bool):
+                            print(list(bool_type[True].values())[0])
+                            print(bflag)
+                            bflags = bflag.replace("_bool_type", "")
+                            print(bflag)
+                            a = a + 1
+                            cutb = catalog[bflag] == (bool_type)
 
-                    bflag = bflag_.replace("_bool_type", "")
-
-                    cutb = catalog[bflag] == (bool_type)
-
-                else:
-                    print(
-                        "Warning: Boolean type must be `True` or  `False` - "
-                        "you entered `{}`. Ignoring `{}` flag."
-                        .format(bool_type, bflag)
-                    )
+                        else:
+                            print(
+                                "Warning: Boolean type must be `True` or  `False` - "
+                                "you entered `{}`. Ignoring `{}` flag."
+                                .format(bool_type, bflag)
+                                )
 
                 mask |= cutb
                 print(
@@ -290,7 +301,12 @@ class Data(Catalog):
         cuts = np.where( (~np.isnan(x)) &
                          (~np.isnan(y)) &
                          (~np.isnan(x_err)) &
-                         (~np.isnan(y_err)) )
+                         (~np.isnan(y_err)) &
+                         (~np.isnan(x_err_low)) &
+                         (~np.isnan(x_err_high)) &
+                         (~np.isnan(y_err_low)) &
+                         (~np.isnan(y_err_high))
+                         )
         print(
             'Removed {} nans'
             .format(len(np.isnan(x_err)))
@@ -371,6 +387,7 @@ class Fitter(Data):
         # Set pivot
         if piv_type == 'median':
             self.piv = np.log(np.median(data.x))
+            print(np.median(data.x))
 
         self.log_x = xlog - self.piv
         self.log_y = np.log(data.y)
