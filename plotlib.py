@@ -105,7 +105,7 @@ def plot_scatter(args, fitter, config):
 
     # Plot Fit
     plt.loglog(
-        x_fit, y_fit, color='mediumpurple', linewidth=2.0,
+        x_fit, y_fit, color='dimgrey', linewidth=2.0,
         label=(
             r'$({0:0.2g} \pm {1:0.2g})'
             r'(x/x_{{piv}})^{{{2:0.2f} \pm {3:0.2f}}}'
@@ -119,12 +119,7 @@ def plot_scatter(args, fitter, config):
             np.std(fit_sig)
         )
     )
-    ypsigma = y_fit + np.log(np.mean(fit_sig))
-    ymsigma = y_fit - np.log(np.mean(fit_sig))
-    yp2sigma = y_fit + 2*np.log(np.mean(fit_sig))
-    ym2sigma = y_fit - 2*np.log(np.mean(fit_sig))
-    matplotlib.pyplot.fill_between(x_fit, ymsigma, ypsigma, where=None, alpha = .1, interpolate=False, step=None, data=None, facecolor='g', label='one sigma')
-    matplotlib.pyplot.fill_between(x_fit, ym2sigma, yp2sigma, where=None, alpha = .1, interpolate=False, step=None, data=None, facecolor='g', label='two sigma')
+
     #Confidence Interval
     popt = (np.mean(fit_int), np.mean(fit_slope)) # Number of variables used in relation
 
@@ -132,6 +127,13 @@ def plot_scatter(args, fitter, config):
 
     plt.fill_between(x_fit, y_fit + dy, y_fit - dy, where=None, alpha=0.3, facecolor='b', edgecolor ='#1f77b4', label='95$\%$ Confidence Band')
 
+    #plus/minus one and two sigma
+    ypsigma = y_fit + np.log(np.mean(fit_sig))
+    ymsigma = y_fit - np.log(np.mean(fit_sig))
+    yp2sigma = y_fit + 2*np.log(np.mean(fit_sig))
+    ym2sigma = y_fit - 2*np.log(np.mean(fit_sig))
+    matplotlib.pyplot.fill_between(x_fit, ymsigma, ypsigma, where=None, alpha = .15, interpolate=False, step=None, data=None, facecolor='g', label='one sigma')
+    matplotlib.pyplot.fill_between(x_fit, ym2sigma, yp2sigma, where=None, alpha = .1, interpolate=False, step=None, data=None, facecolor='g', label='two sigma')
     plt.xlabel(fitter.data_xlabel.capitalize(), fontsize=10)
     plt.ylabel(fitter.data_ylabel, fontsize=10)
     plt.xlim([0.95*np.min(x_obs), 1.05*np.max(x_obs)])
