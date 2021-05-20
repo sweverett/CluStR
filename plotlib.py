@@ -20,7 +20,7 @@ import scipy.stats as stats
 # pylint: disable=too-many-arguments
 # pylint: disable=too-many-locals
 
-def predband(x, y, yhat, f_vars, conf=0.95):
+def predband(x, y, yhat, f_vars, conf=0.68):
     """
     Code adapted from Rodrigo Nemmen's post:
     http://astropython.blogspot.com.ar/2011/12/calculating-prediction-band-
@@ -76,21 +76,22 @@ def plot_scatter(args, fitter, config):
         plt.errorbar(x_obs, y_obs, xerr=x_err_obs_asym, yerr=y_err_obs_asym,
             ecolor='k',
             fmt='bo',
-            markersize=3,
+            lw=1,
+            markersize=2,
             markeredgecolor='k',
-            capsize=2
+            capsize=1
             )
         print('using asymmetric error bars.')
     else:
         plt.errorbar(x_obs, y_obs, xerr=x_err_obs, yerr=y_err_obs,
             ecolor='k',
             fmt='bo',
-            markersize=3,
+            lw=1,
+            markersize=2,
             markeredgecolor='k',
-            capsize=2
+            capsize=1
             )
         print('using symmetric error bars.')
-
 
     # Grab linmix data
     fit_int, fit_slope, fit_sig = fitter.kelly_b, fitter.kelly_m, fitter.kelly_sig
@@ -104,7 +105,7 @@ def plot_scatter(args, fitter, config):
 
     # Plot Fit
     plt.loglog(
-        x_fit, y_fit, color='darkred', linewidth=2.0,
+        x_fit, y_fit, color='navy', linewidth=2.0,
         label=(
             r'$({0:0.2g} \pm {1:0.2g})'
             r'(x/x_{{piv}})^{{{2:0.2f} \pm {3:0.2f}}}'
@@ -122,14 +123,24 @@ def plot_scatter(args, fitter, config):
     #Confidence Interval
     popt = (np.mean(fit_int), np.mean(fit_slope)) # Number of variables used in relation
 
-    dy = predband(x_fit, y_obs, y_fit, popt, conf=0.95)
+    dy = predband(x_fit, y_obs, y_fit, popt, conf=0.68)
 
-    plt.fill_between(x_fit, y_fit + dy, y_fit - dy, where=None, alpha=0.2, facecolor='b', edgecolor ='#1f77b4', label='95$\%$ Confidence Band')
+    plt.fill_between(x_fit, y_fit + dy, y_fit - dy, where=None, alpha=0.3, facecolor='b', edgecolor ='#1f77b4', label='68$\%$ Confidence Band')
 
+    #plus/minus one and two sigma
+    ypsigma = y_fit + np.log(np.mean(fit_sig))
+    ymsigma = y_fit - np.log(np.mean(fit_sig))
+    yp2sigma = y_fit + 2*np.log(np.mean(fit_sig))
+    ym2sigma = y_fit - 2*np.log(np.mean(fit_sig))
+    yp3sigma = y_fit + 3*np.log(np.mean(fit_sig))
+    ym3sigma = y_fit - 3*np.log(np.mean(fit_sig))
+    matplotlib.pyplot.fill_between(x_fit, ymsigma, ypsigma, where=None, alpha = .25, interpolate=False, step=None, data=None, facecolor='teal', label='1 sigma')
+    matplotlib.pyplot.fill_between(x_fit, ym2sigma, yp2sigma, where=None, alpha = .1, interpolate=False, step=None, data=None, facecolor='teal', label='2 sigma')
+    matplotlib.pyplot.fill_between(x_fit, ym3sigma, yp3sigma, where=None, alpha = .05, interpolate=False, step=None, data=None, facecolor='teal', label='3 sigma')
     plt.xlabel(fitter.data_xlabel.capitalize(), fontsize=10)
     plt.ylabel(fitter.data_ylabel, fontsize=10)
     plt.xlim([0.95*np.min(x_obs), 1.05*np.max(x_obs)])
-    plt.ylim([0.75*np.min(y_obs), 1.3*np.max(y_obs)])
+    plt.ylim([0.5*np.min(y_obs), 1.3*np.max(y_obs)])
     plt.grid()
     plt.legend(loc=0, fontsize='x-small')
     plt.savefig(

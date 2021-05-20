@@ -20,7 +20,7 @@ H_0: 0.7
 #-----------------------------------------------------------------------
 # Scale
 #--------
-scale_x_by_ez: False
+scale_x_by_ez: True
 scale_y_by_ez: True
 Redshift: "Redshift"
 #------------------------------------------------------------------------
@@ -134,6 +134,7 @@ ylabel_err_high: "r2500_temperature_err_high"
 
 # Bools:
 Bool_Flag:
+<<<<<<< HEAD
     True: 
         bad_mode_bool_type: True
         edge_r2500_bool_type: True
@@ -145,13 +146,32 @@ Bool_Flag:
         overlap_bkgd_bool_type: True
         #Target_bool_type: True
         #Detected_bool_type: True
+=======
+      True:
+          bad_mode_bool_type: True
+          edge_r2500_bool_type: True
+          #edge_r500_bool_type: True
+          edge_bkgd_bool_type: True
+          masked_bool_type: True
+          overlap_r500_bool_type: True
+          overlap_r2500_bool_type: True
+          overlap_bkgd_bool_type: True
+          #Target_bool_type: True
+        #  Detected_bool_type: True
+>>>>>>> 95d726a4e439e7a7009e57bfc74abf7421e468a2
 
 # Cutoff:
 Cutoff_Flag:
     500_kiloparsecs_SNR:
+<<<<<<< HEAD
       False:
           500_kpcs_SNR_cutoff: above
           500_kpcs_SNR_cut_type: 9.0
+=======
+      True:
+          500_kpcs_SNR_cutoff: 9.0
+          500_kpcs_SNR_cut_type: above
+>>>>>>> 95d726a4e439e7a7009e57bfc74abf7421e468a2
     r2500_SNR_matcha:
         False:
             500_kpcs_SNR_cutoff: 9.0
