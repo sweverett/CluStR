@@ -134,7 +134,6 @@ class Data(Catalog):
             mask = np.zeros(len(catalog), dtype=bool)
 
             # Boolean Flags
-<<<<<<< HEAD
             TF = config['Bool_Flag']
             if TF != False:
 
@@ -159,39 +158,6 @@ class Data(Catalog):
                     'Removed {} clusters due to `{}` flag of `{}`'
                     .format(np.size(np.where(cutb)), bflag_, type(bool_type))
                     )
-=======
-            values = config['Bool_Flag']
-            print(values)
-            ToF = list(values)[0]
-            print(ToF)
-            if ToF != False:
-                for bflag_ in config['Bool_Flag']:
-                        bool_type = config['Bool_Flag'][bflag_]
-                        booleans = list(bool_type.keys())
-                        N = len(booleans)
-                        a = 0
-                        BTF = list(bool_type.values())
-                        print(BTF)
-
-                        while(a < N):
-                            if isinstance(BTF[a], bool):
-                                bflag = booleans[a].replace("_bool_type", "")
-                                cutb = catalog[bflag] == (BTF[a])
-                                a = a + 1
-
-                            else:
-                                print(
-                                "Warning: Boolean type must be `True` or  `False` - "
-                                "you entered `{}`. Ignoring `{}` flag."
-                                .format(bool_type, bflag)
-                                )
-
-                            mask |= cutb
-                            print(
-                            'Removed {} clusters due to `{}` flag of `{}`'
-                            .format(np.size(np.where(cutb)), bflag, type(BTF[a-1]))
-                            )
->>>>>>> 95d726a4e439e7a7009e57bfc74abf7421e468a2
 
             # Cutoff Flags
             for cflag_ in config['Cutoff_Flag']:
@@ -435,8 +401,7 @@ class Fitter(Data):
         scaled_x_errs = np.zeros(len(self.log_x))
         scaled_y_errs = np.ones(len(self.log_y))*np.mean(self.kelly_m)
 
-        self.unscaled_data = self.unscale(scaled_x, scaled_y, scaled_x_errs, scaled_y_errs,
-                                self.piv)
+        self.unscaled_data = self.unscale(scaled_x, scaled_y, scaled_x_errs, scaled_y_errs, self.piv)
         return
 
     def unscale(self, x, y, x_err, y_err, x_piv):
