@@ -1,7 +1,0 @@
-x_label : 'lamda'
-y_label : 'lr500'
-x_err_label : 'lambda_err'
-y_err_label : 'lr500_err'
-
-scale_x_by_ez : False
-scale_y_by_ez : True

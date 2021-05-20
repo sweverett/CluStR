@@ -134,35 +134,38 @@ class Data(Catalog):
             mask = np.zeros(len(catalog), dtype=bool)
 
             # Boolean Flags
-            for bflag_ in config['Bool_Flag']:
-                bool_type = config['Bool_Flag'][bflag_]
+            TF = config['Bool_Flag']
+            if TF != False:
 
-                if isinstance(bool_type, bool):
+                for bflag_ in config['Bool_Flag'][True]:
+                    bool_type = config['Bool_Flag'][True][bflag_]
 
-                    bflag = bflag_.replace("_bool_type", "")
+                    if isinstance(bool_type, bool):
 
-                    cutb = catalog[bflag] == (bool_type)
+                        bflag = bflag_.replace("_bool_type", "")
 
-                else:
-                    print(
+                        cutb = catalog[bflag] == (bool_type)
+
+                    else:
+                        print(
                         "Warning: Boolean type must be `True` or  `False` - "
                         "you entered `{}`. Ignoring `{}` flag."
                         .format(bool_type, bflag)
-                    )
+                        )
 
-                mask |= cutb
-                print(
+                    mask |= cutb
+                    print(
                     'Removed {} clusters due to `{}` flag of `{}`'
                     .format(np.size(np.where(cutb)), bflag_, type(bool_type))
-                )
+                    )
 
             # Cutoff Flags
             for cflag_ in config['Cutoff_Flag']:
 
                 TFc = config['Cutoff_Flag'][cflag_]
 
-                if cflag_ not in ('Other') and list(TFc.keys())[0] != False:
-                    cvalues = list(TFc[True].values())
+                if cflag_ not in ('Other') and (TFc.keys())[0] != False:
+                    cvalues = (TFc[True].values())
                     cutoff = cvalues[0]
                     cut_type = cvalues[1]
 
@@ -185,8 +188,8 @@ class Data(Catalog):
                     mask |= cutc
 
                     print(
-                        'Removed {} clusters due to `{}` flag of `{}`'
-                        .format(np.size(np.where(cutc)), cflag_, type(cflag_))
+                    'Removed {} clusters due to `{}` flag of `{}`'
+                    .format(np.size(np.where(cutc)), cflag_, type(cflag_))
                     )
 
             # Range Flags
