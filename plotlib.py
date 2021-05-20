@@ -95,8 +95,8 @@ def plot_scatter(args, fitter, config):
 
     # Grab linmix data
     fit_int, fit_slope, fit_sig = fitter.kelly_b, fitter.kelly_m, fitter.kelly_sig
-    data_fit = fitter.unscaled_data
-    (x_fit, y_fit, _, _) = data_fit
+    
+    (x_fit, y_fit, _, _) = fitter.unscaled_data
 
     print (
         'mean b, m, sig: {}, {}, {}'
@@ -128,15 +128,23 @@ def plot_scatter(args, fitter, config):
     plt.fill_between(x_fit, y_fit + dy, y_fit - dy, where=None, alpha=0.3, facecolor='b', edgecolor ='#1f77b4', label='68$\%$ Confidence Band')
 
     #plus/minus one and two sigma
-    ypsigma = y_fit + (np.mean(fit_sig**(0.5)))
-    ymsigma = y_fit - (np.mean(fit_sig**(0.5)))
-    yp2sigma = y_fit + 2*(np.mean(fit_sig**(0.5)))
-    ym2sigma = y_fit - 2*(np.mean(fit_sig**(0.5)))
-    yp3sigma = y_fit + 3*(np.mean(fit_sig**(0.5)))
-    ym3sigma = y_fit - 3*(np.mean(fit_sig**(0.5)))
-    matplotlib.pyplot.fill_between(x_fit, ymsigma, ypsigma, where=None, alpha = .25, interpolate=False, step=None, data=None, facecolor='teal', label='1 sigma')
-    matplotlib.pyplot.fill_between(x_fit, ym2sigma, yp2sigma, where=None, alpha = .3, interpolate=False, step=None, data=None, facecolor='teal', label='2 sigma')
-    matplotlib.pyplot.fill_between(x_fit, ym3sigma, yp3sigma, where=None, alpha = .1, interpolate=False, step=None, data=None, facecolor='teal', label='3 sigma')
+    sigma = np.mean(np.sqrt(fit_sig))
+
+    ypsigma = y_fit + sigma
+    ymsigma = y_fit - sigma
+
+    yp2sigma = y_fit + 2*sigma
+    ym2sigma = y_fit - 2*sigma
+
+    yp3sigma = y_fit + 3*sigma
+    ym3sigma = y_fit - 3*sigma
+
+    plt.fill_between(x_fit, ypsigma, ymsigma, where=None, alpha = .25, interpolate=False, step=None, data=None, facecolor='teal', label='1 sigma')
+
+    plt.fill_between(x_fit, yp2sigma, ym2sigma, where=None, alpha = .2, interpolate=False, step=None, data=None, facecolor='teal', label='2 sigma')
+
+    plt.fill_between(x_fit, yp3sigma, ym3sigma, where=None, alpha = .17, interpolate=False, step=None, data=None, facecolor='teal', label='3 sigma')
+
     plt.xlabel(fitter.data_xlabel.capitalize(), fontsize=10)
     plt.ylabel(fitter.data_ylabel, fontsize=10)
     plt.xlim([0.95*np.min(x_obs), 1.05*np.max(x_obs)])
