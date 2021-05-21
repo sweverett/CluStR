@@ -324,13 +324,16 @@ class Data(Catalog):
             raise SystemExit(2)
 
         #if config.vb is True:
-        print('Mean {} error low:'.format(self.xlabel), np.mean(self.x_err_low))
-        print('Mean {} error high:'.format(self.xlabel), np.mean(self.x_err_high))
-        print('Mean {} error low:'.format(self.ylabel), np.mean(self.y_err_low))
-        print('Mean {} error high:'.format(self.ylabel), np.mean(self.y_err_high))
-        print('Mean {} error:'.format(self.xlabel), np.mean(self.x_err))
-        print('Mean {} error:'.format(self.ylabel), np.mean(self.y_err))
-        print ('\n')
+        if config["asymmetric_err"]:
+            print('Mean {} error low:'.format(self.xlabel), np.mean(self.x_err_low))
+            print('Mean {} error high:'.format(self.xlabel), np.mean(self.x_err_high))
+            print('Mean {} error low:'.format(self.ylabel), np.mean(self.y_err_low))
+            print('Mean {} error high:'.format(self.ylabel), np.mean(self.y_err_high))
+
+        else:
+            print('Mean {} error:'.format(self.xlabel), np.mean(self.x_err))
+            print('Mean {} error:'.format(self.ylabel), np.mean(self.y_err))
+            print ('\n')
 
         return
 
@@ -379,7 +382,6 @@ class Fitter(Data):
         # Set pivot
         if piv_type == 'median':
             self.piv = np.log(np.median(data.x))
-            print(np.median(data.x))
 
         self.log_x = xlog - self.piv
         self.log_y = np.log(data.y)
