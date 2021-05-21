@@ -60,19 +60,23 @@ def plot_scatter(args, fitter, config):
     ''' Plot data '''
 
     #Grab data references
+    #Symmetric Errors
     x_obs = fitter.data_x
     y_obs = fitter.data_y
     x_err_obs = fitter.data_x_err_obs
     y_err_obs = fitter.data_y_err_obs
+
+    #Asymmetric Errors
     x_err_obs_low = fitter.data_x_err_low_obs
     x_err_obs_high = fitter.data_x_err_high_obs
     y_err_obs_low = fitter.data_y_err_low_obs
     y_err_obs_high = fitter.data_y_err_high_obs
+
     x_err_obs_asym = [x_err_obs_low, x_err_obs_high]
     y_err_obs_asym = [y_err_obs_low, y_err_obs_high]
 
     # Plot data
-    if config['asymmetric_err'] is True:
+    if config['asymmetric_err']:
         plt.errorbar(x_obs, y_obs, xerr=x_err_obs_asym, yerr=y_err_obs_asym,
             ecolor='k',
             fmt='bo',
@@ -81,7 +85,7 @@ def plot_scatter(args, fitter, config):
             markeredgecolor='k',
             capsize=1
             )
-        print('using asymmetric error bars.')
+        print('Reporting Asymmetric Error Bars.')
     else:
         plt.errorbar(x_obs, y_obs, xerr=x_err_obs, yerr=y_err_obs,
             ecolor='k',
@@ -91,7 +95,7 @@ def plot_scatter(args, fitter, config):
             markeredgecolor='k',
             capsize=1
             )
-        print('using symmetric error bars.')
+        print('Reporting Symmetric Error Bars.')
 
     # Grab linmix data
     fit_int, fit_slope, fit_sig = fitter.kelly_b, fitter.kelly_m, fitter.kelly_sig
@@ -99,7 +103,7 @@ def plot_scatter(args, fitter, config):
     (x_fit, y_fit, _, _) = fitter.unscaled_data
 
     print (
-        'mean b, m, sig: {}, {}, {}'
+        'Mean b, m, sigsqr: {}, {}, {}'
         .format(np.mean(fit_int), np.mean(fit_slope), np.mean(fit_sig))
     )
 
@@ -130,14 +134,14 @@ def plot_scatter(args, fitter, config):
     #plus/minus one and two sigma
     sigma = np.mean(np.sqrt(fit_sig))
 
-    ypsigma = y_fit + sigma
-    ymsigma = y_fit - sigma
+    ypsigma = np.exp(np.log(y_fit) + sigma)
+    ymsigma = np.exp(np.log(y_fit) - sigma)
 
-    yp2sigma = y_fit + 2*sigma
-    ym2sigma = y_fit - 2*sigma
+    yp2sigma = np.exp(np.log(y_fit) + 2*sigma)
+    ym2sigma = np.exp(np.log(y_fit) - 2*sigma)
 
-    yp3sigma = y_fit + 3*sigma
-    ym3sigma = y_fit - 3*sigma
+    yp3sigma = np.exp(np.log(y_fit) + 3*sigma)
+    ym3sigma = np.exp(np.log(y_fit) - 3*sigma)
 
     plt.fill_between(x_fit, ypsigma, ymsigma, where=None, alpha = .25, interpolate=False, step=None, data=None, facecolor='teal', label='1 sigma')
 
@@ -151,7 +155,7 @@ def plot_scatter(args, fitter, config):
     plt.ylim([0.5*np.min(y_obs), 1.3*np.max(y_obs)])
     plt.grid(which='minor', color='k', alpha=0.2)
     plt.grid(which='major', color='k', alpha=0.5)
-    plt.legend(loc=0, fontsize='x-small')
+    #plt.legend(loc=0, fontsize='x-small')
     plt.savefig(
         'Scatter-{}{}-{}.pdf'
         .format(
