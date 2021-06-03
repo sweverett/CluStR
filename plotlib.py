@@ -20,41 +20,7 @@ import scipy.stats as stats
 # pylint: disable=too-many-arguments
 # pylint: disable=too-many-locals
 
-def predband(x, y, yhat, f_vars, conf=0.95):
-    """
-    Code adapted from Rodrigo Nemmen's post:
-    http://astropython.blogspot.com.ar/2011/12/calculating-prediction-band-
-    of-linear.html
-    Calculates the prediction band of the regression model at the
-    desired confidence level.
-    Clarification of the difference between confidence and prediction bands:
-    The 95%
-    prediction band is the area in which you expect 95% of all data points
-    to fall. In contrast, the 95% confidence band is the area that has a
-    95% chance of containing the true regression line."
-    References:
-    1. http://www.JerryDallal.com/LHSP/slr.htm, Introduction to Simple Linear
-    Regression, Gerard E. Dallal, Ph.D.
-    """
 
-    alpha = 1. - conf    # Significance
-    N = x.size          # data sample size
-    var_n = len(f_vars)  # Number of variables used by the fitted function.
-
-    # Quantile of Student's t distribution for p=(1 - alpha/2)
-    q = stats.t.ppf(1. - alpha / 2., N - var_n)
-
-    # Std. deviation of an individual measurement (Bevington, eq. 6.15)
-    se = np.sqrt(1. / (N - var_n) * np.sum((y - yhat) ** 2))
-
-    # Auxiliary definitions
-    sx = (x - x.mean()) ** 2
-    sxd = np.sum((x - x.mean()) ** 2)
-
-    # Prediction band
-    dy = q * se * np.sqrt((1. / N) + (sx / sxd))
-
-    return dy
 
 def plot_scatter(args, fitter, config):
     ''' Plot data '''
@@ -98,7 +64,7 @@ def plot_scatter(args, fitter, config):
         print('Reporting Symmetric Error Bars.')
 
     # Grab linmix data
-    fit_int, fit_slope, fit_sig = fitter.kelly_b, fitter.kelly_m, fitter.kelly_sig
+    fit_int, fit_slope, fit_sig = fitter.kelly_b, fitter.kelly_m, fitter.kelly_sigsqr
     
     (x_fit, y_fit, _, _) = fitter.unscaled_data
 
@@ -125,37 +91,38 @@ def plot_scatter(args, fitter, config):
     )
 
     #Confidence Interval
-    popt = (np.mean(fit_int), np.mean(fit_slope)) # Number of variables used in relation
 
-    dy = predband(x_fit, y_obs, y_fit, popt, conf=0.68)
+    yMed0, yLow0, yUp0 = fitter._regressionLine(x_fit, fit_int, fit_slope, 16, 84)
+    x, y = fitter._recoverXY(x_fit, fitter.piv, yMed0)
+    x, yUp0 = fitter._recoverXY(x_fit, fitter.piv, yUp0)
+    x, yLow0 = fitter._recoverXY(x_fit, fitter.piv, yLow0)
+    plt.fill_between(x_fit, yUp0, yLow0, color='b', alpha=0.3, label=None)
 
-    plt.fill_between(x_fit, y_fit + dy, y_fit - dy, where=None, alpha=0.3, facecolor='b', edgecolor ='#1f77b4', label='68$\%$ Confidence Band')
+    # Sigma Bands
+    yMed, yLow, yUp = fitter._regressionLine_with_scatter(16, 84)
+    x, yUp = fitter._recoverXY(x_fit, fitter.piv, (yUp - yMed) + yMed)
+    x, yLow = fitter._recoverXY(x_fit, fitter.piv, (yLow - yMed) + yMed)
+    plt.fill_between(x_fit, yUp, yLow, color='teal', alpha=0.25, label=None)
 
-    #plus/minus one and two sigma
-    sigma = np.mean(np.sqrt(fit_sig))
+    yMed2, yLow2, yUp2 = fitter._regressionLine_with_scatter(2.3, 97.7)
+    x, yUp2 = fitter._recoverXY(x_fit, fitter.piv, (yUp2 - yMed2) + yMed2)
+    x, yLow2 = fitter._recoverXY(x_fit, fitter.piv, (yLow2 - yMed2) + yMed2)
+    plt.fill_between(x_fit, yUp2, yLow2, color='teal', alpha=0.2, label=None)
 
-    ypsigma = np.exp(np.log(y_fit) + sigma)
-    ymsigma = np.exp(np.log(y_fit) - sigma)
+    yMed3, yLow3, yUp3 = fitter._regressionLine_with_scatter(0.1, 99.9)
+    x, yUp3 = fitter._recoverXY(x_fit, fitter.piv, (yUp3 - yMed3) + yMed3)
+    x, yLow3 = fitter._recoverXY(x_fit, fitter.piv, (yLow3 - yMed3) + yMed3)
+    plt.fill_between(x_fit, yUp3, yLow3, color='teal', alpha=0.17, label=None)
 
-    yp2sigma = np.exp(np.log(y_fit) + 2*sigma)
-    ym2sigma = np.exp(np.log(y_fit) - 2*sigma)
-
-    yp3sigma = np.exp(np.log(y_fit) + 3*sigma)
-    ym3sigma = np.exp(np.log(y_fit) - 3*sigma)
-
-    plt.fill_between(x_fit, ypsigma, ymsigma, where=None, alpha = .25, interpolate=False, step=None, data=None, facecolor='teal', label='1 sigma')
-
-    plt.fill_between(x_fit, yp2sigma, ym2sigma, where=None, alpha = .2, interpolate=False, step=None, data=None, facecolor='teal', label='2 sigma')
-
-    plt.fill_between(x_fit, yp3sigma, ym3sigma, where=None, alpha = .17, interpolate=False, step=None, data=None, facecolor='teal', label='3 sigma')
-
+    #-----------------------------------------------------------------
     plt.xlabel(fitter.data_xlabel.capitalize(), fontsize=10)
     plt.ylabel(fitter.data_ylabel, fontsize=10)
-    plt.xlim([0.95*np.min(x_obs), 1.05*np.max(x_obs)])
-    plt.ylim([0.5*np.min(y_obs), 1.3*np.max(y_obs)])
+    plt.xlim([0.7*np.min(x_obs), 1.4*np.max(x_obs)])
+    plt.ylim([0.4*np.min(y_obs), 1.5*np.max(y_obs)])
     plt.grid(which='minor', color='k', alpha=0.2)
     plt.grid(which='major', color='k', alpha=0.5)
     #plt.legend(loc=0, fontsize='x-small')
+
     plt.savefig(
         'Scatter-{}{}-{}.pdf'
         .format(
