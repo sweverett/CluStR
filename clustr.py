@@ -134,38 +134,43 @@ class Data:
             mask = np.zeros(len(catalog), dtype=bool)
 
             # Boolean Flags
-            TF = config['Bool_Flag']
-            if TF != False:
+            values = config['Bool_Flag']
+            ToF = list(values)[0]
+            if ToF != False:
+                for bflag_ in config['Bool_Flag']:
+                        bool_type = config['Bool_Flag'][bflag_]
+                        booleans = list(bool_type.keys())
+                        N = len(booleans)
+                        a = 0
+                        BTF = list(bool_type.values())
 
-                for bflag_ in config['Bool_Flag'][True]:
-                    bool_type = config['Bool_Flag'][True][bflag_]
+                        while(a < N):
+                            if isinstance(BTF[a], bool):
+                                bflag = booleans[a].replace("_bool_type", "")
+                                cutb = catalog[bflag] == (BTF[a])
+                                a = a + 1
 
-                    if isinstance(bool_type, bool):
+                            else:
+                                print(
+                                "Warning: Boolean type must be `True` or  `False` - "
+                                "you entered `{}`. Ignoring `{}` flag."
+                                .format(bool_type, bflag)
+                                )
 
-                        bflag = bflag_.replace("_bool_type", "")
+                            mask |= cutb
+                            print(
+                            'Removed {} clusters due to `{}` flag of `{}`'
+                            .format(np.size(np.where(cutb)), bflag, type(BTF[a-1]))
+                            )
 
-                        cutb = catalog[bflag] == (bool_type)
-
-                    else:
-                        print(
-                        "Warning: Boolean type must be `True` or  `False` - "
-                        "you entered `{}`. Ignoring `{}` flag."
-                        .format(bool_type, bflag)
-                        )
-
-                    mask |= cutb
-                    print(
-                    'Removed {} clusters due to `{}` flag of `{}`'
-                    .format(np.size(np.where(cutb)), bflag_, type(bool_type))
-                    )
 
             # Cutoff Flags
             for cflag_ in config['Cutoff_Flag']:
 
                 TFc = config['Cutoff_Flag'][cflag_]
 
-                if cflag_ not in ('Other') and (TFc.keys())[0] != False:
-                    cvalues = (TFc[True].values())
+                if cflag_ not in ('Other') and list(TFc.keys())[0] != False:
+                    cvalues = list(TFc[True].values())
                     cutoff = cvalues[0]
                     cut_type = cvalues[1]
 
@@ -205,7 +210,6 @@ class Data:
                         rmin = minmax_[0]
                         rmax = minmax_[1]
                         range_type = minmax_[2]
-                        #print(range_type)
 
                         if range_type == 'inside':
                             cutr = (catalog[rflag_] < rmin) | (catalog[rflag_] > rmax)
@@ -340,7 +344,7 @@ class Data:
 class Fitter:
     """Runs linmix"""
 
-    def __init__(self, data):
+    def __init__(self, data, config):
         self.algorithm = 'linmix'
         self.data_x = data.x
         self.data_y = data.y
@@ -352,7 +356,7 @@ class Fitter:
         self.data_y_err_high_obs = data.y_err_high
         self.data_xlabel = data.xlabel
         self.data_ylabel = data.ylabel
-        self.log_data(data)
+        self.log_data(data,config)
         self.fit(data)
         self.scaled_fit_to_data(data)
 
@@ -373,15 +377,18 @@ class Fitter:
 
         return
 
-    def log_data(self, data, piv_type='median'):
+    def log_data(self, data, config):
         ''' Scale data to log'''
 
         # Log-x before pivot
+        piv_type = config['piv_type']
         xlog = np.log(data.x)
 
         # Set pivot
         if piv_type == 'median':
             self.piv = np.log(np.median(data.x))
+        else:
+            self.piv = np.log(config['piv_value'])
 
         self.log_x = xlog - self.piv
         self.log_y = np.log(data.y)
@@ -459,7 +466,7 @@ def main():
 
     data = Data(config, catalog)
 
-    fitter = Fitter(data)
+    fitter = Fitter(data, config)
 
     print("x-pivot = {}".format(fitter.piv))
     print('\n')
