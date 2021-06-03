@@ -56,8 +56,8 @@ Column_Names:
 xlabel_err_low: "lambda_err_low"
 xlabel_err_high: "lambda_err_high"
 
-ylabel_err_low: "r2500_temperature_err_low"
-ylabel_err_high: "r2500_temperature_err_high"
+ylabel_err_low: "r2500_band_lumin_err_low"
+ylabel_err_high: "r2500_band_lumin_err_high"
 
 # ----------------------------------------------------------------------
 # Flags
@@ -144,7 +144,7 @@ Bool_Flag:
         overlap_r2500_bool_type: True
         overlap_bkgd_bool_type: True
         #Target_bool_type: True
-        #Detected_bool_type: True
+        Detected_bool_type: False
 
 # Cutoff:
 Cutoff_Flag:
@@ -169,7 +169,7 @@ Cutoff_Flag:
 # Ranges:
 Range_Flag:
     Redshift:
-        True:
+        False:
             Redshift_minmax:
                 Redshift_range_min: 0.0
                 Redshift_range_max: 1.0
