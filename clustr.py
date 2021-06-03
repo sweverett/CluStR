@@ -113,7 +113,7 @@ class Catalog:
     def __repr__(self):
         return repr(self._catalog)
 
-class Data(Catalog):
+class Data:
     '''
     This class takes a catalog table, and grabs only the relevant columns
     for the desired fit using the config dictionary.
@@ -337,7 +337,7 @@ class Data(Catalog):
 
         return
 
-class Fitter(Data):
+class Fitter:
     """Runs linmix"""
 
     def __init__(self, data):
@@ -365,7 +365,7 @@ class Fitter(Data):
         '''
 
         # run linmix
-        self.kelly_b, self.kelly_m, self.kelly_sig = reglib.run_linmix(
+        self.kelly_b, self.kelly_m, self.kelly_sigsqr = reglib.run_linmix(
                                                         self.log_x,
                                                         self.log_y,
                                                         self.log_x_err,
@@ -389,8 +389,8 @@ class Fitter(Data):
         self.xmin = np.min(self.log_x)
         self.xmax = np.max(self.log_x)
 
-        self.log_x_err = data.x_err / data.x
-        self.log_y_err = data.y_err / data.y
+        self.log_x_err = np.log(data.x_err + data.x) - np.log(data.x)
+        self.log_y_err = np.log(data.y_err + data.y) - np.log(data.y)
 
         return
 
@@ -398,17 +398,56 @@ class Fitter(Data):
         ''' Get a data set from a scaled fit '''
 
         #Scale for line fitting
-        scaled_x = np.linspace(self.xmin, self.xmax, len(self.log_x))
+        scaled_x = np.linspace(1.5*self.xmin, 1.5*self.xmax, len(self.log_x))
         scaled_y = np.mean(self.kelly_b) + np.mean(self.kelly_m) * scaled_x
         scaled_x_errs = np.zeros(len(self.log_x))
         scaled_y_errs = np.ones(len(self.log_y))*np.mean(self.kelly_m)
 
         self.unscaled_data = self.unscale(scaled_x, scaled_y, scaled_x_errs, scaled_y_errs, self.piv)
+
         return
 
     def unscale(self, x, y, x_err, y_err, x_piv):
         ''' Recover original data from fit-scaled data '''
-        return (np.exp(x + x_piv), np.exp(y), x_err * x, y_err * y)
+        ux = np.exp(x + x_piv)
+        uy = np.exp(y)
+        ux_err = x_err * x
+        uy_err = y_err * y
+
+        return (ux, uy, ux_err, uy_err)
+
+    def _recoverXY(self, xObs, xPiv, yObs):
+        x = np.exp(xObs+xPiv)
+        # x = xObs+xPiv
+        y = np.exp(yObs)
+        return x, y
+
+    def _regressionLine(self, x, intercept, slope, low, high):
+        y = []
+        _x = np.linspace(1.5*self.xmin, 1.5*self.xmax, len(self.log_x))
+        for i, s in zip(self.kelly_b, self.kelly_m):
+            y += [i + s * _x]
+
+        y = np.array(y)
+        yMed = np.percentile(y, 50, axis=0)
+        yLow = np.percentile(y, low, axis=0)
+        yUp  = np.percentile(y, high, axis=0)
+
+        return yMed, yUp, yLow
+
+    def _regressionLine_with_scatter(self, low, high):
+        y = []
+        _x = np.linspace(1.5*self.xmin, 1.5*self.xmax, len(self.log_x))
+        for i, s, sig in zip(self.kelly_b, self.kelly_m, np.sqrt(self.kelly_sigsqr)):
+            y += [i + s * _x + np.random.normal(0.0, sig)]
+
+        y = np.array(y)
+        yMed = np.percentile(y, 50, axis=0)
+        yLow = np.percentile(y, low, axis=0)
+        yUp = np.percentile(y, high, axis=0)
+        # print (yMed-yLow)[::5]
+        # print (yUp-yMed)[::5]
+        return yMed, yUp, yLow   
 
 def main():
 
