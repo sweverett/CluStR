@@ -382,22 +382,22 @@ class Fitter:
 
         # Log-x before pivot
         piv_type = config['piv_type']
-        xlog = np.log(data.x)
+        xlog = np.log10(data.x)
 
         # Set pivot
         if piv_type == 'median':
             self.piv = np.log(np.median(data.x))
         else:
-            self.piv = np.log(config['piv_value'])
+            self.piv = np.log10(config['piv_value'])
 
         self.log_x = xlog - self.piv
-        self.log_y = np.log(data.y)
+        self.log_y = np.log10(data.y)
 
         self.xmin = np.min(self.log_x)
         self.xmax = np.max(self.log_x)
 
-        self.log_x_err = np.log(data.x_err + data.x) - np.log(data.x)
-        self.log_y_err = np.log(data.y_err + data.y) - np.log(data.y)
+        self.log_x_err = np.log10(data.x_err + data.x) - np.log10(data.x)
+        self.log_y_err = np.log10(data.y_err + data.y) - np.log10(data.y)
 
         return
 
@@ -454,7 +454,7 @@ class Fitter:
         yUp = np.percentile(y, high, axis=0)
         # print (yMed-yLow)[::5]
         # print (yUp-yMed)[::5]
-        return yMed, yUp, yLow   
+        return yMed, yUp, yLow
 
 def main():
 

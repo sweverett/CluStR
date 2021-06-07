@@ -16,15 +16,15 @@
 # Plots are currently cosmology dependent as luminosities are scaled by E(z)
 Om: 0.3
 H_0: 0.7
-piv_type: median
+piv_type: notmedian
 piv_value: 1
 
 
 #-----------------------------------------------------------------------
 # Scale
 #--------
-scale_x_by_ez: True
-scale_y_by_ez: True
+scale_x_by_ez: False
+scale_y_by_ez: False
 Redshift: "Redshift"
 #------------------------------------------------------------------------
 
@@ -59,8 +59,13 @@ Column_Names:
 xlabel_err_low: "lambda_err_low"
 xlabel_err_high: "lambda_err_high"
 
+<<<<<<< HEAD
 ylabel_err_low: "r2500_temperature_err_low"
 ylabel_err_high: "r2500_temperature_err_high"
+=======
+ylabel_err_low: "Tx_r2500_err_high_matcha"
+ylabel_err_high: "Tx_r2500_err_low_matcha"
+>>>>>>> 6828f90e48190c64cff7e3f8acce49a7d7f0800e
 
 # ----------------------------------------------------------------------
 # Flags
@@ -152,7 +157,11 @@ Bool_Flag:
 # Cutoff:
 Cutoff_Flag:
     500_kiloparsecs_SNR:
+<<<<<<< HEAD
       True:
+=======
+      False:
+>>>>>>> 6828f90e48190c64cff7e3f8acce49a7d7f0800e
           500_kpcs_SNR_cutoff: 9.0
           500_kpcs_SNR_cut_type: above
     r2500_SNR_matcha:

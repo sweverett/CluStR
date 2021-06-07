@@ -109,8 +109,11 @@ def plot_scatter(args, fitter, config):
     x, yLow2 = fitter._recoverXY(x_fit, fitter.piv, 2*(yLow2 - yMed2) + yMed2)
     plt.fill_between(x_fit, yUp2, yLow2, color='teal', alpha=0.2, label=None)
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 6828f90e48190c64cff7e3f8acce49a7d7f0800e
     #-----------------------------------------------------------------
     plt.xlabel(fitter.data_xlabel.capitalize(), fontsize=10)
     plt.ylabel(fitter.data_ylabel, fontsize=10)
