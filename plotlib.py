@@ -65,7 +65,7 @@ def plot_scatter(args, fitter, config):
 
     # Grab linmix data
     fit_int, fit_slope, fit_sig = fitter.kelly_b, fitter.kelly_m, fitter.kelly_sigsqr
-    
+
     (x_fit, y_fit, _, _) = fitter.unscaled_data
 
     print (
@@ -104,15 +104,12 @@ def plot_scatter(args, fitter, config):
     x, yLow = fitter._recoverXY(x_fit, fitter.piv, (yLow - yMed) + yMed)
     plt.fill_between(x_fit, yUp, yLow, color='teal', alpha=0.25, label=None)
 
-    yMed2, yLow2, yUp2 = fitter._regressionLine_with_scatter(2.3, 97.7)
-    x, yUp2 = fitter._recoverXY(x_fit, fitter.piv, (yUp2 - yMed2) + yMed2)
-    x, yLow2 = fitter._recoverXY(x_fit, fitter.piv, (yLow2 - yMed2) + yMed2)
+    yMed2, yLow2, yUp2 = fitter._regressionLine_with_scatter(16, 84)
+    x, yUp2 = fitter._recoverXY(x_fit, fitter.piv, 2*(yUp2 - yMed2) + yMed2)
+    x, yLow2 = fitter._recoverXY(x_fit, fitter.piv, 2*(yLow2 - yMed2) + yMed2)
     plt.fill_between(x_fit, yUp2, yLow2, color='teal', alpha=0.2, label=None)
 
-    yMed3, yLow3, yUp3 = fitter._regressionLine_with_scatter(0.1, 99.9)
-    x, yUp3 = fitter._recoverXY(x_fit, fitter.piv, (yUp3 - yMed3) + yMed3)
-    x, yLow3 = fitter._recoverXY(x_fit, fitter.piv, (yLow3 - yMed3) + yMed3)
-    plt.fill_between(x_fit, yUp3, yLow3, color='teal', alpha=0.17, label=None)
+
 
     #-----------------------------------------------------------------
     plt.xlabel(fitter.data_xlabel.capitalize(), fontsize=10)

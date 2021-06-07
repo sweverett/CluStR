@@ -56,11 +56,11 @@ Column_Names:
 # ---------------------------------------------------------------------
 # Error Labels
 # ---------------
-xlabel_err_low: "Tx_err_low_xmm"
-xlabel_err_high: "Tx_err_high_xmm"
+xlabel_err_low: "lambda_err_low"
+xlabel_err_high: "lambda_err_high"
 
-ylabel_err_low: "r2500_band_lumin_err_low"
-ylabel_err_high: "r2500_band_lumin_err_high"
+ylabel_err_low: "r2500_temperature_err_low"
+ylabel_err_high: "r2500_temperature_err_high"
 
 # ----------------------------------------------------------------------
 # Flags
@@ -137,7 +137,7 @@ ylabel_err_high: "r2500_band_lumin_err_high"
 
 # Bools:
 Bool_Flag:
-    False:
+    True:
         bad_mode_bool_type: True
         edge_r2500_bool_type: True
         #edge_r500_bool_type: True
@@ -152,15 +152,15 @@ Bool_Flag:
 # Cutoff:
 Cutoff_Flag:
     500_kiloparsecs_SNR:
-      False:
-          500_kpcs_SNR_cutoff: above
-          500_kpcs_SNR_cut_type: 9.0
-    r2500_SNR_matcha:
       True:
+          500_kpcs_SNR_cutoff: 9.0
+          500_kpcs_SNR_cut_type: above
+    r2500_SNR_matcha:
+      False:
             500_kpcs_SNR_cutoff: 9.0
             500_kpcs_SNR_cut_type: above
     r2500_PNSNR_alt_xmm:
-        True:
+        False:
             500_kpcs_SNR_cutoff: 9.0
             500_kpcs_SNR_cut_type: above
 
@@ -172,7 +172,7 @@ Cutoff_Flag:
 # Ranges:
 Range_Flag:
     Redshift:
-        False:
+        True:
             Redshift_minmax:
                 Redshift_range_min: 0.2
                 Redshift_range_max: 0.65
