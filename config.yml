@@ -16,6 +16,7 @@
 # Plots are currently cosmology dependent as luminosities are scaled by E(z)
 Om: 0.3
 H_0: 0.7
+#set piv_type to median
 piv_type: notmedian
 piv_value: 1
 
@@ -152,7 +153,7 @@ Bool_Flag:
 # Cutoff:
 Cutoff_Flag:
     500_kiloparsecs_SNR:
-        False:
+        True:
           500_kpcs_SNR_cutoff: 9.0
           500_kpcs_SNR_cut_type: above
     r2500_SNR_matcha:
@@ -172,7 +173,7 @@ Cutoff_Flag:
 # Ranges:
 Range_Flag:
     Redshift:
-        False:
+        True:
             Redshift_minmax:
                 Redshift_range_min: 0.2
                 Redshift_range_max: 0.65
