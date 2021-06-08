@@ -49,7 +49,8 @@ def plot_scatter(args, fitter, config):
             lw=1,
             markersize=2,
             markeredgecolor='k',
-            capsize=1
+            capsize=1,
+            label='_nolegend_'
             )
         print('Reporting Asymmetric Error Bars.')
     else:
@@ -59,7 +60,8 @@ def plot_scatter(args, fitter, config):
             lw=1,
             markersize=2,
             markeredgecolor='k',
-            capsize=1
+            capsize=1,
+            label='_nolegend_'
             )
         print('Reporting Symmetric Error Bars.')
 
@@ -96,24 +98,19 @@ def plot_scatter(args, fitter, config):
     x, y = fitter._recoverXY(x_fit, fitter.piv, yMed0)
     x, yUp0 = fitter._recoverXY(x_fit, fitter.piv, yUp0)
     x, yLow0 = fitter._recoverXY(x_fit, fitter.piv, yLow0)
-    plt.fill_between(x_fit, yUp0, yLow0, color='b', alpha=0.3, label=None)
+    plt.fill_between(x_fit, yUp0, yLow0, color='b', alpha=0.3, label=r'68% Confidence Interval')
 
     # Sigma Bands
     yMed, yLow, yUp = fitter._regressionLine_with_scatter(16, 84)
     x, yUp = fitter._recoverXY(x_fit, fitter.piv, (yUp - yMed) + yMed)
     x, yLow = fitter._recoverXY(x_fit, fitter.piv, (yLow - yMed) + yMed)
-    plt.fill_between(x_fit, yUp, yLow, color='teal', alpha=0.25, label=None)
+    plt.fill_between(x_fit, yUp, yLow, color='teal', alpha=0.25, label= r'1$\sigma$ Band')
 
     yMed2, yLow2, yUp2 = fitter._regressionLine_with_scatter(16, 84)
     x, yUp2 = fitter._recoverXY(x_fit, fitter.piv, 2*(yUp2 - yMed2) + yMed2)
     x, yLow2 = fitter._recoverXY(x_fit, fitter.piv, 2*(yLow2 - yMed2) + yMed2)
-    plt.fill_between(x_fit, yUp2, yLow2, color='teal', alpha=0.2, label=None)
+    plt.fill_between(x_fit, yUp2, yLow2, color='teal', alpha=0.2, label= r'2$\sigma$ Band')
 
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 6828f90e48190c64cff7e3f8acce49a7d7f0800e
     #-----------------------------------------------------------------
     plt.xlabel(fitter.data_xlabel.capitalize(), fontsize=10)
     plt.ylabel(fitter.data_ylabel, fontsize=10)
@@ -121,7 +118,7 @@ def plot_scatter(args, fitter, config):
     plt.ylim([0.4*np.min(y_obs), 1.5*np.max(y_obs)])
     plt.grid(which='minor', color='k', alpha=0.2)
     plt.grid(which='major', color='k', alpha=0.5)
-    #plt.legend(loc=0, fontsize='x-small')
+    plt.legend(loc='best', fontsize='x-small')
 
     plt.savefig(
         'Scatter-{}{}-{}.pdf'
@@ -143,7 +140,7 @@ def plot_residuals(args, fitter, config):
     (lx_obs, ly_obs, _lx_err_obs, _ly_err_obs) = fitter.log_x, fitter.log_y, fitter.log_x_err, fitter.log_y_err
     _x_piv = fitter.piv
 
-    (B, M, _S) = fitter.kelly_b, fitter.kelly_m, fitter.kelly_sig
+    (B, M, _S) = fitter.kelly_b, fitter.kelly_m, fitter.kelly_sigsqr
 
     b, m = np.mean(B), np.mean(M)
 
@@ -173,22 +170,16 @@ def plot_residuals(args, fitter, config):
     # FIX: make bins automatically consistent with Michigan group
     nbin = 18
 
+    plt.style.use('seaborn')
     plt.hist(residuals, nbin)
     plt.xlabel(r'$\Delta(\ln X)/\sigma_{\ln X}$', fontsize=11)
     plt.ylabel('Count', fontsize=11)
 
-    if config['show_method_name']:
-        plt.title(
-            '{} Residuals for Kelly Method'
-            .format(fitter.data_ylabel),
-            fontsize=11
-        )
-    else:
-        plt.title(
-            '{} Residuals'
-            .format(fitter.data_ylabel),
-            fontsize=11
-        )
+    plt.title(
+        '{} Residuals'
+        .format(fitter.data_ylabel),
+        fontsize=11
+    )
 
     plt.savefig(
         'Residuals-{}{}-{}.pdf'
@@ -215,9 +206,10 @@ def plot_corners(args, config, fitter):
     n = 1  # Subplot counter
 
     # Set up subplot
+    plt.style.use('seaborn')
     plt.subplot(N, 1, n)
 
-    (B, M, S) = fitter.kelly_b, fitter.kelly_m, fitter.kelly_sig
+    (B, M, S) = fitter.kelly_b, fitter.kelly_m, fitter.kelly_sigsqr
 
     # Paramter Limits
     blo, bhi = min(B[burn:]), max(B[burn:])
@@ -249,7 +241,7 @@ def plot_corners(args, config, fitter):
         plot_datapoints=True,
         fill_contours=False,
         levels=[0.68, 0.95],
-        color='mediumblue',
+        color='k',
         bins=40,
         smooth=1.0
     )
@@ -282,7 +274,7 @@ def plot_chains(args, config, fitter):
     B, M, S = None, None, None
 
     # Unpack fit parameters
-    (B, M, S) = fitter.kelly_b, fitter.kelly_m, fitter.kelly_sig
+    (B, M, S) = fitter.kelly_b, fitter.kelly_m, fitter.kelly_sigsqr
     # Remove burn-in period
     B, M, S = B[burn:], M[burn:], S[burn:]
     # Take averages
@@ -291,6 +283,7 @@ def plot_chains(args, config, fitter):
     # Length of chain
     nmc = np.size(B)
 
+    plt.style.use('ggplot')
     fig = plt.figure()
 
     plt.subplot(311)
