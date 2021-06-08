@@ -1,6 +1,5 @@
 from argparse import ArgumentParser
 import os
-import pickle as cPickle
 from astropy.table import Table
 import numpy as np
 import reglib  # Regression library
@@ -8,10 +7,9 @@ import matplotlib.pyplot as plt
 import linmix
 import yaml
 import plotlib
+import pyfiglet as pfig 
+from datetime import datetime
 
-#import pudb
-
-from astropy.io import fits
 
 ''' Parse command line arguments '''
 parser = ArgumentParser()
@@ -445,6 +443,20 @@ class Fitter:
 
 def main():
 
+    #CluStR Banner
+    ascii_banner = pfig.figlet_format("CluStR")
+    print(ascii_banner)
+    print("-----------------------------------")
+    print("This package calculates various \nscaling relations from cluster catalogs.")
+    print("\n")
+
+    # Returns the current local date
+    now = datetime.now()
+    print(now)
+    print("-----------------------------------")
+    print("\n")
+    
+    #CluStR args
     args = parser.parse_args()
 
     config = Config(args)
