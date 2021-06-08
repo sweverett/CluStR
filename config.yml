@@ -152,17 +152,17 @@ Bool_Flag:
 # Cutoff:
 Cutoff_Flag:
     500_kiloparsecs_SNR:
-        False:
-          500_kpcs_SNR_cutoff: 9.0
-          500_kpcs_SNR_cut_type: above
+        True:
+            _cutoff: 9.0
+            _type: above
     r2500_SNR_matcha:
         False:
-            500_kpcs_SNR_cutoff: 9.0
-            500_kpcs_SNR_cut_type: above
+            _cutoff: 9.0
+            _cut_type: above
     r2500_PNSNR_alt_xmm:
         False:
-            500_kpcs_SNR_cutoff: 9.0
-            500_kpcs_SNR_cut_type: above
+            _cutoff: 9.0
+            _cut_type: above
 
     Other:
         True/False:
@@ -172,7 +172,7 @@ Cutoff_Flag:
 # Ranges:
 Range_Flag:
     Redshift:
-        False:
+        True:
             Redshift_minmax:
                 Redshift_range_min: 0.2
                 Redshift_range_max: 0.65

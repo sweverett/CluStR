@@ -156,9 +156,10 @@ class Data:
             for cflag_ in config['Cutoff_Flag']:
 
                 TFc = config['Cutoff_Flag'][cflag_]
-
+                
                 if cflag_ not in ('Other') and list(TFc.keys())[0] != False:
                     cvalues = list(TFc[True].values())
+                    print(cvalues)
                     cutoff = cvalues[0]
                     cut_type = cvalues[1]
 
@@ -178,12 +179,12 @@ class Data:
                             'you entered `{}`. Ignoring `{}` flag.'
                             .format(cut_type, cflag_))
 
-                    mask |= cutc
+                mask |= cutc
 
-                    print(
-                    'Removed {} clusters due to `{}` flag of `{}`'
-                    .format(np.size(np.where(cutc)), cflag_, type(cflag_))
-                    )
+                print(
+                'Removed {} clusters due to `{}` flag of `{}`'
+                .format(np.size(np.where(cutc)), cflag_, type(cflag_))
+                )
 
             # Range Flags
             for rflag_ in config['Range_Flag']:
