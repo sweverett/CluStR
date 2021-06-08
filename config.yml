@@ -59,13 +59,8 @@ Column_Names:
 xlabel_err_low: "lambda_err_low"
 xlabel_err_high: "lambda_err_high"
 
-<<<<<<< HEAD
 ylabel_err_low: "r2500_temperature_err_low"
 ylabel_err_high: "r2500_temperature_err_high"
-=======
-ylabel_err_low: "Tx_r2500_err_high_matcha"
-ylabel_err_high: "Tx_r2500_err_low_matcha"
->>>>>>> 6828f90e48190c64cff7e3f8acce49a7d7f0800e
 
 # ----------------------------------------------------------------------
 # Flags
@@ -157,15 +152,11 @@ Bool_Flag:
 # Cutoff:
 Cutoff_Flag:
     500_kiloparsecs_SNR:
-<<<<<<< HEAD
-      True:
-=======
-      False:
->>>>>>> 6828f90e48190c64cff7e3f8acce49a7d7f0800e
+        False:
           500_kpcs_SNR_cutoff: 9.0
           500_kpcs_SNR_cut_type: above
     r2500_SNR_matcha:
-      False:
+        False:
             500_kpcs_SNR_cutoff: 9.0
             500_kpcs_SNR_cut_type: above
     r2500_PNSNR_alt_xmm:
@@ -181,7 +172,7 @@ Cutoff_Flag:
 # Ranges:
 Range_Flag:
     Redshift:
-        True:
+        False:
             Redshift_minmax:
                 Redshift_range_min: 0.2
                 Redshift_range_max: 0.65
@@ -200,14 +191,11 @@ Range_Flag:
 # Set which plots you want saved in the output .pdf file. Combines all plots
 # into a single file unless `save_all_plots` is set to True.
 scatter: True
-asymmetric_err: True
+asymmetric_err: False
 corner: False
 chains: False
 residuals: False
 save_all_plots: False
-
-# Show the method name used in the scatter plot?
-show_method_name: False
 
 # Set burn in period for chain plots (currently only for Mantz)
 burn: 0
