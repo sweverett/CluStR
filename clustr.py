@@ -132,11 +132,14 @@ class Data:
             mask = np.zeros(len(catalog), dtype=bool)
 
             # Boolean Flags
-            TF = config['Bool_Flag']
-            if TF != False:
+            TF = config['Bool_Flag'].keys()[0]
+
+            if TF == True:
                 for bflag_ in config['Bool_Flag'][True]:
                     bool_type = config['Bool_Flag'][True][bflag_]
+                    
                     if isinstance(bool_type, bool):
+
                         bflag = bflag_.replace("_bool_type", "")
                         cutb = catalog[bflag] == (bool_type)
                     else:
@@ -145,12 +148,12 @@ class Data:
                         "you entered `{}`. Ignoring `{}` flag."
                         .format(bool_type, bflag)
                         )
+
                     mask |= cutb
                     print(
-                    'Removed {} clusters due to `{}` flag of `{}`'
-                    .format(np.size(np.where(cutb)), bflag_, type(bool_type))
+                    'Removed {} clusters due to `{}` flag of type boolean.'
+                    .format(np.size(np.where(cutb)), bflag_)
                     )
-
 
             # Cutoff Flags
             for cflag_ in config['Cutoff_Flag']:
@@ -166,14 +169,14 @@ class Data:
 
                         # Nan's interfere with evaluation
                         nan_cut = np.where(np.isnan(catalog[cflag_]))
-                        catalog[cflag_][nan_cut] = -1*(cutoff)
+                        catalog[cflag_][nan_cut] = 2*(cutoff)
 
                         cutc = catalog[cflag_] < cutoff
 
                     elif cut_type == 'below':
                         
                         nan_cut = np.where(np.isnan(catalog[cflag_]))
-                        catalog[cflag_][nan_cut] = -1*(cutoff)
+                        catalog[cflag_][nan_cut] = -2*(cutoff)
                         
                         cutc = catalog[cflag_] > cutoff
 
@@ -186,8 +189,8 @@ class Data:
                     mask |= cutc
 
                     print(
-                    'Removed {} clusters due to `{}` flag of `{}`'
-                    .format(np.size(np.where(cutc)), cflag_, type(cflag_))
+                    'Removed {} clusters due to `{}` flag of type cutoff.'
+                    .format(np.size(np.where(cutc)), cflag_)
                     )
 
             # Range Flags
@@ -221,8 +224,8 @@ class Data:
                         mask |= cutr
 
                         print(
-                            'Removed {} clusters due to `{}` flag of `{}`'
-                            .format(np.size(np.where(cutr)), rflag_, type(range_type))
+                            'Removed {} clusters due to `{}` flag of type range.'
+                            .format(np.size(np.where(cutr)), rflag_)
                         )
 
             return mask
@@ -260,6 +263,8 @@ class Data:
         x_err_high = catalog[xlabel_error_high]
         y_err_low = catalog[ylabel_error_low]
         y_err_high = catalog[ylabel_error_high]
+
+
         x_err = (catalog[xlabel_error_low] + catalog[xlabel_error_high]) / 2.
         y_err = (catalog[ylabel_error_high] + catalog[ylabel_error_low]) / 2.
 
@@ -298,7 +303,7 @@ class Data:
                          )
         print(
             'Removed {} nans'
-            .format(len(np.isnan(x_err)))
+            .format(N - len(cuts[0]))
         )
 
         self.x = x[cuts]
@@ -309,7 +314,7 @@ class Data:
         self.x_err_high = x_err_high[cuts]
         self.y_err_low = y_err_low[cuts]
         self.y_err_high = y_err_high[cuts]
-
+        
         print('Accepted {} data out of {}\n'.format(np.size(self.x), N))
 
         if np.size(self.x) == 0:
@@ -473,6 +478,10 @@ def main():
     fitter = Fitter(data, config)
 
     print("x-pivot = {}".format(fitter.piv))
+    print (
+        'Mean b, m, sigsqr: {}, {}, {}'
+        .format(np.mean(fitter.kelly_b), np.mean(fitter.kelly_m), np.mean(fitter.kelly_sigsqr))
+    )
     print('\n')
 
     print("Using Kelly Algorithm...")

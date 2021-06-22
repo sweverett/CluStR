@@ -70,11 +70,6 @@ def plot_scatter(args, fitter, config):
 
     (x_fit, y_fit, _, _) = fitter.unscaled_data
 
-    print (
-        'Mean b, m, sigsqr: {}, {}, {}'
-        .format(np.mean(fit_int), np.mean(fit_slope), np.mean(fit_sig))
-    )
-
     # Plot Fit
     plt.loglog(
         x_fit, y_fit, color='navy', linewidth=2.0,
