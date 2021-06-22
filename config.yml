@@ -17,15 +17,15 @@
 Om: 0.3
 H_0: 0.7
 #set piv_type to median
-piv_type: notmedian
-piv_value: 1
+piv_type: median
+piv_value: 72
 
 
 #-----------------------------------------------------------------------
 # Scale
 #--------
 scale_x_by_ez: False
-scale_y_by_ez: False
+scale_y_by_ez: True
 Redshift: "Redshift"
 #------------------------------------------------------------------------
 
@@ -149,6 +149,7 @@ Bool_Flag:
         overlap_bkgd_bool_type: True
         #Target_bool_type: True
         Detected_bool_type: False
+        isin_Vol_Lim: False
 
 # Cutoff:
 Cutoff_Flag:
@@ -158,13 +159,16 @@ Cutoff_Flag:
             500_kpcs_SNR_cut_type: above
     r2500_SNR:
         True:
-            _cutoff: 9.0
-            _cut_type: above
+          cutoff: 9.0
+          cut_type: above
+    r2500_SNR_matcha:
+        False:
+            cutoff: 9.0
+            cut_type: above
     r2500_PNSNR_alt_xmm:
         False:
-            _cutoff: 9.0
-            _cut_type: above
-
+            cutoff: 9.0
+            cut_type: above
     Other:
         True/False:
             _cutoff: value
@@ -192,7 +196,7 @@ Range_Flag:
 # Set which plots you want saved in the output .pdf file. Combines all plots
 # into a single file unless `save_all_plots` is set to True.
 scatter: True
-asymmetric_err: False
+asymmetric_err: True
 corner: False
 chains: False
 residuals: False
