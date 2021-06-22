@@ -159,17 +159,22 @@ class Data:
 
                 if cflag_ not in ('Other') and list(TFc.keys())[0] != False:
                     cvalues = list(TFc[True].values())
-                    cutoff = cvalues[0]
-                    cut_type = cvalues[1]
+                    cutoff = cvalues[1]
+                    cut_type = cvalues[0]
 
                     if cut_type == 'above':
 
                         # Nan's interfere with evaluation
+                        nan_cut = np.where(np.isnan(catalog[cflag_]))
+                        catalog[cflag_][nan_cut] = -1*(cutoff)
 
                         cutc = catalog[cflag_] < cutoff
 
                     elif cut_type == 'below':
-
+                        
+                        nan_cut = np.where(np.isnan(catalog[cflag_]))
+                        catalog[cflag_][nan_cut] = -1*(cutoff)
+                        
                         cutc = catalog[cflag_] > cutoff
 
                     else:

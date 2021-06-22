@@ -159,12 +159,21 @@ Cutoff_Flag:
           cut_type: above
     r2500_SNR_matcha:
         False:
+<<<<<<< HEAD
             cutoff: 9.0
             cut_type: above
     r2500_PNSNR_alt_xmm:
         False:
             cutoff: 9.0
             cut_type: above
+=======
+            _cutoff: 9.0
+            _cut_type: above
+    r2500_PNSNR_alt_xmm:
+        False:
+            _cutoff: 9.0
+            _cut_type: above
+>>>>>>> 2c3f3350620e7a5b8ae3511d54536424f4215196
 
     Other:
         True/False:
