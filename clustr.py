@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import linmix
 import yaml
 import plotlib
-import pyfiglet as pfig 
+import pyfiglet as pfig
 from datetime import datetime
 
 
@@ -132,28 +132,34 @@ class Data:
             mask = np.zeros(len(catalog), dtype=bool)
 
             # Boolean Flags
-            TF = config['Bool_Flag'].keys()[0]
+            TF = list(config['Bool_Flag'].keys())[0]
 
-            if TF == True:
-                for bflag_ in config['Bool_Flag'][True]:
-                    bool_type = config['Bool_Flag'][True][bflag_]
-                    
-                    if isinstance(bool_type, bool):
+            values = config['Bool_Flag']
+            ToF = list(values)[0]
+            if ToF != False:
+                for bflag_ in config['Bool_Flag']:
+                        bool_type = config['Bool_Flag'][bflag_]
+                        booleans = list(bool_type.keys())
+                        N = len(booleans)
+                        a = 0
+                        BTF = list(bool_type.values())
+                        while(a < N):
+                            if isinstance(BTF[a], bool):
+                                bflag = booleans[a].replace("_bool_type", "")
+                                cutb = catalog[bflag] == (BTF[a])
+                                a = a + 1
 
-                        bflag = bflag_.replace("_bool_type", "")
-                        cutb = catalog[bflag] == (bool_type)
-                    else:
-                        print(
-                        "Warning: Boolean type must be `True` or  `False` - "
-                        "you entered `{}`. Ignoring `{}` flag."
-                        .format(bool_type, bflag)
-                        )
-
-                    mask |= cutb
-                    print(
-                    'Removed {} clusters due to `{}` flag of type boolean.'
-                    .format(np.size(np.where(cutb)), bflag_)
-                    )
+                            else:
+                                print(
+                                "Warning: Boolean type must be `True` or  `False` - "
+                                "you entered `{}`. Ignoring `{}` flag."
+                                .format(bool_type, bflag)
+                                )
+                                mask |= cutb
+                            print(
+                            'Removed {} clusters due to `{}` flag of `{}`'
+                            .format(np.size(np.where(cutb)), bflag, type(BTF[a-1]))
+                            )
 
             # Cutoff Flags
             for cflag_ in config['Cutoff_Flag']:
@@ -162,8 +168,8 @@ class Data:
 
                 if cflag_ not in ('Other') and list(TFc.keys())[0] != False:
                     cvalues = list(TFc[True].values())
-                    cutoff = cvalues[1]
-                    cut_type = cvalues[0]
+                    cutoff = cvalues[0]
+                    cut_type = cvalues[1]
 
                     if cut_type == 'above':
 
@@ -174,10 +180,10 @@ class Data:
                         cutc = catalog[cflag_] < cutoff
 
                     elif cut_type == 'below':
-                        
+
                         nan_cut = np.where(np.isnan(catalog[cflag_]))
                         catalog[cflag_][nan_cut] = -2*(cutoff)
-                        
+
                         cutc = catalog[cflag_] > cutoff
 
                     else:
@@ -314,7 +320,7 @@ class Data:
         self.x_err_high = x_err_high[cuts]
         self.y_err_low = y_err_low[cuts]
         self.y_err_high = y_err_high[cuts]
-        
+
         print('Accepted {} data out of {}\n'.format(np.size(self.x), N))
 
         if np.size(self.x) == 0:
@@ -354,7 +360,7 @@ class Fitter:
         self.data_y_err_high_obs = data.y_err_high
         self.data_xlabel = data.xlabel
         self.data_ylabel = data.ylabel
-        self.log_data(data)
+        self.log_data(data, config)
         self.fit(data)
         self.scaled_fit_to_data(data)
 
@@ -375,15 +381,18 @@ class Fitter:
 
         return
 
-    def log_data(self, data, piv_type='median'):
+    def log_data(self, data, config):
         ''' Scale data to log'''
 
         # Log-x before pivot
         xlog = np.log(data.x)
 
         # Set pivot
+        piv_type = config['piv_type']
         if piv_type == 'median':
             self.piv = np.log(np.median(data.x))
+        else:
+            self.piv = np.log(config['piv_value'])
 
         self.log_x = xlog - self.piv
         self.log_y = np.log(data.y)
@@ -400,7 +409,7 @@ class Fitter:
         ''' Get a data set from a scaled fit '''
 
         #Scale for line fitting
-        scaled_x = np.linspace(1.5*self.xmin, 1.5*self.xmax, len(self.log_x))
+        scaled_x = np.linspace(.5*self.xmin, 1.5*self.xmax, len(self.log_x))
         scaled_y = np.mean(self.kelly_b) + np.mean(self.kelly_m) * scaled_x
         scaled_x_errs = np.zeros(len(self.log_x))
         scaled_y_errs = np.ones(len(self.log_y))*np.mean(self.kelly_m)
@@ -426,7 +435,7 @@ class Fitter:
 
     def _regressionLine(self, x, intercept, slope, low, high):
         y = []
-        _x = np.linspace(1.5*self.xmin, 1.5*self.xmax, len(self.log_x))
+        _x = np.linspace(.5*self.xmin, 1.5*self.xmax, len(self.log_x))
         for i, s in zip(self.kelly_b, self.kelly_m):
             y += [i + s * _x]
 
@@ -439,7 +448,7 @@ class Fitter:
 
     def _regressionLine_with_scatter(self, low, high):
         y = []
-        _x = np.linspace(1.5*self.xmin, 1.5*self.xmax, len(self.log_x))
+        _x = np.linspace(.5*self.xmin, 1.5*self.xmax, len(self.log_x))
         for i, s, sig in zip(self.kelly_b, self.kelly_m, np.sqrt(self.kelly_sigsqr)):
             y += [i + s * _x + np.random.normal(0.0, sig)]
 
@@ -465,7 +474,7 @@ def main():
     print(now)
     print("-----------------------------------")
     print("\n")
-    
+
     #CluStR args
     args = parser.parse_args()
 
