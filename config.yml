@@ -60,8 +60,8 @@ Column_Names:
 xlabel_err_low: "lambda_err_low"
 xlabel_err_high: "lambda_err_high"
 
-ylabel_err_low: "r2500_band_lumin_err_low"
-ylabel_err_high: "r2500_band_lumin_err_high"
+ylabel_err_low: "r2500_temperature_err_low"
+ylabel_err_high: "r2500_temperature_err_high"
 
 # ----------------------------------------------------------------------
 # Flags
@@ -144,12 +144,12 @@ Bool_Flag:
         #edge_r500_bool_type: True
         edge_bkgd_bool_type: True
         masked_bool_type: True
-        #overlap_r500_bool_type: True
+        overlap_r500_bool_type: True
         overlap_r2500_bool_type: True
         overlap_bkgd_bool_type: True
         #Target_bool_type: True
         Detected_bool_type: False
-        isin_Vol_Lim: False
+        #isin_Vol_Lim: False
 
 # Cutoff:
 Cutoff_Flag:
@@ -157,7 +157,7 @@ Cutoff_Flag:
         False:
             500_kpcs_SNR_cutoff: 9.0
             500_kpcs_SNR_cut_type: above
-    r2500_SNR:
+    r500_SNR:
         True:
           cutoff: 9.0
           cut_type: above
@@ -196,7 +196,7 @@ Range_Flag:
 # Set which plots you want saved in the output .pdf file. Combines all plots
 # into a single file unless `save_all_plots` is set to True.
 scatter: True
-asymmetric_err: True
+asymmetric_err: False
 corner: False
 chains: False
 residuals: False
