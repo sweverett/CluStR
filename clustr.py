@@ -162,8 +162,8 @@ class Data:
 
                 if cflag_ not in ('Other') and list(TFc.keys())[0] != False:
                     cvalues = list(TFc[True].values())
-                    cutoff = cvalues[1]
-                    cut_type = cvalues[0]
+                    cutoff = cvalues[0]
+                    cut_type = cvalues[1]
 
                     if cut_type == 'above':
 
@@ -354,7 +354,7 @@ class Fitter:
         self.data_y_err_high_obs = data.y_err_high
         self.data_xlabel = data.xlabel
         self.data_ylabel = data.ylabel
-        self.log_data(data)
+        self.log_data(data, config)
         self.fit(data)
         self.scaled_fit_to_data(data)
 
@@ -375,15 +375,19 @@ class Fitter:
 
         return
 
-    def log_data(self, data, piv_type='median'):
+    def log_data(self, data, config):
         ''' Scale data to log'''
 
         # Log-x before pivot
         xlog = np.log(data.x)
 
         # Set pivot
-        if piv_type == 'median':
+        piv_type = config["piv_type"]
+        if piv_type == "median":
             self.piv = np.log(np.median(data.x))
+
+        else: 
+            self.piv = np.log(config["piv_value"])
 
         self.log_x = xlog - self.piv
         self.log_y = np.log(data.y)

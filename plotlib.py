@@ -110,7 +110,7 @@ def plot_scatter(args, fitter, config):
     plt.xlabel(fitter.data_xlabel.capitalize(), fontsize=10)
     plt.ylabel(fitter.data_ylabel, fontsize=10)
     plt.xlim([0.7*np.min(x_obs), 1.4*np.max(x_obs)])
-    plt.ylim([0.4*np.min(y_obs), 1.5*np.max(y_obs)])
+    plt.ylim([0.2*np.min(y_obs), 1.9*np.max(y_obs)])
     plt.grid(which='minor', color='k', alpha=0.2)
     plt.grid(which='major', color='k', alpha=0.5)
     plt.legend(loc='best', fontsize='x-small')
