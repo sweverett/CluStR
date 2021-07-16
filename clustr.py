@@ -134,32 +134,26 @@ class Data:
             # Boolean Flags
             TF = list(config['Bool_Flag'].keys())[0]
 
-            values = config['Bool_Flag']
-            ToF = list(values)[0]
-            if ToF != False:
-                for bflag_ in config['Bool_Flag']:
-                        bool_type = config['Bool_Flag'][bflag_]
-                        booleans = list(bool_type.keys())
-                        N = len(booleans)
-                        a = 0
-                        BTF = list(bool_type.values())
-                        while(a < N):
-                            if isinstance(BTF[a], bool):
-                                bflag = booleans[a].replace("_bool_type", "")
-                                cutb = catalog[bflag] == (BTF[a])
-                                a = a + 1
+            if TF == True:
+                for bflag_ in config['Bool_Flag'][True]:
+                    bool_type = config['Bool_Flag'][True][bflag_]
 
-                            else:
-                                print(
-                                "Warning: Boolean type must be `True` or  `False` - "
-                                "you entered `{}`. Ignoring `{}` flag."
-                                .format(bool_type, bflag)
-                                )
-                                mask |= cutb
-                            print(
-                            'Removed {} clusters due to `{}` flag of `{}`'
-                            .format(np.size(np.where(cutb)), bflag, type(BTF[a-1]))
-                            )
+                    if isinstance(bool_type, bool):
+
+                        bflag = bflag_.replace("_bool_type", "")
+                        cutb = catalog[bflag] == (bool_type)
+                    else:
+                        print(
+                        "Warning: Boolean type must be `True` or  `False` - "
+                        "you entered `{}`. Ignoring `{}` flag."
+                        .format(bool_type, bflag)
+                        )
+
+                    mask |= cutb
+                    print(
+                    'Removed {} clusters due to `{}` flag of type boolean.'
+                    .format(np.size(np.where(cutb)), bflag_)
+                    )
 
             # Cutoff Flags
             for cflag_ in config['Cutoff_Flag']:
@@ -394,9 +388,6 @@ class Fitter:
         else:
             self.piv = np.log(config['piv_value'])
 
-        else: 
-            self.piv = np.log(config["piv_value"])
-
         self.log_x = xlog - self.piv
         self.log_y = np.log(data.y)
 
@@ -412,7 +403,7 @@ class Fitter:
         ''' Get a data set from a scaled fit '''
 
         #Scale for line fitting
-        scaled_x = np.linspace(.5*self.xmin, 1.5*self.xmax, len(self.log_x))
+        scaled_x = np.linspace(1.5*self.xmin, 1.5*self.xmax, len(self.log_x))
         scaled_y = np.mean(self.kelly_b) + np.mean(self.kelly_m) * scaled_x
         scaled_x_errs = np.zeros(len(self.log_x))
         scaled_y_errs = np.ones(len(self.log_y))*np.mean(self.kelly_m)
@@ -438,7 +429,7 @@ class Fitter:
 
     def _regressionLine(self, x, intercept, slope, low, high):
         y = []
-        _x = np.linspace(.5*self.xmin, 1.5*self.xmax, len(self.log_x))
+        _x = np.linspace(1.5*self.xmin, 1.5*self.xmax, len(self.log_x))
         for i, s in zip(self.kelly_b, self.kelly_m):
             y += [i + s * _x]
 
@@ -451,7 +442,7 @@ class Fitter:
 
     def _regressionLine_with_scatter(self, low, high):
         y = []
-        _x = np.linspace(.5*self.xmin, 1.5*self.xmax, len(self.log_x))
+        _x = np.linspace(1.5*self.xmin, 1.5*self.xmax, len(self.log_x))
         for i, s, sig in zip(self.kelly_b, self.kelly_m, np.sqrt(self.kelly_sigsqr)):
             y += [i + s * _x + np.random.normal(0.0, sig)]
 
