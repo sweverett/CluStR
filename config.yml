@@ -193,6 +193,13 @@ Range_Flag:
 # Plots
 # --------
 
+# Plot_Labels : False uses default catalog labels
+# Lambda symbol unicode is \u03BB
+Plot_Labels:
+        True:
+            y_axis: Temperature
+            x_axis: \u03BB 
+
 # Set which plots you want saved in the output .pdf file. Combines all plots
 # into a single file unless `save_all_plots` is set to True.
 scatter: True
