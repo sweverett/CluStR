@@ -1,0 +1,12 @@
+*.fits
+*.fit 
+*.pdf
+*.csv
+/.ipynb_checkpoints/
+/.vscode/
+/linmix_folder/
+/Test_/
+/Test_plots/
+clustr.pyc
+plotlib.pyc
+reglib.pyc
