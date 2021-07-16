@@ -107,8 +107,18 @@ def plot_scatter(args, fitter, config):
     plt.fill_between(x_fit, yUp2, yLow2, color='teal', alpha=0.2, label= r'2$\sigma$ Band')
 
     #-----------------------------------------------------------------
-    plt.xlabel(fitter.data_xlabel.capitalize(), fontsize=10)
-    plt.ylabel(fitter.data_ylabel, fontsize=10)
+    # Plot Labels
+    if list(config["Plot_Labels"].keys())[0] == True:
+        xname = list(config["Plot_Labels"][True].values())[0]
+        yname = list(config["Plot_Labels"][True].values())[1]
+
+    else:
+        xname = fitter.data_xlabel.capitalize()
+        yname = fitter.data_ylabel
+
+    
+    plt.xlabel(xname, fontsize=10)
+    plt.ylabel(yname, fontsize=10)
     plt.xlim([0.7*np.min(x_obs), 1.4*np.max(x_obs)])
     plt.ylim([0.2*np.min(y_obs), 1.9*np.max(y_obs)])
     plt.grid(which='minor', color='k', alpha=0.2)
