@@ -354,6 +354,7 @@ class Fitter:
         self.data_y_err_high_obs = data.y_err_high
         self.data_xlabel = data.xlabel
         self.data_ylabel = data.ylabel
+        self.x_constant = config['scale_x']
         self.log_data(data, config)
         self.fit(data)
         self.scaled_fit_to_data(data)
@@ -397,13 +398,16 @@ class Fitter:
         self.log_x_err = np.log(data.x_err + data.x) - np.log(data.x)
         self.log_y_err = np.log(data.y_err + data.y) - np.log(data.y)
 
+
         return
 
     def scaled_fit_to_data(self, data):
         ''' Get a data set from a scaled fit '''
 
         #Scale for line fitting
-        scaled_x = np.linspace(1.5*self.xmin, 1.5*self.xmax, len(self.log_x))
+
+
+        scaled_x = np.linspace(self.x_constant*self.xmin, 1.5*self.xmax, len(self.log_x))
         scaled_y = np.mean(self.kelly_b) + np.mean(self.kelly_m) * scaled_x
         scaled_x_errs = np.zeros(len(self.log_x))
         scaled_y_errs = np.ones(len(self.log_y))*np.mean(self.kelly_m)
@@ -429,7 +433,7 @@ class Fitter:
 
     def _regressionLine(self, x, intercept, slope, low, high):
         y = []
-        _x = np.linspace(1.5*self.xmin, 1.5*self.xmax, len(self.log_x))
+        _x = np.linspace(self.x_constant*self.xmin, 1.5*self.xmax, len(self.log_x))
         for i, s in zip(self.kelly_b, self.kelly_m):
             y += [i + s * _x]
 
@@ -442,7 +446,7 @@ class Fitter:
 
     def _regressionLine_with_scatter(self, low, high):
         y = []
-        _x = np.linspace(1.5*self.xmin, 1.5*self.xmax, len(self.log_x))
+        _x = np.linspace(self.x_constant*self.xmin, 1.5*self.xmax, len(self.log_x))
         for i, s, sig in zip(self.kelly_b, self.kelly_m, np.sqrt(self.kelly_sigsqr)):
             y += [i + s * _x + np.random.normal(0.0, sig)]
 

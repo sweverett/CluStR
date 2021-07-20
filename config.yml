@@ -27,6 +27,7 @@ piv_value: 72
 scale_x_by_ez: False
 scale_y_by_ez: True
 Redshift: "Redshift"
+
 #------------------------------------------------------------------------
 
 # NB: Not all default options are implemented yet!
@@ -154,11 +155,11 @@ Bool_Flag:
 # Cutoff:
 Cutoff_Flag:
     500_kiloparsecs_SNR:
-        False:
+        True:
             500_kpcs_SNR_cutoff: 9.0
             500_kpcs_SNR_cut_type: above
     r500_SNR:
-        True:
+        False:
           cutoff: 9.0
           cut_type: above
     r2500_SNR_matcha:
@@ -198,7 +199,11 @@ Range_Flag:
 Plot_Labels:
         True:
             y_axis: Temperature
-            x_axis: \u03BB 
+            x_axis: \u03BB
+
+
+#Set what to scale x by for plots
+scale_x: 1.5
 
 # Set which plots you want saved in the output .pdf file. Combines all plots
 # into a single file unless `save_all_plots` is set to True.
