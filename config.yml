@@ -27,6 +27,7 @@ piv_value: 72
 scale_x_by_ez: False
 scale_y_by_ez: True
 Redshift: "Redshift"
+
 #------------------------------------------------------------------------
 
 # NB: Not all default options are implemented yet!
@@ -154,11 +155,11 @@ Bool_Flag:
 # Cutoff:
 Cutoff_Flag:
     500_kiloparsecs_SNR:
-        False:
+        True:
             500_kpcs_SNR_cutoff: 9.0
             500_kpcs_SNR_cut_type: above
     r500_SNR:
-        True:
+        False:
           cutoff: 9.0
           cut_type: above
     r2500_SNR_matcha:
@@ -199,6 +200,9 @@ Plot_Labels:
         True:
             x_axis: \lambda_{RM}
             y_axis: E(z)^{-2/3} kT [keV]
+
+#Set what to scale line length for scatter plot
+scale_line: 1.5
 
 # Set which plots you want saved in the output .pdf file. Combines all plots
 # into a single file unless `save_all_plots` is set to True.
