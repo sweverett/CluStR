@@ -354,7 +354,7 @@ class Fitter:
         self.data_y_err_high_obs = data.y_err_high
         self.data_xlabel = data.xlabel
         self.data_ylabel = data.ylabel
-        self.x_constant = config['scale_x']
+        self._constant = config['scale_line']
         self.log_data(data, config)
         self.fit(data)
         self.scaled_fit_to_data(data)
@@ -407,7 +407,7 @@ class Fitter:
         #Scale for line fitting
 
 
-        scaled_x = np.linspace(self.x_constant*self.xmin, 1.5*self.xmax, len(self.log_x))
+        scaled_x = np.linspace(self._constant*self.xmin, 1.5*self.xmax, len(self.log_x))
         scaled_y = np.mean(self.kelly_b) + np.mean(self.kelly_m) * scaled_x
         scaled_x_errs = np.zeros(len(self.log_x))
         scaled_y_errs = np.ones(len(self.log_y))*np.mean(self.kelly_m)
@@ -433,7 +433,7 @@ class Fitter:
 
     def _regressionLine(self, x, intercept, slope, low, high):
         y = []
-        _x = np.linspace(self.x_constant*self.xmin, 1.5*self.xmax, len(self.log_x))
+        _x = np.linspace(self._constant*self.xmin, 1.5*self.xmax, len(self.log_x))
         for i, s in zip(self.kelly_b, self.kelly_m):
             y += [i + s * _x]
 
@@ -446,7 +446,7 @@ class Fitter:
 
     def _regressionLine_with_scatter(self, low, high):
         y = []
-        _x = np.linspace(self.x_constant*self.xmin, 1.5*self.xmax, len(self.log_x))
+        _x = np.linspace(self._constant*self.xmin, 1.5*self.xmax, len(self.log_x))
         for i, s, sig in zip(self.kelly_b, self.kelly_m, np.sqrt(self.kelly_sigsqr)):
             y += [i + s * _x + np.random.normal(0.0, sig)]
 
@@ -458,20 +458,27 @@ class Fitter:
         # print (yUp-yMed)[::5]
         return yMed, yUp, yLow
 
+class Banner():
+    """Contains Program Banner"""
+
+    def __init__(self):
+        #CluStR Banner
+        ascii_banner = pfig.figlet_format("CluStR")
+        print(ascii_banner)
+        print("-----------------------------------")
+        print("This package calculates various \nscaling relations from cluster catalogs.")
+        print("\n")
+
+        # Returns the current local date
+        now = datetime.now()
+        print(now)
+        print("-----------------------------------")
+        print("\n")
+
 def main():
 
     #CluStR Banner
-    ascii_banner = pfig.figlet_format("CluStR")
-    print(ascii_banner)
-    print("-----------------------------------")
-    print("This package calculates various \nscaling relations from cluster catalogs.")
-    print("\n")
-
-    # Returns the current local date
-    now = datetime.now()
-    print(now)
-    print("-----------------------------------")
-    print("\n")
+    Banner()
 
     #CluStR args
     args = parser.parse_args()

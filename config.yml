@@ -199,12 +199,11 @@ Range_Flag:
 #$k_bT_{x,r2500}$
 Plot_Labels:
         True:
-            x_axis: $\lambda_{RM}$
-            y_axis: $E(z)^{-2/3}k_bT_{x,r2500}[keV]$
+            x_axis: \lambda_{RM}
+            y_axis: E(z)^{-2/3} kT [keV]
 
-
-#Set what to scale x by for plots
-scale_x: 1.5
+#Set what to scale line length for scatter plot
+scale_line: 1.5
 
 # Set which plots you want saved in the output .pdf file. Combines all plots
 # into a single file unless `save_all_plots` is set to True.
