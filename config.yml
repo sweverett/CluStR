@@ -17,8 +17,8 @@
 Om: 0.3
 H_0: 0.7
 #set piv_type to median
-piv_type: median
-piv_value: 72
+piv_type: notmedian
+piv_value: 70
 
 
 #-----------------------------------------------------------------------
@@ -150,7 +150,7 @@ Bool_Flag:
         overlap_bkgd_bool_type: True
         #Target_bool_type: True
         Detected_bool_type: False
-        #isin_Vol_Lim: False
+        isin_Vol_Lim: False
 
 # Cutoff:
 Cutoff_Flag:
@@ -196,10 +196,11 @@ Range_Flag:
 
 # Plot_Labels : False uses default catalog labels
 # Lambda symbol unicode is \u03BB
+#$k_bT_{x,r2500}$
 Plot_Labels:
         True:
-            y_axis: Temperature
-            x_axis: \u03BB
+            x_axis: $\lambda_{RM}$
+            y_axis: $E(z)^{-2/3}k_bT_{x,r2500}[keV]$
 
 
 #Set what to scale x by for plots
@@ -209,7 +210,7 @@ scale_x: 1.5
 # into a single file unless `save_all_plots` is set to True.
 scatter: True
 asymmetric_err: False
-corner: False
+corner: True
 chains: False
 residuals: False
 save_all_plots: False
