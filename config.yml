@@ -26,7 +26,9 @@ piv_value: 70
 #--------
 scale_x_by_ez: False
 scale_y_by_ez: True
-Redshift: "Redshift"
+Redshift : "Redshift"
+Redshift2: "Z_1"
+
 
 #------------------------------------------------------------------------
 
@@ -41,6 +43,8 @@ default_prefix: Test2
 # Column name conventions:
 Column_Names:
     lambda: lambda
+    lambdaxmm: Lambda_xmm
+    lambdamatcha : Lambda_matcha
     l500kpc: 500_kiloparsecs_band_lumin
     lr2500: r2500_band_lumin
     lr500: r500_band_lumin
@@ -51,10 +55,12 @@ Column_Names:
     tr500cc: r500_core_cropped_temperature
     lam: LAM
     lx: Lx
-    txmm : Tx_xmm
+    tr2500xmm : Tx_r2500_xmm
+    tr500xmm : Tx_r500_xmm
     tr2500matcha: Tx_r2500_matcha
     tr500matcha : Tx_r500_matcha
-
+    kt : kT
+    lambdachisq: LAMBDA_CHISQ
 # ---------------------------------------------------------------------
 # Error Labels
 # ---------------
@@ -63,6 +69,7 @@ xlabel_err_high: "lambda_err_high"
 
 ylabel_err_low: "r2500_temperature_err_low"
 ylabel_err_high: "r2500_temperature_err_high"
+
 
 # ----------------------------------------------------------------------
 # Flags
@@ -142,7 +149,7 @@ Bool_Flag:
     True:
         bad_mode_bool_type: True
         edge_r2500_bool_type: True
-        #edge_r500_bool_type: True
+        edge_r500_bool_type: True
         edge_bkgd_bool_type: True
         masked_bool_type: True
         overlap_r500_bool_type: True
@@ -150,30 +157,14 @@ Bool_Flag:
         overlap_bkgd_bool_type: True
         #Target_bool_type: True
         Detected_bool_type: False
-        isin_Vol_Lim: False
+        #isin_Vol_Lim: False
 
 # Cutoff:
 Cutoff_Flag:
     500_kiloparsecs_SNR:
         True:
-            500_kpcs_SNR_cutoff: 9.0
-            500_kpcs_SNR_cut_type: above
-    r500_SNR:
-        False:
-          cutoff: 9.0
-          cut_type: above
-    r2500_SNR_matcha:
-        False:
-            cutoff: 9.0
-            cut_type: above
-    r2500_PNSNR_alt_xmm:
-        False:
-            cutoff: 9.0
-            cut_type: above
-    Other:
-        True/False:
-            _cutoff: value
-            _cut_type: above/below
+          500_kpcs_SNR_cutoff: 9.0
+          500_kpcs_SNR_cut_type: above
 
 # Ranges:
 Range_Flag:
@@ -200,10 +191,10 @@ Range_Flag:
 Plot_Labels:
         True:
             x_axis: \lambda_{RM}
-            y_axis: E(z)^{-2/3} kT [keV]
+            y_axis: T_{X,r2500}\/\/XMM
 
 #Set what to scale line length for scatter plot
-scale_line: 1.5
+scale_line: 1.75
 
 # Set which plots you want saved in the output .pdf file. Combines all plots
 # into a single file unless `save_all_plots` is set to True.

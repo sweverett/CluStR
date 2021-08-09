@@ -17,7 +17,8 @@ parser = ArgumentParser()
 parser.add_argument('cat_filename', help='FITS catalog to open')
 # Required arguement for axes
 valid_axes = ['l500kpc', 'lr2500', 'lr500', 'lr500cc', 't500kpc', 'tr2500',
-              'tr500', 'tr500cc', 'lambda', 'lx', 'lam', 'txmm', 'tr2500matcha', 'tr500matcha']
+              'tr500', 'tr500cc', 'lambda', 'lambdaxmm', 'lambdamatcha', 'lx',
+              'lam', 'txmm', 'tr2500matcha', 'tr500matcha', 'tr2500xmm', 'tr500xmm', 'kt', 'lambdachisq']
 parser.add_argument('x', help='what to plot on x axis', choices=valid_axes)
 parser.add_argument('y', help='what to plot on y axis', choices=valid_axes)
 parser.add_argument('config_file',
