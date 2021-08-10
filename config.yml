@@ -27,8 +27,6 @@ piv_value: 70
 scale_x_by_ez: False
 scale_y_by_ez: True
 Redshift : "Redshift"
-Redshift2: "Z_1"
-
 
 #------------------------------------------------------------------------
 
@@ -138,7 +136,7 @@ ylabel_err_high: "r2500_temperature_err_high"
 #               New_flag5_range_max: value,
 #               New_flag5_range_type: outside/inside
 #
-# Outside -> Removes observations inside (min, max). Runs analysis on
+# Outside -> Removes observcatalog_matcha.write("filepath/filename.fits", format='fits')ations inside (min, max). Runs analysis on
 #               obs outside range.
 #
 # Inside -> Removes observations outside (min, max). Runs analysis on
@@ -146,10 +144,10 @@ ylabel_err_high: "r2500_temperature_err_high"
 
 # Bools:
 Bool_Flag:
-    True:
+    False:
         bad_mode_bool_type: True
         edge_r2500_bool_type: True
-        edge_r500_bool_type: True
+        #edge_r500_bool_type: True
         edge_bkgd_bool_type: True
         masked_bool_type: True
         overlap_r500_bool_type: True
@@ -162,14 +160,14 @@ Bool_Flag:
 # Cutoff:
 Cutoff_Flag:
     500_kiloparsecs_SNR:
-        True:
+        False:
           500_kpcs_SNR_cutoff: 9.0
           500_kpcs_SNR_cut_type: above
 
 # Ranges:
 Range_Flag:
     Redshift:
-        True:
+        False:
             Redshift_minmax:
                 Redshift_range_min: 0.2
                 Redshift_range_max: 0.65
@@ -190,8 +188,8 @@ Range_Flag:
 #$k_bT_{x,r2500}$
 Plot_Labels:
         True:
-            x_axis: \lambda_{RM}
-            y_axis: T_{X,r2500}\/\/XMM
+            x_axis: $\lambda_{RM}$
+            y_axis: $E(z)^{-2/3}\/kT_{X,r2500}\/\/Joint$
 
 #Set what to scale line length for scatter plot
 scale_line: 1.75
