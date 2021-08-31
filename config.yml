@@ -17,7 +17,7 @@
 Om: 0.3
 H_0: 0.7
 #set piv_type to median
-piv_type: notmedian
+piv_type: Notmedian
 piv_value: 70
 
 
@@ -25,7 +25,7 @@ piv_value: 70
 # Scale
 #--------
 scale_x_by_ez: False
-scale_y_by_ez: True
+scale_y_by_ez: False
 Redshift : "Redshift"
 
 #------------------------------------------------------------------------
@@ -144,7 +144,7 @@ ylabel_err_high: "r2500_temperature_err_high"
 
 # Bools:
 Bool_Flag:
-    False:
+    True:
         bad_mode_bool_type: True
         edge_r2500_bool_type: True
         #edge_r500_bool_type: True
@@ -160,14 +160,18 @@ Bool_Flag:
 # Cutoff:
 Cutoff_Flag:
     500_kiloparsecs_SNR:
-        False:
+        True:
           500_kpcs_SNR_cutoff: 9.0
           500_kpcs_SNR_cut_type: above
+        True:
+          500_kiloparsecs_SNR: 9.0
+          500_kiloparsecs_SNR_cut_type: above
+
 
 # Ranges:
 Range_Flag:
     Redshift:
-        False:
+        True:
             Redshift_minmax:
                 Redshift_range_min: 0.2
                 Redshift_range_max: 0.65

@@ -242,6 +242,7 @@ class Data:
         self.ylabel = config['Column_Names'][y_arg]
         x = catalog[self.xlabel]
         y = catalog[self.ylabel]
+        print(np.median(y))
 
         # Size of original data
         N = np.size(x)
@@ -253,6 +254,7 @@ class Data:
             x /= Ez(catalog[redshift])
         if config['scale_y_by_ez'] == True:
             redshift = config['Redshift']
+            print(np.median(catalog[redshift]))
             y /= Ez(catalog[redshift])
 
         # Error Labels
@@ -315,6 +317,9 @@ class Data:
         self.x_err_high = x_err_high[cuts]
         self.y_err_low = y_err_low[cuts]
         self.y_err_high = y_err_high[cuts]
+
+        print(np.median(self.x, axis = None))
+        print(np.median(self.y, axis = None))
 
         print('Accepted {} data out of {}\n'.format(np.size(self.x), N))
 

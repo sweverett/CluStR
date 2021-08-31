@@ -54,9 +54,10 @@ def plot_scatter(args, fitter, config):
             capsize=1,
             label='_nolegend_'
             )
+        print(len(x_obs[0:161]))
         print('Reporting Asymmetric Error Bars.')
     else:
-        plt.errorbar(x_obs, y_obs, xerr=x_err_obs, yerr=y_err_obs,
+        plt.errorbar(x_obs[0:161], y_obs[0:161], xerr=x_err_obs[0:161], yerr=y_err_obs[0:161],
             ecolor='k',
             fmt='bo',
             lw=1,
@@ -66,6 +67,27 @@ def plot_scatter(args, fitter, config):
             label='_nolegend_'
             )
         print('Reporting Symmetric Error Bars.')
+    if config['asymmetric_err']:
+        plt.errorbar(x_obs, y_obs, xerr=x_err_obs_asym, yerr=y_err_obs_asym,
+            ecolor='k',
+            fmt='bo',
+            lw=1,
+            markersize=2,
+            markeredgecolor='k',
+            capsize=1,
+            label='_nolegend_'
+            )
+        print('Reporting Asymmetric Error Bars.')
+    else:
+        plt.errorbar(x_obs[161:], y_obs[161:], xerr=x_err_obs[161:], yerr=y_err_obs[161:],
+            ecolor='r',
+            fmt='bo',
+            lw=1,
+            markersize=2,
+            markeredgecolor='r',
+            capsize=1,
+            label='_nolegend_'
+            )
 
     # Grab linmix data
     fit_int, fit_slope, fit_sig = fitter.kelly_b, fitter.kelly_m, fitter.kelly_sigsqr
@@ -132,8 +154,8 @@ def plot_scatter(args, fitter, config):
     #ax.yaxis.set_major_formatter(LogFormatter())
     #ax.yaxis.set_minor_formatter(ScalarFormatter())
 
-    ax.grid(which='major', color='k', alpha=0.5)
-    ax.grid(which='minor', color='k', alpha=0.2)
+    ax.grid(which='major', color='k', alpha=0.2)
+    ax.grid(which='minor', color='k', alpha=0.1)
     ax.legend(loc='best', fontsize='x-small')
 
     plt.xlabel(xname, fontsize=10)
