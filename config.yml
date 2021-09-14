@@ -26,7 +26,7 @@ piv_value: 70
 #--------
 scale_x_by_ez: False
 scale_y_by_ez: True
-Redshift : "Redshift"
+Redshift : "REDSHIFT"
 
 #------------------------------------------------------------------------
 
@@ -59,14 +59,16 @@ Column_Names:
     tr500matcha : Tx_r500_matcha
     kt : kT
     lambdachisq: LAMBDA_CHISQ
+    R2500: R2500_TEMPERATURE
+    LAMBDA : LAMBDA_CHISQ
 # ---------------------------------------------------------------------
 # Error Labels
 # ---------------
-xlabel_err_low: "lambda_err_low"
-xlabel_err_high: "lambda_err_high"
+xlabel_err_low: "LAMBDA_CHISQ_E"
+xlabel_err_high: "LAMBDA_CHISQ_E"
 
-ylabel_err_low: "r2500_temperature_err_low"
-ylabel_err_high: "r2500_temperature_err_high"
+ylabel_err_low: "R2500_TEMPERATURE_ERR_LOW"
+ylabel_err_high: "R2500_TEMPERATURE_ERR_HIGH"
 
 
 # ----------------------------------------------------------------------
@@ -144,7 +146,7 @@ ylabel_err_high: "r2500_temperature_err_high"
 
 # Bools:
 Bool_Flag:
-    True:
+    FALSE:
         bad_mode_bool_type: True
         edge_r2500_bool_type: True
         edge_r500_bool_type: True
@@ -160,10 +162,10 @@ Bool_Flag:
 # Cutoff:
 Cutoff_Flag:
     500_kiloparsecs_SNR:
-        True:
+        FALSE:
           500_kpcs_SNR_cutoff: 9.0
           500_kpcs_SNR_cut_type: above
-        True:
+        FALSE:
           500_kiloparsecs_SNR: 9.0
           500_kiloparsecs_SNR_cut_type: above
 
@@ -171,7 +173,7 @@ Cutoff_Flag:
 # Ranges:
 Range_Flag:
     Redshift:
-        True:
+        FAKSE:
             Redshift_minmax:
                 Redshift_range_min: 0.2
                 Redshift_range_max: 0.65
