@@ -25,7 +25,7 @@ piv_value: 70
 # Scale
 #--------
 scale_x_by_ez: False
-scale_y_by_ez: False
+scale_y_by_ez: True
 Redshift : "Redshift"
 
 #------------------------------------------------------------------------
@@ -147,7 +147,7 @@ Bool_Flag:
     True:
         bad_mode_bool_type: True
         edge_r2500_bool_type: True
-        #edge_r500_bool_type: True
+        edge_r500_bool_type: True
         edge_bkgd_bool_type: True
         masked_bool_type: True
         overlap_r500_bool_type: True
