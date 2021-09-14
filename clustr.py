@@ -85,7 +85,7 @@ class Catalog:
         return
 
     def _load_catalog(self):
-        self._catalog = Table.read(self.file_name)
+        self._catalog = Table.read(self.file_name, format = utf8)
 
         # could do other things...
 
@@ -237,10 +237,12 @@ class Data:
 
         x_arg = config.x
         y_arg = config.y
+        self.dlabel = config['Detected']
         self.xlabel = config['Column_Names'][x_arg]
         self.ylabel = config['Column_Names'][y_arg]
         x = catalog[self.xlabel]
         y = catalog[self.ylabel]
+        detected = catalog[self.dlabel]
 
         # Size of original data
         N = np.size(x)
@@ -285,6 +287,7 @@ class Data:
 
         x = x[good_rows]
         y = y[good_rows]
+        detected = detected[good_rows]
         x_err = x_err[good_rows]
         y_err = y_err[good_rows]
         x_err_low = x_err_low[good_rows]
@@ -300,7 +303,8 @@ class Data:
                          (~np.isnan(x_err_low)) &
                          (~np.isnan(x_err_high)) &
                          (~np.isnan(y_err_low)) &
-                         (~np.isnan(y_err_high))
+                         (~np.isnan(y_err_high)) &
+                         (~np.isnan(detected))
                          )
         print(
             'Removed {} nans'
@@ -309,6 +313,7 @@ class Data:
 
         self.x = x[cuts]
         self.y = y[cuts]
+        self.detected = detected[cuts]
         self.x_err = x_err[cuts]
         self.y_err = y_err[cuts]
         self.x_err_low = x_err_low[cuts]
@@ -350,6 +355,7 @@ class Fitter:
         self.algorithm = 'linmix'
         self.data_x = data.x
         self.data_y = data.y
+        self.delta = data.detected
         self.data_x_err_obs = data.x_err
         self.data_y_err_obs = data.y_err
         self.data_x_err_low_obs = data.x_err_low
@@ -376,7 +382,8 @@ class Fitter:
                                                         self.log_x,
                                                         self.log_y,
                                                         self.log_x_err,
-                                                        self.log_y_err)
+                                                        self.log_y_err,
+                                                        self.delta)                                                       )
 
         return
 
