@@ -25,10 +25,14 @@ piv_value: 70
 # Scale
 #--------
 scale_x_by_ez: False
-scale_y_by_ez: True
-Redshift : "REDSHIFT"
+scale_y_by_ez: False
+Redshift : "Redshift"
 
 #------------------------------------------------------------------------
+
+# Censored Data
+#---------------
+Censored: False
 
 # NB: Not all default options are implemented yet!
 
@@ -64,11 +68,11 @@ Column_Names:
 # ---------------------------------------------------------------------
 # Error Labels
 # ---------------
-xlabel_err_low: "LAMBDA_CHISQ_E"
-xlabel_err_high: "LAMBDA_CHISQ_E"
+xlabel_err_low: "lambda_err_low"
+xlabel_err_high: "lambda_err_high"
 
-ylabel_err_low: "R2500_TEMPERATURE_ERR_LOW"
-ylabel_err_high: "R2500_TEMPERATURE_ERR_HIGH"
+ylabel_err_low: "r2500_temperature_err_low"
+ylabel_err_high: "r2500_temperature_err_high"
 
 
 # ----------------------------------------------------------------------
@@ -146,7 +150,7 @@ ylabel_err_high: "R2500_TEMPERATURE_ERR_HIGH"
 
 # Bools:
 Bool_Flag:
-    FALSE:
+    True:
         bad_mode_bool_type: True
         edge_r2500_bool_type: True
         edge_r500_bool_type: True
@@ -162,10 +166,10 @@ Bool_Flag:
 # Cutoff:
 Cutoff_Flag:
     500_kiloparsecs_SNR:
-        FALSE:
+        True:
           500_kpcs_SNR_cutoff: 9.0
           500_kpcs_SNR_cut_type: above
-        FALSE:
+        False:
           500_kiloparsecs_SNR: 9.0
           500_kiloparsecs_SNR_cut_type: above
 
@@ -173,7 +177,7 @@ Cutoff_Flag:
 # Ranges:
 Range_Flag:
     Redshift:
-        FAKSE:
+        True:
             Redshift_minmax:
                 Redshift_range_min: 0.2
                 Redshift_range_max: 0.65
@@ -204,7 +208,7 @@ scale_line: 1.75
 # into a single file unless `save_all_plots` is set to True.
 scatter: True
 asymmetric_err: False
-corner: True
+corner: False
 chains: False
 residuals: False
 save_all_plots: False

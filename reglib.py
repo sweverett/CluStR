@@ -72,7 +72,7 @@ def run_lrgs(x, y, err_x, err_y, _xycov=None, nmc=500, dirichlet=True):
     # Return fit parameters consistently with run_linmix
     return (intercept, slope, sigma)
 
-def run_linmix(x, y, err_x, err_y, Nmin=5000, Nmax=10000, vb=True):
+def run_linmix(x, y, err_x, err_y, Nmin=5000, Nmax=10000, vb=True, delta=None):
     # pylint: disable = too-many-arguments
     ''' Runs the Kelly regression algorithm through the package linmix.'''
 
@@ -111,7 +111,8 @@ def run_linmix(x, y, err_x, err_y, Nmin=5000, Nmax=10000, vb=True):
 
     # FIX: Implement censored data!
     # Run linmix MCMC
-    delta = np.ones(L)
+    if delta is None:
+        delta = np.ones(L)
     xycov = np.zeros(L)
     model = linmix.LinMix(x, y, err_x, err_y, xycov, delta, 2, 2)
     model.run_mcmc(Nmin, Nmax, silent=vb)

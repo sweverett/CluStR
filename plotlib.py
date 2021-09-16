@@ -160,8 +160,8 @@ def plot_scatter(args, fitter, config):
 
     plt.xlabel(xname, fontsize=10)
     plt.ylabel(yname, fontsize=10)
-    plt.xlim([15, 250])
-    plt.ylim([0.6, 25])
+    plt.xlim([min(x_fit), max(250)])
+    plt.ylim([min(y_fit), max(y_fit)])
     plt.xscale('log') #, subsx=[2, 4, 6, 8])
     plt.yscale('log')
     ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
