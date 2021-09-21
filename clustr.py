@@ -40,8 +40,7 @@ class Config:
     Some options:
     - scale_luminosity: Divide luminosity columns by E(z)^-3/2
     '''
-    _required_keys = []
-    _default_run_name = 'clustr'
+
     def __init__(self, args):
         # We'll save args as class variables
         self.filename = args.config_file
@@ -286,7 +285,6 @@ class Data:
 
         x = x[good_rows]
         y = y[good_rows]
-        detected = detected[good_rows]
         x_err = x_err[good_rows]
         y_err = y_err[good_rows]
         x_err_low = x_err_low[good_rows]
@@ -304,7 +302,7 @@ class Data:
                          (~np.isnan(x_err_high)) &
                          (~np.isnan(y_err_low)) &
                          (~np.isnan(y_err_high)) &
-                         (~np.isnan(detected))
+                         (~np.isnan(delta_))
                          )
         print(
             'Removed {} nans'
@@ -313,7 +311,6 @@ class Data:
 
         self.x = x[cuts]
         self.y = y[cuts]
-        self.detected = detected[cuts]
         self.x_err = x_err[cuts]
         self.y_err = y_err[cuts]
         self.x_err_low = x_err_low[cuts]

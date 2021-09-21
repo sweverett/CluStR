@@ -32,7 +32,7 @@ Redshift : "Redshift"
 
 # Censored Data
 #---------------
-Censored: False
+Censored: True
 
 # NB: Not all default options are implemented yet!
 
