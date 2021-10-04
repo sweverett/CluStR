@@ -16,10 +16,14 @@
 # Plots are currently cosmology dependent as luminosities are scaled by E(z)
 Om: 0.3
 H_0: 0.7
-#set piv_type to median
-piv_type: Notmedian
-piv_value: 70
 
+#------------------------------------------------------------------------
+# Pivot Point
+#------------- 
+
+# Default: piv_type: median
+piv_type: "notmedian"
+piv_value: 70
 
 #-----------------------------------------------------------------------
 # Scale
@@ -29,19 +33,12 @@ scale_y_by_ez: False
 Redshift : "Redshift"
 
 #------------------------------------------------------------------------
-
 # Censored Data
 #---------------
-Censored: True
+Censored: 
+    False: "Detected"
 
-# NB: Not all default options are implemented yet!
-
-# Default observed data catalog:
-default_catalog: Test2
-
-# Default output file prexfix (includes x and y labels automatically)
-default_prefix: Test2
-
+#-------------------------------------------------------------------------
 # Column name conventions:
 Column_Names:
     lambda: lambda
@@ -53,18 +50,19 @@ Column_Names:
     lr500cc: r500_core_cropped_band_lumin
     t500kpc: 500_kiloparsecs_temperature
     tr2500: r2500_temperature
-    tr500: r500_temperature
+    tr500: r200_temperature
     tr500cc: r500_core_cropped_temperature
     lam: LAM
     lx: Lx
-    tr2500xmm : Tx_r2500_xmm
+    tr2500xmm : r2500_temperature_xmm
     tr500xmm : Tx_r500_xmm
-    tr2500matcha: Tx_r2500_matcha
+    tr2500matcha: r2500_temperature_matcha
     tr500matcha : Tx_r500_matcha
     kt : kT
     lambdachisq: LAMBDA_CHISQ
     R2500: R2500_TEMPERATURE
-    LAMBDA : LAMBDA_CHISQ
+    sigma_bi: sigma_bi
+
 # ---------------------------------------------------------------------
 # Error Labels
 # ---------------
@@ -74,6 +72,7 @@ xlabel_err_high: "lambda_err_high"
 ylabel_err_low: "r2500_temperature_err_low"
 ylabel_err_high: "r2500_temperature_err_high"
 
+asymmetric_err: False
 
 # ----------------------------------------------------------------------
 # Flags
@@ -197,7 +196,7 @@ Range_Flag:
 # Lambda symbol unicode is \u03BB
 #$k_bT_{x,r2500}$
 Plot_Labels:
-        True:
+        False:
             x_axis: $\lambda_{RM}$
             y_axis: $E(z)^{-2/3}\/kT_{X,r2500}\/\/Joint$
 
@@ -207,7 +206,6 @@ scale_line: 1.75
 # Set which plots you want saved in the output .pdf file. Combines all plots
 # into a single file unless `save_all_plots` is set to True.
 scatter: True
-asymmetric_err: False
 corner: False
 chains: False
 residuals: False

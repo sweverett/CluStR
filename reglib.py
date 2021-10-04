@@ -109,10 +109,7 @@ def run_linmix(x, y, err_x, err_y, Nmin=5000, Nmax=10000, vb=True, delta=None):
 
     L = np.size(x)
 
-    # FIX: Implement censored data!
     # Run linmix MCMC
-    if delta is None:
-        delta = np.ones(L)
     xycov = np.zeros(L)
     model = linmix.LinMix(x, y, err_x, err_y, xycov, delta, 2, 2)
     model.run_mcmc(Nmin, Nmax, silent=vb)

@@ -17,7 +17,7 @@ parser.add_argument('cat_filename', help='FITS catalog to open')
 # Required arguement for axes
 valid_axes = ['l500kpc', 'lr2500', 'lr500', 'lr500cc', 't500kpc', 'tr2500',
               'tr500', 'tr500cc', 'lambda', 'lambdaxmm', 'lambdamatcha', 'lx', 'LAMBDA',
-              'lam', 'txmm', 'tr2500matcha', 'tr500matcha', 'tr2500xmm', 'tr500xmm', 'kt', 'lambdachisq','R2500']
+              'lam', 'txmm', 'tr2500matcha', 'tr500matcha', 'tr2500xmm', 'tr500xmm', 'kt', 'lambdachisq','R2500', 'sigma_bi']
 parser.add_argument('x', help='what to plot on x axis', choices=valid_axes)
 parser.add_argument('y', help='what to plot on y axis', choices=valid_axes)
 parser.add_argument('config_file',
@@ -37,12 +37,11 @@ def Ez(z):
 class Config:
     '''
     Used for CluStR config processing
-    Some options:
-    - scale_luminosity: Divide luminosity columns by E(z)^-3/2
+    
     '''
 
     def __init__(self, args):
-        # We'll save args as class variables
+        """Opens configuration file."""
         self.filename = args.config_file
         self.args = args
         self.x = args.x
@@ -54,8 +53,7 @@ class Config:
 
         return
 
-    # The following are so we can access the config
-    # values similarly to a dict
+    # Methods used to access values/keys from config.
     def __getitem__(self, key):
         return self._config[key]
 
@@ -75,8 +73,12 @@ class Config:
         return repr(self._config)
 
 class Catalog:
-    #read/load the fits table that contains the data
-    def __init__(self,cat_file_name,config):
+    """
+    Read/Load the fits table that contains the data.
+
+    """
+
+    def __init__(self, cat_file_name, config):
         self.file_name = cat_file_name
 
         self._load_catalog()
@@ -84,14 +86,13 @@ class Catalog:
         return
 
     def _load_catalog(self):
-        self._catalog = Table.read(self.file_name, format = utf8)
+        """Method used to open catalog."""
 
-        # could do other things...
+        self._catalog = Table.read(self.file_name)
 
         return
 
-    # The following are so we can access the catalog
-    # values similarly to a dict
+    # Methods used to access values/keys.
     def __getitem__(self, key):
         return self._catalog[key]
 
@@ -112,10 +113,10 @@ class Catalog:
 
 class Data:
     '''
-    This class takes a catalog table, and grabs only the relevant columns
+    This class takes a catalog table and grabs only the relevant columns
     for the desired fit using the config dictionary.
 
-    config is expected to act like a dictionary
+    Config is expected to act like a dictionary
     '''
 
     def __init__(self, config, catalog):
@@ -125,20 +126,26 @@ class Data:
 
     def create_cuts(self, config, catalog):
             """
-            Apply cuts to data.
+            Apply cuts to data. Will remove flags of type Boolean, Cutoff, and Range.
             """
 
+            # Initialize an array of the same size as catalog. Elements are boolean type.
             mask = np.zeros(len(catalog), dtype=bool)
 
             # Boolean Flags
+
+            # Access True or False key value.
             TF = list(config['Bool_Flag'].keys())[0]
 
+            # Check if user wants boolean cuts.
             if TF == True:
+                # Loop over all boolean flags.
                 for bflag_ in config['Bool_Flag'][True]:
                     bool_type = config['Bool_Flag'][True][bflag_]
 
+                    # Double check if flag is boolean.
                     if isinstance(bool_type, bool):
-
+                        
                         bflag = bflag_.replace("_bool_type", "")
                         cutb = catalog[bflag] == (bool_type)
                     else:
@@ -148,32 +155,44 @@ class Data:
                         .format(bool_type, bflag)
                         )
 
+                    # Include flag cut into mask array.
                     mask |= cutb
+
                     print(
                     'Removed {} clusters due to `{}` flag of type boolean.'
                     .format(np.size(np.where(cutb)), bflag_)
                     )
 
             # Cutoff Flags
-            for cflag_ in config['Cutoff_Flag']:
 
+            # Loop through all cutoffs.
+            for cflag_ in config['Cutoff_Flag']:
+                
                 TFc = config['Cutoff_Flag'][cflag_]
 
+                # Check if user wants cuts.
                 if cflag_ not in ('Other') and list(TFc.keys())[0] != False:
+                    
+                    # Save values in a list.
                     cvalues = list(TFc[True].values())
+
+                    # Save in indiviual variables.
                     cutoff = cvalues[0]
                     cut_type = cvalues[1]
 
+                    # Remove rows below cutoff value.
                     if cut_type == 'above':
 
-                        # Nan's interfere with evaluation
+                        # Nan's interfere with evaluation. Set them to dummy value.
                         nan_cut = np.where(np.isnan(catalog[cflag_]))
                         catalog[cflag_][nan_cut] = 2*(cutoff)
 
                         cutc = catalog[cflag_] < cutoff
 
+                    # Remove rows above cutoff value.
                     elif cut_type == 'below':
 
+                        # NaN's interfere with evaluation. Set them to dummy value.
                         nan_cut = np.where(np.isnan(catalog[cflag_]))
                         catalog[cflag_][nan_cut] = -2*(cutoff)
 
@@ -193,22 +212,30 @@ class Data:
                     )
 
             # Range Flags
+
+            # Loop through all ranges.
             for rflag_ in config['Range_Flag']:
                 TF = config['Range_Flag'][rflag_]
+
+                # Check if user wants range cuts.
                 if rflag_ not in ('Other') and list(TF.keys())[0] != False:
 
                     rflag = TF[True]
 
                     for _, rvalues in rflag.items():
+
+                        # Save values to list.
                         minmax_ = list(rvalues.values())
 
                         rmin = minmax_[0]
                         rmax = minmax_[1]
                         range_type = minmax_[2]
 
+                        # Remove rows outside range.
                         if range_type == 'inside':
                             cutr = (catalog[rflag_] < rmin) | (catalog[rflag_] > rmax)
 
+                        # Remove rows inside range.
                         elif range_type == 'outside':
                             cutr = (catalog[rflag_] > rmin) & (catalog[rflag_] < rmax)
 
@@ -236,24 +263,10 @@ class Data:
 
         x_arg = config.x
         y_arg = config.y
-        self.dlabel = config['Detected']
         self.xlabel = config['Column_Names'][x_arg]
         self.ylabel = config['Column_Names'][y_arg]
         x = catalog[self.xlabel]
         y = catalog[self.ylabel]
-        delta_ = catalog["Detected"].astype(np.int64)
-
-        # Size of original data
-        N = np.size(x)
-        assert N == np.size(y)
-
-        # Scale data if a luminosity
-        if config['scale_x_by_ez'] == True:
-            redshift = config['Redshift']
-            x /= Ez(catalog[redshift])
-        if config['scale_y_by_ez'] == True:
-            redshift = config['Redshift']
-            y /= Ez(catalog[redshift])
 
         # Error Labels
         xlabel_error_low = config["xlabel_err_low"]
@@ -265,33 +278,22 @@ class Data:
         y_err_low = catalog[ylabel_error_low]
         y_err_high = catalog[ylabel_error_high]
 
-
+        # Average errors.
         x_err = (catalog[xlabel_error_low] + catalog[xlabel_error_high]) / 2.
         y_err = (catalog[ylabel_error_high] + catalog[ylabel_error_low]) / 2.
 
-        mask = self.create_cuts(config, catalog)
+        # Size of original data
+        N = np.size(x)
+        assert N == np.size(y)
 
-        x[mask] = -1       # All bools_type observations will equal '-1'.
+        # Censored Data
+        cenTF = list(config["Censored"].keys())[0]
 
-        y[mask] = -1
-
-        print (
-        '\nNOTE: `Removed` counts may be redundant, '
-        'as some data fail multiple flags.'
-        )
-
-        #Take rows with good data, and all flagged data removed
-        good_rows = np.all([x != -1, y != -1], axis=0)
-
-        x = x[good_rows]
-        y = y[good_rows]
-        x_err = x_err[good_rows]
-        y_err = y_err[good_rows]
-        x_err_low = x_err_low[good_rows]
-        x_err_high = x_err_high[good_rows]
-        y_err_low = y_err_low[good_rows]
-        y_err_high = y_err_high[good_rows]
-        delta_ = delta_[good_rows]
+        if cenTF:
+            cenName = config["Censored"][True]
+            delta_ = catalog[cenName].astype(np.int64)
+        else:
+            delta_ = np.ones(N)
 
         # Cut out any NaNs
         cuts = np.where( (~np.isnan(x)) &
@@ -301,23 +303,57 @@ class Data:
                          (~np.isnan(x_err_low)) &
                          (~np.isnan(x_err_high)) &
                          (~np.isnan(y_err_low)) &
-                         (~np.isnan(y_err_high)) &
-                         (~np.isnan(delta_))
-                         )
+                         (~np.isnan(y_err_high)) 
+                         )                 
         print(
-            'Removed {} nans'
-            .format(N - len(cuts[0]))
+            'Removed {} NaNs'
+            .format(N - (N-len(x[cuts])))
         )
 
-        self.x = x[cuts]
-        self.y = y[cuts]
-        self.x_err = x_err[cuts]
-        self.y_err = y_err[cuts]
-        self.x_err_low = x_err_low[cuts]
-        self.x_err_high = x_err_high[cuts]
-        self.y_err_low = y_err_low[cuts]
-        self.y_err_high = y_err_high[cuts]
-        self.delta_ = delta_[cuts]
+        x = x[cuts]
+        y = y[cuts]
+        x_err = x_err[cuts]
+        y_err = y_err[cuts]
+        x_err_low = x_err_low[cuts]
+        x_err_high = x_err_high[cuts]
+        y_err_low = y_err_low[cuts]
+        y_err_high = y_err_high[cuts]
+        delta_ = delta_[cuts]
+
+        # Scale data
+        if config['scale_x_by_ez'] == True:
+            redshift = config['Redshift']
+            x /= Ez(catalog[redshift][cuts])
+
+        if config['scale_y_by_ez'] == True:
+            redshift = config['Redshift']
+            y /= Ez(catalog[redshift][cuts])
+
+        # Set all masked values to negative one.
+        mask = self.create_cuts(config, catalog)
+        mask = mask[cuts]
+
+        x[mask] = -1
+
+        y[mask] = -1
+
+        print (
+        '\nNOTE: `Removed` counts may be redundant, '
+        'as some data fail multiple flags.'
+        )
+
+        # Keep rows with good data and remove all flagged data
+        good_rows = np.all([x != -1, y != -1], axis=0)
+
+        self.x = x[good_rows]
+        self.y = y[good_rows]
+        self.x_err = x_err[good_rows]
+        self.y_err = y_err[good_rows]
+        self.x_err_low = x_err_low[good_rows]
+        self.x_err_high = x_err_high[good_rows]
+        self.y_err_low = y_err_low[good_rows]
+        self.y_err_high = y_err_high[good_rows]
+        self.delta_ = delta_[good_rows]
 
         print('Accepted {} data out of {}\n'.format(np.size(self.x), N))
 
@@ -329,28 +365,31 @@ class Data:
             )
             raise SystemExit(2)
 
-        #if config.vb is True:
+        #if config is True:
         if config["asymmetric_err"]:
-            print('Mean {} error low:'.format(self.xlabel), np.mean(self.x_err_low))
-            print('Mean {} error high:'.format(self.xlabel), np.mean(self.x_err_high))
-            print('Mean {} error low:'.format(self.ylabel), np.mean(self.y_err_low))
-            print('Mean {} error high:'.format(self.ylabel), np.mean(self.y_err_high))
+            print(f'Mean {self.xlabel} error low: {np.mean(self.x_err_low)}')
+            print(f'Mean {self.xlabel} error high: {np.mean(self.x_err_high)}')
+            print(f'Mean {self.ylabel} error low: {np.mean(self.y_err_low)}')
+            print(f'Mean {self.ylabel} error high: {np.mean(self.y_err_high)}')
 
         else:
-            print('Mean {} error:'.format(self.xlabel), np.mean(self.x_err))
-            print('Mean {} error:'.format(self.ylabel), np.mean(self.y_err))
+            print(f'Mean {self.xlabel} error: {np.mean(self.x_err)}')
+            print(f'Mean {self.ylabel} error: {np.mean(self.y_err)}')
             print ('\n')
 
         return
 
 class Fitter:
-    """Runs linmix"""
+    """Runs linmix alogirthm using the regression library."""
 
     def __init__(self, data, config):
+        """ Here we can use the super method to inherit 
+            the attributes from the Data class.
+        """
+
         self.algorithm = 'linmix'
         self.data_x = data.x
         self.data_y = data.y
-        self.delta_ = data.delta_
         self.data_x_err_obs = data.x_err
         self.data_y_err_obs = data.y_err
         self.data_x_err_low_obs = data.x_err_low
@@ -360,100 +399,92 @@ class Fitter:
         self.data_xlabel = data.xlabel
         self.data_ylabel = data.ylabel
         self._constant = config['scale_line']
-        self.log_data(data, config)
+        self.log_data(config)
         self.fit(data)
-        self.scaled_fit_to_data(data)
-
+        self.scaled_fit_to_data()
         return
 
     def fit(self, data):
         '''
         Calculates fit parameters using the Kelly method (linmix) and returns
-        intercept, slope, and sigma.
+        intercept, slope, and sigma_sqr.
         '''
 
-        #Censored Data
+        self.kelly_b, self.kelly_m, self.kelly_sigsqr = reglib.run_linmix(
+                                                            x=self.log_x,
+                                                            y=self.log_y,
+                                                            err_x=self.log_x_err,
+                                                            err_y=self.log_y_err,
+                                                            delta=data.delta_)
+
+        self.mean_int = np.mean(self.kelly_b)
+        self.mean_slope = np.mean(self.kelly_m)
+        self.mean_sigsqr = np.mean(self.kelly_sigsqr)
+
         
-        delta = self.delta_
-
-        # run linmix
-
-        if delta is None:
-
-            self.kelly_b, self.kelly_m, self.kelly_sigsqr = reglib.run_linmix(
-                                                        self.log_x,
-                                                        self.log_y,
-                                                        self.log_x_err,
-                                                        self.log_y_err)
-        else:
-            self.kelly_b, self.kelly_m, self.kelly_sigsqr = reglib.run_linmix(
-                                                        self.log_x,
-                                                        self.log_y,
-                                                        self.log_x_err,
-                                                        self.log_y_err,
-                                                        delta=delta)
         return
 
-    def log_data(self, data, config):
+    def log_data(self, config):
         ''' Scale data to log'''
 
         # Log-x before pivot
-        xlog = np.log(data.x)
+        xlog = np.log(self.data_x)
 
         # Set pivot
         piv_type = config["piv_type"]
         if piv_type == "median":
-            self.piv = np.log(np.median(data.x))
+            self.piv = np.log(np.median(self.data_x))
         else:
             self.piv = np.log(config['piv_value'])
 
         self.log_x = xlog - self.piv
-        self.log_y = np.log(data.y)
+        self.log_y = np.log(self.data_y)
 
         self.xmin = np.min(self.log_x)
         self.xmax = np.max(self.log_x)
 
-        self.log_x_err = np.log(data.x_err + data.x) - np.log(data.x)
-        self.log_y_err = np.log(data.y_err + data.y) - np.log(data.y)
+        self.log_x_err = np.log(self.data_x_err_obs + self.data_x) - xlog
+        self.log_y_err = np.log(self.data_y_err_obs + self.data_y) - self.log_y
 
 
         return
 
-    def scaled_fit_to_data(self, data):
-        ''' Get a data set from a scaled fit '''
+    def scaled_fit_to_data(self):
+        ''' Calculate scaled linear values. '''
 
-        #Scale for line fitting
-
-
-        scaled_x = np.linspace(self._constant*self.xmin, 1.5*self.xmax, len(self.log_x))
-        scaled_y = np.mean(self.kelly_b) + np.mean(self.kelly_m) * scaled_x
+        self.scaled_x = np.linspace(1.5*self.xmin, 1.5*self.xmax, len(self.log_x))
+        scaled_y = self.mean_int + self.mean_slope * self.scaled_x
         scaled_x_errs = np.zeros(len(self.log_x))
-        scaled_y_errs = np.ones(len(self.log_y))*np.mean(self.kelly_m)
+        scaled_y_errs = np.ones(len(self.log_y))*self.mean_slope
 
-        self.unscaled_data = self.unscale(scaled_x, scaled_y, scaled_x_errs, scaled_y_errs, self.piv)
+        return (self.scaled_x, scaled_y, scaled_x_errs, scaled_y_errs)
 
-        return
+    def unscaled(self):
+        ''' Recover original data from scaled_fit_to_data() '''
 
-    def unscale(self, x, y, x_err, y_err, x_piv):
-        ''' Recover original data from fit-scaled data '''
-        ux = np.exp(x + x_piv)
-        uy = np.exp(y)
-        ux_err = x_err * x
-        uy_err = y_err * y
+        # Grab log-scaled linear values.
+        sx, sy, sx_err, sy_err = self.scaled_fit_to_data()
+
+        # Recover to cartesian 
+        ux = np.exp(sx + self.piv)
+        uy = np.exp(sy)
+        ux_err = sx_err * sx
+        uy_err = sy_err * sy
 
         return (ux, uy, ux_err, uy_err)
 
-    def _recoverXY(self, xObs, xPiv, yObs):
-        x = np.exp(xObs+xPiv)
-        # x = xObs+xPiv
+    def _recoverY(self, yObs):
+        "This method will return unscaled Y."
         y = np.exp(yObs)
-        return x, y
+        return y
 
-    def _regressionLine(self, x, intercept, slope, low, high):
+    def confInterval(self, low, high):
+        "This method will calculate confidence interval from y distribution."
+
         y = []
-        _x = np.linspace(self._constant*self.xmin, 1.5*self.xmax, len(self.log_x))
+        _x = np.linspace(1.5*self.xmin, 1.5*self.xmax, len(self.log_x))
         for i, s in zip(self.kelly_b, self.kelly_m):
-            y += [i + s * _x]
+            y += [i + s * self.scaled_x]
 
         y = np.array(y)
         yMed = np.percentile(y, 50, axis=0)
@@ -462,11 +493,13 @@ class Fitter:
 
         return yMed, yUp, yLow
 
-    def _regressionLine_with_scatter(self, low, high):
+    def sigmaBands(self, low, high):
+        " This method calulates sigma bands."
+
         y = []
-        _x = np.linspace(self._constant*self.xmin, 1.5*self.xmax, len(self.log_x))
+        _x = np.linspace(1.5*self.xmin, 1.5*self.xmax, len(self.log_x))
         for i, s, sig in zip(self.kelly_b, self.kelly_m, np.sqrt(self.kelly_sigsqr)):
-            y += [i + s * _x + np.random.normal(0.0, sig)]
+            y += [i + s * self.scaled_x + np.random.normal(0.0, sig)]
 
         y = np.array(y)
         yMed = np.percentile(y, 50, axis=0)
@@ -509,11 +542,11 @@ def main():
 
     fitter = Fitter(data, config)
 
-    print("x-pivot = {}".format(fitter.piv))
-    print (
-        'Mean b, m, sigsqr: {}, {}, {}'
-        .format(np.mean(fitter.kelly_b), np.mean(fitter.kelly_m), np.mean(fitter.kelly_sigsqr))
-    )
+    print(f"x-pivot = {fitter.piv}")
+    print(f"Mean Intercept: {np.mean(fitter.kelly_b)}")
+    print(f"Mean Slope: {np.mean(fitter.kelly_m)}")
+    print(f"Mean Variance: {np.mean(fitter.kelly_sigsqr)}")
+
     print('\n')
 
     print("Using Kelly Algorithm...")
