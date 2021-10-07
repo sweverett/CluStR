@@ -1,10 +1,8 @@
 # CluStR
 
-This package calculates various scaling relations from cluster catalogs. While only appropriate for fitting power laws, it uses a methodology developed by Brandon Kelly for a fully Bayesian approach that incorporates correlated and heteroscedastic measurement errors, intrinsic scatter, selection effects, censored data, and gaussian mixture modeling for the covariates. Alternatively, a different methodology developed by Adam Mantz can be used that handles multivariate regression and replaces the gaussian mixture model with a Dirichlet process - at the expense of no censored data handling. If desired, both methods can be used and compared.
+This package calculates various scaling relations from cluster catalogs. While only appropriate for fitting power laws, it uses a methodology developed by Brandon Kelly for a fully Bayesian approach that incorporates correlated and heteroscedastic measurement errors, intrinsic scatter, selection effects, censored data, and gaussian mixture modeling for the covariates. 
 
 For more information on the Kelly method, read his [2007 paper](https://arxiv.org/pdf/0705.2774.pdf), check out his original IDL implementation [linmix_err](https://idlastro.gsfc.nasa.gov/ftp/pro/math/linmix_err.pro), or see the python port [linmix](https://github.com/jmeyers314/linmix) by Josh Meyers, which was used in this work.
-
-For more information on the Mantz method, read his [2016 paper](https://arxiv.org/pdf/1509.00908.pdf) or check out his R implementation [lrgs](https://github.com/abmantz/lrgs).
 
 ## Getting Started (using `conda env`)
 
@@ -24,40 +22,6 @@ conda env create -f environment.yml
 ```
 
 Now activate the newly-created `conda` environment:
-```bash
-conda activate clustr
-```
-
-Next, we need to install the necessary `R` packages. Run `R`, and then enter:
-```R
-install.packages("lrgs")
-```
-
-Press `CTRL-D` to exit `R`.
-
-A few notes on installing R packages:
-
-1. If you get a message about not having `tar`, you need to specify its location when invoking `R`. You can either do so automatically, with
-    ```bash
-    TAR="$(which tar)" R
-    ```
-    or manually, with (for example)
-    ```bash
-    TAR=/usr/bin/tar R
-    ```
-1. If you get a message about an `lrgs` dependency not being available, you may need to install `gfortran`.
-1. If you get a message about `tcl` not being available, the issue is that the `R` terminal is trying to open a GUI and can't. Run
-    ```R
-    chooseCRANmirror(graphics=FALSE)
-    ```
-    then choose a mirror and proceed as above.
-1. If you get the following (unhelpful) error:
-    ```bash
-    asdf
-    ```
-check out the issue page [here](https://github.com/r-lib/devtools/issues/1722)
-
-Now you should be ready to use `CluStR`! Whenever you want to run `CluStR`, activate the `conda` environment with:
 ```bash
 conda activate clustr
 ```
@@ -89,7 +53,7 @@ Besides some standard packages like numpy, scipy, and matplotlib that can be aqu
 Note that astropy is now included in Anaconda.
 
 
-You can look at these links for details, or simply paste the following into terminal (don't install rpy2 if you don't have R yet):
+You can look at these links for details, or simply paste the following into terminal:
 
 ```
 pip install astropy
@@ -105,37 +69,11 @@ cd linmix
 python setup.py install
 ```
 
-CluStR also requires R and the following R package:
-
-* [lrgs](https://github.com/abmantz/lrgs)
-
-This is needed as CluStR interfaces with the original lrgs code through rpy2. The easiest way to do this is to use the Anaconda distribution and then use the following:
-
-```
-conda install -c r r-essentials
-conda update -c r r-essentials
-```
-
-This installs R and some essential packages that works well with Anaconda and Jupyter. Now that R is installed, grab rpy2.
-
-```
-pip install rpy2
-```
-
-Once everything is installed, open R in the terminal and input the following commands:
-
-```
-install.packages("devtools")
-devtools::install_github("hoxo-m/githubinstall")
-library(devtools)
-install_github("abmantz/lrgs")
-```
-
 Now you should be ready to use `CluStR`!
 
 ## Config File <a name="config"></a>
 
-Most parameters are set in the `param.config` file. Here you can set the cosmology, default regression method, plotting options, and most importantly any desired flags. There are three possible flag types: bool, cutoff, and range. For each, you must specify the exact catalog column name you want to make cuts along with the flag type and, if a cutoff or range, the corresponding cut values. All name:value pairs must be separated by a colon.
+Most parameters are set in the `config.yml` file. Here you can set the cosmology, default regression method, plotting options, and most importantly any desired flags. There are three possible flag types: bool, cutoff, and range. For each, you must specify the exact catalog column name you want to make cuts along with the flag type and, if a cutoff or range, the corresponding cut values. All `name:value` pairs must be separated by a colon.
 
 There are two important things to note that might be unclear:
 
@@ -190,9 +128,9 @@ This system may seem inefficient, but allows for quite a bit of flexibility in s
 
 ## Example Use <a name="exuse"></a>
 
-*python clustr.py <catalog.fits> <response> <covariate>*
+*python clustr.py <catalog.fits> <response> <covariate> <config.yml>*
 
-CluStR has three mandatory inputs: An appropriate cluster FITS file, the response variable (y-axis), and the covariate variable (x-axis). The available columns for axis variables (on the right) and their corresponding input labels (on the left) are:
+CluStR has four mandatory inputs: An appropriate cluster FITS file, the covariate variable (x-axis), the response variable (y-axis), and a configuration file. The available columns for axis variables (on the right) and their corresponding input labels (on the left) are:
 
 - lambda : lambda (richness)
 - l500kpc : 500_kiloparsecs_band_lumin
@@ -204,23 +142,15 @@ CluStR has three mandatory inputs: An appropriate cluster FITS file, the respons
 - tr500 : r500_temperature
 - tr500cc : r500_core_cropped_temperature
 
-To plot the scaling relation between r2500 temperature and richness using the default regression method (set in `param.config`), use
+To plot the scaling relation between r2500 temperature and richness, use
 
 ```
-python clustr.py <catalog.fits> tr2500 lambda
+python clustr.py <catalog.fits> lambda tr2500 config.yml
 ```
 
-The output file will be named `<default_prefix>r2500_temperature-lambda.pdf`, where you can set the default prefix in `param.config`.
+The output file will be named `<default_prefix>r2500_temperature-lambda.pdf`, where you can set the default prefix in `config.yml`.
 
-Additionally there are three optional arguments: A filename prefix (`-p`), regression method (`-m`), and flag options (`-f`). The order of the first two is arbitrary, but all desired flags must be specified last. As described in the [Config File](#config) section, flag paramters are set in `param.config` but are only used if present in the method call following `-f`.
-
-To plot the scaling relation between r2500 temperature and richness using both regression methods but only including clusters with redshift between 0.3 and 0.5, use
-
-```
-python clustr.py <catalog.fits> tr2500 lambda -p SDSS_redshifts_ -m both -f redshift
-```
-
-The output file will be named `SDSS_redshifts_r2500_band_lumin-lambda.pdf`
+Additionally there are other optional arguments: A filename prefix (`-p`). As described in the [Config File](#config) section, flag paramters are set in `config.yml` but are only used if set to `True`.
 
 ## License
 
