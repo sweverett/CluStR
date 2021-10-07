@@ -1,15 +1,16 @@
 name: clustr
 channels:
+- conda-forge
 - defaults
 dependencies:
-- astropy=1.3.2
-- matplotlib=2.0.0
-- pip=9.0.1
-- python=2.7.13
-- r-essentials=1.5.2
-- rpy2=2.8.5
-- scipy=0.19.0
+- astropy
+- matplotlib
+- pip
+- python=3
+- scipy
+- pyyaml
+- pyfiglet
 - pip:
-  - corner==2.0.0
-  - pypdf2==1.26.0
+  - corner
+  - pypdf2
   - "git+https://github.com/jmeyers314/linmix.git"

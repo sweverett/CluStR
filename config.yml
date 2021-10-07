@@ -1,0 +1,225 @@
+# ======================================================================
+
+# CluStR configuration file.
+#
+# Lines starting with '#' are ignored; all other lines must contain a
+# Name : Value pair to be read into the parameters dictionary.
+
+# Spencer Everett, Jose E. Jobel, Paige Kelly, UCSC, 2017 - 2021
+
+# ======================================================================
+
+# ----------------------------------------------------------------------
+# General
+# --------
+
+# Plots are currently cosmology dependent as luminosities are scaled by E(z)
+Om: 0.3
+H_0: 0.7
+
+#------------------------------------------------------------------------
+# Pivot Point
+#------------- 
+
+# Default: piv_type: median
+piv_type: "notmedian"
+piv_value: 70
+
+#-----------------------------------------------------------------------
+# Scale
+#--------
+scale_x_by_ez: False
+scale_y_by_ez: False
+Redshift : "Redshift"
+
+#------------------------------------------------------------------------
+# Censored Data
+#---------------
+Censored: 
+    False: "Detected"
+
+#-------------------------------------------------------------------------
+# Column name conventions:
+Column_Names:
+    lambda: lambda
+    lambdaxmm: Lambda_xmm
+    lambdamatcha : Lambda_matcha
+    l500kpc: 500_kiloparsecs_band_lumin
+    lr2500: r2500_band_lumin
+    lr500: r500_band_lumin
+    lr500cc: r500_core_cropped_band_lumin
+    t500kpc: 500_kiloparsecs_temperature
+    tr2500: r2500_temperature
+    tr500: r200_temperature
+    tr500cc: r500_core_cropped_temperature
+    lam: LAM
+    lx: Lx
+    tr2500xmm : r2500_temperature_xmm
+    tr500xmm : Tx_r500_xmm
+    tr2500matcha: r2500_temperature_matcha
+    tr500matcha : Tx_r500_matcha
+    kt : kT
+    lambdachisq: LAMBDA_CHISQ
+    R2500: R2500_TEMPERATURE
+    sigma_bi: sigma_bi
+
+# ---------------------------------------------------------------------
+# Error Labels
+# ---------------
+xlabel_err_low: "lambda_err_low"
+xlabel_err_high: "lambda_err_high"
+
+ylabel_err_low: "r2500_temperature_err_low"
+ylabel_err_high: "r2500_temperature_err_high"
+
+asymmetric_err: False
+
+# ----------------------------------------------------------------------
+# Flags
+# --------
+
+# Set desired flag cuts. Cuts can be `bool`, `range`, or `cutoff` in nature.
+# For each type, indicate which values you want used in the analysis (e.g.
+# `True`/`False` for bool, `above`/`below` for cutoff, `inside`/`outside` for
+# range).
+
+# NOTE: Any given column can only be flagged as one flag type - not more!
+
+# NOTE: These flag cut values are not used by default. To apply these flags
+#           change the KEY to TRUE.
+
+# To add a new boolean flag use the following structure,
+
+# Bool_Flags:
+#   New_flag1_bool_type: True/False
+#   New_flag2_bool_type: True/False
+#   New_flag3_bool_type: True/False
+#
+# User may choose from the following list of bool flags:
+#
+#   - Analyzed
+#   - bad_mode
+#   - Detected
+#   - edge_r500
+#   - edge_r2500
+#   - edge_bkgd
+#   - merger
+#   - masked
+#   - overlap_r500
+#   - overlap_r2500
+#   - overlap_bkgd
+#   - Serendipitous
+#
+# Boolean flags set to True will remove obs that have
+#   catalog[bflag] = 1
+#
+# Boolean flags set to False will remove obs that have
+#   catalog[bflag] = 0
+
+# To add a new cutoff flag,
+#
+# Cutoff_Flag:
+#   New_flag4:
+#       True/Flase:
+#           New_flag4_cutoff: value
+#           New_flag4_cut_type: above/below
+#
+# Above -> Cuts observations from sample below 'value'.
+#           Will run analysis on obs above 'value'.
+#
+# Below -> Cuts observations from sample above 'value'.
+#           Will run analysis on obs below 'value'.
+
+#
+# To add a new range flag,
+
+# Range_Flag:
+#   New_flag5:
+#       True/False:
+#           New_flag5_minmax:
+#               New_flag5_range_min: value,
+#               New_flag5_range_max: value,
+#               New_flag5_range_type: outside/inside
+#
+# Outside -> Removes observcatalog_matcha.write("filepath/filename.fits", format='fits')ations inside (min, max). Runs analysis on
+#               obs outside range.
+#
+# Inside -> Removes observations outside (min, max). Runs analysis on
+#               obs inside range.
+
+# Bools:
+Bool_Flag:
+    True:
+        bad_mode_bool_type: True
+        edge_r2500_bool_type: True
+        edge_r500_bool_type: True
+        edge_bkgd_bool_type: True
+        masked_bool_type: True
+        overlap_r500_bool_type: True
+        overlap_r2500_bool_type: True
+        overlap_bkgd_bool_type: True
+        #Target_bool_type: True
+        Detected_bool_type: False
+        #isin_Vol_Lim: False
+
+# Cutoff:
+Cutoff_Flag:
+    500_kiloparsecs_SNR:
+        True:
+          500_kpcs_SNR_cutoff: 9.0
+          500_kpcs_SNR_cut_type: above
+        False:
+          500_kiloparsecs_SNR: 9.0
+          500_kiloparsecs_SNR_cut_type: above
+
+
+# Ranges:
+Range_Flag:
+    Redshift:
+        True:
+            Redshift_minmax:
+                Redshift_range_min: 0.2
+                Redshift_range_max: 0.65
+                Redshift_range_type: inside
+    Other:
+        True/False:
+            _minmax:
+                _range_min: value
+                _range_max: value
+                _range_type: outside/inside
+
+# ----------------------------------------------------------------------
+# Plots
+# --------
+
+# Plot_Labels : False uses default catalog labels
+# Lambda symbol unicode is \u03BB
+#$k_bT_{x,r2500}$
+Plot_Labels:
+        False:
+            x_axis: $\lambda_{RM}$
+            y_axis: $E(z)^{-2/3}\/kT_{X,r2500}\/\/Joint$
+
+#Set what to scale line length for scatter plot
+scale_line: 1.75
+
+# Set which plots you want saved in the output .pdf file. Combines all plots
+# into a single file unless `save_all_plots` is set to True.
+scatter: True
+corner: False
+chains: False
+residuals: False
+save_all_plots: False
+
+# Set burn in period for chain plots (currently only for Mantz)
+burn: 0
+
+# ----------------------------------------------------------------------
+# Data
+# --------
+
+# The used data and regression parameters can be saved independent of plots
+save_data: True
+output_filename: Test1_lr2500_lambda
+
+# ======================================================================

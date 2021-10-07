@@ -1,19 +1,19 @@
 ''' Regression library for CluStR '''
 
-import rpy2.robjects as robjects
-from rpy2.robjects.packages import importr
+#import rpy2.robjects as robjects
+#from rpy2.robjects.packages import importr
 import numpy as np
-import linmix
+from linmix import linmix
 
 # Imports the necessary R packages needed to run lrgs in python
-RLRGS = importr('lrgs')  # Multivariate regression package by Adam Mantz
+#RLRGS = importr('lrgs')  # Multivariate regression package by Adam Mantz
 
 # Set some aliases for useful R functions
-RARRAY = robjects.r('array')
-RMATRIX = robjects.r('matrix')
-RNORM = robjects.r('rnorm')
-RC = robjects.r('c')
-RLM = robjects.r('lm')
+#RARRAY = robjects.r('array')
+#RMATRIX = robjects.r('matrix')
+#RNORM = robjects.r('rnorm')
+#RC = robjects.r('c')
+#RLM = robjects.r('lm')
 
 # pylint: disable=invalid-name
 
@@ -72,8 +72,7 @@ def run_lrgs(x, y, err_x, err_y, _xycov=None, nmc=500, dirichlet=True):
     # Return fit parameters consistently with run_linmix
     return (intercept, slope, sigma)
 
-
-def run_linmix(x, y, err_x, err_y, Nmin=5000, Nmax=10000, vb=True):
+def run_linmix(x, y, err_x, err_y, Nmin=5000, Nmax=10000, vb=True, delta=None):
     # pylint: disable = too-many-arguments
     ''' Runs the Kelly regression algorithm through the package linmix.'''
 
@@ -110,9 +109,7 @@ def run_linmix(x, y, err_x, err_y, Nmin=5000, Nmax=10000, vb=True):
 
     L = np.size(x)
 
-    # FIX: Implement censored data!
     # Run linmix MCMC
-    delta = np.ones(L)
     xycov = np.zeros(L)
     model = linmix.LinMix(x, y, err_x, err_y, xycov, delta, 2, 2)
     model.run_mcmc(Nmin, Nmax, silent=vb)
