@@ -29,8 +29,8 @@ piv_value: 70
 # Scale
 #--------
 scale_x_by_ez: False
-scale_y_by_ez: False
-Redshift : "Redshift"
+scale_y_by_ez: True
+Redshift : "Z_1"
 
 #------------------------------------------------------------------------
 # Censored Data
@@ -59,6 +59,8 @@ uppLimUndetected: False
 Column_Names:
     lambda: lambda
     lambdaxmm: Lambda_xmm
+    lambdaxray: lambda_xray
+    lambdachisqxray : LAMBDA_CHISQ_XRAY
     lambdamatcha : Lambda_matcha
     l500kpc: 500_kiloparsecs_band_lumin
     lr2500: r2500_band_lumin
@@ -82,8 +84,10 @@ Column_Names:
 # ---------------------------------------------------------------------
 # Error Labels
 # ---------------
-xlabel_err_low: "lambda_err_low"
-xlabel_err_high: "lambda_err_high"
+xlabel_err_low: "LAMBDA_CHISQ_E_XRAY"
+  #"r2500_temperature_xmm_err_low"
+xlabel_err_high: "LAMBDA_CHISQ_E_XRAY"
+#"r2500_temperature_xmm_err_high"
 
 ylabel_err_low: 'r2500_temperature_err_low'
 ylabel_err_high: 'r2500_temperature_err_high'
@@ -165,7 +169,7 @@ asymmetric_err: False
 
 # Bools:
 Bool_Flag:
-    True:
+      False:
         bad_mode_bool_type: True
         edge_r2500_bool_type: True
         edge_r500_bool_type: True
@@ -181,7 +185,8 @@ Bool_Flag:
 # Cutoff:
 Cutoff_Flag:
     500_kiloparsecs_SNR:
-        True:
+
+        False:
           500_kpcs_SNR_cutoff: 9.0
           500_kpcs_SNR_cut_type: above
         False:
@@ -192,7 +197,7 @@ Cutoff_Flag:
 # Ranges:
 Range_Flag:
     Redshift:
-        True:
+        False:
             Redshift_minmax:
                 Redshift_range_min: 0.2
                 Redshift_range_max: 0.65
