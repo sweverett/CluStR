@@ -3,7 +3,7 @@ import os
 from astropy.table import Table
 import numpy as np
 import reglib  # Regression library
-import luminlib 
+import luminlib
 import matplotlib.pyplot as plt
 import linmix
 import yaml
@@ -17,8 +17,14 @@ parser = ArgumentParser()
 parser.add_argument('cat_filename', help='FITS catalog to open')
 # Required arguement for axes
 valid_axes = ['l500kpc', 'lr2500', 'lr500', 'lr500cc', 't500kpc', 'tr2500',
+<<<<<<< HEAD
               'tr500', 'tr500cc', 'lambda', 'lambdaxmm', 'lambdamatcha', 'lx', 'LAMBDA',
               'lam', 'txmm', 'tr2500matcha', 'tr500matcha', 'tr2500xmm', 'tr500xmm', 'kt', 'lambdachisq','R2500', 'sigma_bi', 'lumin_no_tx']
+=======
+              'tr500', 'tr500cc', 'lambda', 'lambdaxray','lambdachisqxray','lambdaxmm', 'lambdamatcha', 'lx', 'LAMBDA',
+              'lam', 'txmm', 'tr2500matcha', 'tr500matcha', 'tr2500xmm', 'tr500xmm', 'kt', 'lambdachisq','R2500'
+              'txmm', 'tmatcha']
+>>>>>>> f50fb92df22cde1d62920a53133e4203c1aecf69
 parser.add_argument('x', help='what to plot on x axis', choices=valid_axes)
 parser.add_argument('y', help='what to plot on y axis', choices=valid_axes)
 parser.add_argument('config_file',
@@ -38,7 +44,7 @@ def Ez(z):
 class Config:
     '''
     Used for CluStR config processing
-    
+
     '''
 
     def __init__(self, args):
@@ -72,7 +78,7 @@ class Config:
 
     def __repr__(self):
         return repr(self._config)
-      
+
 class Catalog:
     """
     Read/Load the fits table that contains the data.
@@ -87,6 +93,7 @@ class Catalog:
         return
 
     def _load_catalog(self):
+
         """Method used to open catalog."""
 
         self._catalog = Table.read(self.file_name)
@@ -134,7 +141,7 @@ class Data:
             mask = np.zeros(len(catalog), dtype=bool)
 
             # Boolean Flags
-            
+
             # Access True or False key value.
             TF = list(config['Bool_Flag'].keys())[0]
 
@@ -143,10 +150,10 @@ class Data:
                 # Loop over all boolean flags.
                 for bflag_ in config['Bool_Flag'][True]:
                     bool_type = config['Bool_Flag'][True][bflag_]
-                    
+
                     # Double check if flag is boolean.
                     if isinstance(bool_type, bool):
-                        
+
                         bflag = bflag_.replace("_bool_type", "")
                         cutb = catalog[bflag] == (bool_type)
                     else:
@@ -158,7 +165,7 @@ class Data:
 
                     # Include flag cut into mask array.
                     mask |= cutb
-                    
+
                     print(
                     'Removed {} clusters due to `{}` flag of type boolean.'
                     .format(np.size(np.where(cutb)), bflag_)
@@ -168,12 +175,12 @@ class Data:
 
             # Loop through all cutoffs.
             for cflag_ in config['Cutoff_Flag']:
-                
+
                 TFc = config['Cutoff_Flag'][cflag_]
 
                 # Check if user wants cuts.
                 if cflag_ not in ('Other') and list(TFc.keys())[0] != False:
-                    
+
                     # Save values in a list.
                     cvalues = list(TFc[True].values())
 
@@ -304,8 +311,9 @@ class Data:
                          (~np.isnan(x_err_low)) &
                          (~np.isnan(x_err_high)) &
                          (~np.isnan(y_err_low)) &
-                         (~np.isnan(y_err_high)) 
-                         )                 
+                         (~np.isnan(y_err_high)) #&
+                         #(~np.isnan(delta_))
+                         )
         print(
             'Removed {} NaNs'
             .format(N - (N-len(x[cuts])))
@@ -342,7 +350,6 @@ class Data:
         '\nNOTE: `Removed` counts may be redundant, '
         'as some data fail multiple flags.'
         )
-
         if config['detectedWithTemp']:
           x, y = luminlib.detectedWithTemp(catalog, x=x, y=y)
         if config['detectedWithNoTemp']:
@@ -393,7 +400,7 @@ class Fitter:
     """Runs linmix alogirthm using the regression library."""
 
     def __init__(self, data, config):
-        """ Here we can use the super method to inherit 
+        """ Here we can use the super method to inherit
             the attributes from the Data class.
         """
 
@@ -431,7 +438,7 @@ class Fitter:
         self.mean_slope = np.mean(self.kelly_m)
         self.mean_sigsqr = np.mean(self.kelly_sigsqr)
 
-        
+
         return
 
     def log_data(self, config):
@@ -475,7 +482,7 @@ class Fitter:
         # Grab log-scaled linear values.
         sx, sy, sx_err, sy_err = self.scaled_fit_to_data()
 
-        # Recover to cartesian 
+        # Recover to cartesian
         ux = np.exp(sx + self.piv)
         uy = np.exp(sy)
         ux_err = sx_err * sx
