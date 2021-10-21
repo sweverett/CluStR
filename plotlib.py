@@ -34,67 +34,34 @@ def plot_scatter(args, fitter, config):
     y_err_obs = fitter.data_y_err_obs
 
     #Asymmetric Errors
-    x_err_obs_low = fitter.data_x_err_low_obs
-    x_err_obs_high = fitter.data_x_err_high_obs
-    y_err_obs_low = fitter.data_y_err_low_obs
-    y_err_obs_high = fitter.data_y_err_high_obs
+    #x_err_obs_low = fitter.data_x_err_low_obs
+    #x_err_obs_high = fitter.data_x_err_high_obs
+    #y_err_obs_low = fitter.data_y_err_low_obs
+    #y_err_obs_high = fitter.data_y_err_high_obs
 
-    x_err_obs_asym = [x_err_obs_low, x_err_obs_high]
-    y_err_obs_asym = [y_err_obs_low, y_err_obs_high]
+    #x_err_obs_asym = [x_err_obs_low, x_err_obs_high]
+    #y_err_obs_asym = [y_err_obs_low, y_err_obs_high]
 
     # Plot data
     fig, ax = plt.subplots()
-    if config['asymmetric_err']:
-        plt.errorbar(x_obs, y_obs, xerr=x_err_obs_asym, yerr=y_err_obs_asym,
-            ecolor='k',
-            fmt='bo',
-            lw=1,
-            markersize=2,
-            markeredgecolor='k',
-            capsize=1,
-            label='_nolegend_'
-            )
-        print(len(x_obs[0:161]))
-        print('Reporting Asymmetric Error Bars.')
-    else:
-        plt.errorbar(x_obs[0:161], y_obs[0:161], xerr=x_err_obs[0:161], yerr=y_err_obs[0:161],
-            ecolor='k',
-            fmt='bo',
-            lw=1,
-            markersize=2,
-            markeredgecolor='k',
-            capsize=1,
-            label='_nolegend_'
-            )
-        print('Reporting Symmetric Error Bars.')
-    if config['asymmetric_err']:
-        plt.errorbar(x_obs, y_obs, xerr=x_err_obs_asym, yerr=y_err_obs_asym,
-            ecolor='k',
-            fmt='bo',
-            lw=1,
-            markersize=2,
-            markeredgecolor='k',
-            capsize=1,
-            label='_nolegend_'
-            )
-        print('Reporting Asymmetric Error Bars.')
-    else:
-        plt.errorbar(x_obs[161:], y_obs[161:], xerr=x_err_obs[161:], yerr=y_err_obs[161:],
-            ecolor='r',
-            fmt='bo',
-            lw=1,
-            markersize=2,
-            markeredgecolor='r',
-            capsize=1,
-            label='_nolegend_'
-            )
+    plt.errorbar(x_obs, y_obs, xerr=x_err_obs, yerr=y_err_obs,
+        ecolor='k',
+        fmt='bo',
+        lw=1,
+        markersize=2,
+        markeredgecolor='k',
+        capsize=1,
+        label='_nolegend_'
+        )
+    print('Reporting Symmetric Error Bars.')
 
     # Grab linmix data
     fit_int, fit_slope, fit_sig = fitter.kelly_b, fitter.kelly_m, fitter.kelly_sigsqr
 
-    (x_fit, y_fit, _, _) = fitter.unscaled_data
+    # Line data
+    (x_fit, y_fit, _, _) = fitter.unscaled()
 
-    # Plot Fit
+    # Plot Linear Fit (x_fit = unscaled x) and (y_fit = unscaled line)
     plt.loglog(
         x_fit, y_fit, color='navy', linewidth=2.0,
         label=(
@@ -113,21 +80,21 @@ def plot_scatter(args, fitter, config):
 
     #Confidence Interval
 
-    yMed0, yLow0, yUp0 = fitter._regressionLine(x_fit, fit_int, fit_slope, 16, 84)
-    x, y = fitter._recoverXY(x_fit, fitter.piv, yMed0)
-    x, yUp0 = fitter._recoverXY(x_fit, fitter.piv, yUp0)
-    x, yLow0 = fitter._recoverXY(x_fit, fitter.piv, yLow0)
+    yMed0, yLow0, yUp0 = fitter.confInterval(16, 84)
+    yMed0 = fitter._recoverY(yMed0)
+    yUp0 = fitter._recoverY(yUp0)
+    yLow0 = fitter._recoverY(yLow0)
     plt.fill_between(x_fit, yUp0, yLow0, color='b', alpha=0.3, label=r'68% Confidence Interval')
 
     # Sigma Bands
-    yMed, yLow, yUp = fitter._regressionLine_with_scatter(16, 84)
-    x, yUp = fitter._recoverXY(x_fit, fitter.piv, (yUp - yMed) + yMed)
-    x, yLow = fitter._recoverXY(x_fit, fitter.piv, (yLow - yMed) + yMed)
-    plt.fill_between(x_fit, yUp, yLow, color='teal', alpha=0.25, label= r'1$\sigma$ Band')
+    yMed1, yLow1, yUp1 = fitter.sigmaBands(16, 84)
+    yUp1 = fitter._recoverY((yUp1 - yMed1) + yMed1)
+    yLow1 = fitter._recoverY((yLow1 - yMed1) + yMed1)
+    plt.fill_between(x_fit, yUp1, yLow1, color='teal', alpha=0.25, label= r'1$\sigma$ Band')
 
-    yMed2, yLow2, yUp2 = fitter._regressionLine_with_scatter(16, 84)
-    x, yUp2 = fitter._recoverXY(x_fit, fitter.piv, 2*(yUp2 - yMed2) + yMed2)
-    x, yLow2 = fitter._recoverXY(x_fit, fitter.piv, 2*(yLow2 - yMed2) + yMed2)
+    yMed2, yLow2, yUp2 = fitter.sigmaBands(16, 84)
+    yUp2 = fitter._recoverY(2*(yUp2 - yMed2) + yMed2)
+    yLow2 = fitter._recoverY(2*(yLow2 - yMed2) + yMed2)
     plt.fill_between(x_fit, yUp2, yLow2, color='teal', alpha=0.2, label= r'2$\sigma$ Band')
 
     #-----------------------------------------------------------------
@@ -158,6 +125,7 @@ def plot_scatter(args, fitter, config):
     ax.grid(which='minor', color='k', alpha=0.1)
     ax.legend(loc='best', fontsize='x-small')
 
+<<<<<<< HEAD
     #plt.xlabel(xname, fontsize=10)
     #plt.ylabel(yname, fontsize=10)
     #plt.xlim([15, 250])
@@ -170,6 +138,8 @@ def plot_scatter(args, fitter, config):
     #ax.get_yaxis().get_major_formatter().labelOnlyBase = False
     #ax.set_xticks([20,40,60,80,100,200])
     #ax.set_yticks([1,2,4,6,8,10,20])
+=======
+>>>>>>> e13797da89e43431d5bf0339ce025f292c822ec3
 
 
     plt.savefig(

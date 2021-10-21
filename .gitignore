@@ -13,3 +13,4 @@ plotlib.pyc
 reglib.pyc
 /__pycache__/
 *.txt
+/Catalogs

@@ -16,10 +16,20 @@
 # Plots are currently cosmology dependent as luminosities are scaled by E(z)
 Om: 0.3
 H_0: 0.7
+<<<<<<< HEAD
 #set piv_type to median
 piv_type: Not
 piv_value: 70
+=======
+>>>>>>> e13797da89e43431d5bf0339ce025f292c822ec3
 
+#------------------------------------------------------------------------
+# Pivot Point
+#------------- 
+
+# Default: piv_type: median
+piv_type: "notmedian"
+piv_value: 70
 
 #-----------------------------------------------------------------------
 # Scale
@@ -29,19 +39,34 @@ scale_y_by_ez: True
 Redshift : "Z_1"
 
 #------------------------------------------------------------------------
-
 # Censored Data
 #---------------
+<<<<<<< HEAD
 Censored: False
 
 # NB: Not all default options are implemented yet!
+=======
+Censored: 
+    False: "Detected"
+>>>>>>> e13797da89e43431d5bf0339ce025f292c822ec3
 
-# Default observed data catalog:
-default_catalog: Test2
+#-------------------------------------------------------------------------
+# Luminosity
+#---------------
+# detectedWithTemp: This function will return observations 
+#   that are Detected and have temperature values.
+#
+# detectedWithNoTemp: This function will return observations 
+#   that are Detected and have NO Temperature values.
+#
+# uppLimUndetected: This function will return observations 
+#   that are Not Detected and have upper-limits on luminosity values.
 
-# Default output file prexfix (includes x and y labels automatically)
-default_prefix: Test2
+detectedWithTemp: False
+detectedWithNoTemp: False
+uppLimUndetected: False
 
+#-------------------------------------------------------------------------
 # Column name conventions:
 Column_Names:
     lambda: lambda
@@ -55,20 +80,25 @@ Column_Names:
     lr500cc: r500_core_cropped_band_lumin
     t500kpc: 500_kiloparsecs_temperature
     tr2500: r2500_temperature
-    tr500: r500_temperature
+    tr500: r200_temperature
     tr500cc: r500_core_cropped_temperature
     lam: LAM
     lx: Lx
-    tr2500xmm : Tx_r2500_xmm
+    tr2500xmm : r2500_temperature_xmm
     tr500xmm : Tx_r500_xmm
-    tr2500matcha: Tx_r2500_matcha
+    tr2500matcha: r2500_temperature_matcha
     tr500matcha : Tx_r500_matcha
     kt : kT
     lambdachisq: LAMBDA_CHISQ
     R2500: R2500_TEMPERATURE
+<<<<<<< HEAD
     LAMBDA : LAMBDA_CHISQ
     tmatcha: r2500_temperature_matcha
     txmm : r2500_temperature_xmm
+=======
+    sigma_bi: sigma_bi
+
+>>>>>>> e13797da89e43431d5bf0339ce025f292c822ec3
 # ---------------------------------------------------------------------
 # Error Labels
 # ---------------
@@ -77,11 +107,17 @@ xlabel_err_low: "LAMBDA_CHISQ_E_XRAY"
 xlabel_err_high: "LAMBDA_CHISQ_E_XRAY"
 #"r2500_temperature_xmm_err_high"
 
+<<<<<<< HEAD
 ylabel_err_low: "kT_m"
   #"r2500_temperature_matcha_err_low"
 ylabel_err_high: "kT_p"
   #"r2500_temperature_matcha_err_high"
+=======
+ylabel_err_low: 'r2500_temperature_err_low'
+ylabel_err_high: 'r2500_temperature_err_high'
+>>>>>>> e13797da89e43431d5bf0339ce025f292c822ec3
 
+asymmetric_err: False
 
 # ----------------------------------------------------------------------
 # Flags
@@ -206,9 +242,15 @@ Range_Flag:
 # Lambda symbol unicode is \u03BB
 #$k_bT_{x,r2500}$
 Plot_Labels:
+<<<<<<< HEAD
         True:
             x_axis: kT\/\/Chandra
             y_axis: kT\/\/XMM
+=======
+        False:
+            x_axis: $\lambda_{RM}$
+            y_axis: $E(z)^{-2/3}\/kT_{X,r2500}\/\/Joint$
+>>>>>>> e13797da89e43431d5bf0339ce025f292c822ec3
 
 #Set what to scale line length for scatter plot
 scale_line: 1.75
@@ -216,8 +258,12 @@ scale_line: 1.75
 # Set which plots you want saved in the output .pdf file. Combines all plots
 # into a single file unless `save_all_plots` is set to True.
 scatter: True
+<<<<<<< HEAD
 asymmetric_err: False
 corner: True
+=======
+corner: False
+>>>>>>> e13797da89e43431d5bf0339ce025f292c822ec3
 chains: False
 residuals: False
 save_all_plots: False
@@ -230,7 +276,7 @@ burn: 0
 # --------
 
 # The used data and regression parameters can be saved independent of plots
-save_data: True
+save_data: False
 output_filename: Test1_lr2500_lambda
 
 # ======================================================================
