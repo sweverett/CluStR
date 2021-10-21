@@ -18,7 +18,7 @@ parser.add_argument('cat_filename', help='FITS catalog to open')
 # Required arguement for axes
 valid_axes = ['l500kpc', 'lr2500', 'lr500', 'lr500cc', 't500kpc', 'tr2500',
               'tr500', 'tr500cc', 'lambda', 'lambdaxmm', 'lambdamatcha', 'lx', 'LAMBDA',
-              'lam', 'txmm', 'tr2500matcha', 'tr500matcha', 'tr2500xmm', 'tr500xmm', 'kt', 'lambdachisq','R2500', 'sigma_bi']
+              'lam', 'txmm', 'tr2500matcha', 'tr500matcha', 'tr2500xmm', 'tr500xmm', 'kt', 'lambdachisq','R2500', 'sigma_bi', 'lumin_no_tx']
 parser.add_argument('x', help='what to plot on x axis', choices=valid_axes)
 parser.add_argument('y', help='what to plot on y axis', choices=valid_axes)
 parser.add_argument('config_file',
@@ -346,7 +346,7 @@ class Data:
         if config['detectedWithTemp']:
           x, y = luminlib.detectedWithTemp(catalog, x=x, y=y)
         if config['detectedWithNoTemp']:
-          x, y = luminlib.detectedWithNoTemp(catalog, x=x, y=y)
+          x, y = luminlib.detectedWithNoTemp(catalog, x=x, y=y, xerr=x_err, yerr=y_err)
         if config['uppLimUndetected']:
           x, y = luminlib.uppLimUndetected(catalog, x=x, y=y)
         else:

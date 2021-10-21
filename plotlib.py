@@ -125,21 +125,6 @@ def plot_scatter(args, fitter, config):
     ax.grid(which='minor', color='k', alpha=0.1)
     ax.legend(loc='best', fontsize='x-small')
 
-<<<<<<< HEAD
-    #plt.xlabel(xname, fontsize=10)
-    #plt.ylabel(yname, fontsize=10)
-    #plt.xlim([15, 250])
-    #plt.ylim([0.6, 25])
-    #plt.xscale('log') #, subsx=[2, 4, 6, 8])
-    #plt.yscale('log')
-    #ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
-    #ax.get_xaxis().get_major_formatter().labelOnlyBase = False
-    #ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
-    #ax.get_yaxis().get_major_formatter().labelOnlyBase = False
-    #ax.set_xticks([20,40,60,80,100,200])
-    #ax.set_yticks([1,2,4,6,8,10,20])
-=======
->>>>>>> e13797da89e43431d5bf0339ce025f292c822ec3
 
 
     plt.savefig(

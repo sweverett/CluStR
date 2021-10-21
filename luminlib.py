@@ -19,7 +19,7 @@ def detectedWithTemp(data, x, y, detected='Detected', temp='r2500_temperature'):
 
   return xWithValues, yWithValues
 
-def detectedWithNoTemp(data, x, y, detected='Detected', temp='r2500_temperature'):
+def detectedWithNoTemp(data, x, y, xerr, yerr, detected='Detected', temp='r2500_temperature'):
   """ 
   This function will return observations 
   that are Detected and have NO Temperature values.

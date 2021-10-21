@@ -72,7 +72,7 @@ def run_lrgs(x, y, err_x, err_y, _xycov=None, nmc=500, dirichlet=True):
     # Return fit parameters consistently with run_linmix
     return (intercept, slope, sigma)
 
-def run_linmix(x, y, err_x, err_y, Nmin=5000, Nmax=10000, vb=True, detla=None):
+def run_linmix(x, y, err_x, err_y, Nmin=5000, Nmax=10000, vb=True, delta=None):
     # pylint: disable = too-many-arguments
     ''' Runs the Kelly regression algorithm through the package linmix.'''
 

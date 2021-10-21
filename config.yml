@@ -30,7 +30,7 @@ piv_value: 70
 #--------
 scale_x_by_ez: False
 scale_y_by_ez: True
-Redshift : "Z_1"
+Redshift : "Redshift"
 
 #------------------------------------------------------------------------
 # Censored Data
@@ -80,14 +80,13 @@ Column_Names:
     lambdachisq: LAMBDA_CHISQ
     R2500: R2500_TEMPERATURE
     sigma_bi: sigma_bi
+    lumin_no_tx: lumin_no_tx
 
 # ---------------------------------------------------------------------
 # Error Labels
 # ---------------
-xlabel_err_low: "LAMBDA_CHISQ_E_XRAY"
-  #"r2500_temperature_xmm_err_low"
-xlabel_err_high: "LAMBDA_CHISQ_E_XRAY"
-#"r2500_temperature_xmm_err_high"
+xlabel_err_low: "lambda_err_low"
+xlabel_err_high: "lambda_err_high"
 
 ylabel_err_low: 'r2500_temperature_err_low'
 ylabel_err_high: 'r2500_temperature_err_high'
@@ -169,7 +168,7 @@ asymmetric_err: False
 
 # Bools:
 Bool_Flag:
-      False:
+      True:
         bad_mode_bool_type: True
         edge_r2500_bool_type: True
         edge_r500_bool_type: True
@@ -179,14 +178,13 @@ Bool_Flag:
         overlap_r2500_bool_type: True
         overlap_bkgd_bool_type: True
         #Target_bool_type: True
-        Detected_bool_type: False
+        #Detected_bool_type: False
         #isin_Vol_Lim: False
 
 # Cutoff:
 Cutoff_Flag:
     500_kiloparsecs_SNR:
-
-        False:
+        True:
           500_kpcs_SNR_cutoff: 9.0
           500_kpcs_SNR_cut_type: above
         False:
@@ -197,7 +195,7 @@ Cutoff_Flag:
 # Ranges:
 Range_Flag:
     Redshift:
-        False:
+        True:
             Redshift_minmax:
                 Redshift_range_min: 0.2
                 Redshift_range_max: 0.65
