@@ -210,13 +210,13 @@ Range_Flag:
 
 # Plot_Labels : False uses default catalog labels
 # Lambda symbol unicode is \u03BB
-#$k_bT_{x,r2500}$
+# $k_bT_{x,r2500}$
 Plot_Labels:
         False:
             x_axis: $\lambda_{RM}$
             y_axis: $E(z)^{-2/3}\/kT_{X,r2500}\/\/Joint$
 
-#Set what to scale line length for scatter plot
+# Set what to scale line length for scatter plot
 scale_line: 1.75
 
 # Set which plots you want saved in the output .pdf file. Combines all plots

@@ -343,11 +343,13 @@ class Data:
         'as some data fail multiple flags.'
         )
 
+        # Luminosity functions
+        # Leave as 'if' statements to apply all four if user wants.
         if config['detectedWithTemp']:
           x, y = luminlib.detectedWithTemp(catalog, x=x, y=y)
-        elif config['detectedWithNoTemp']:
+        if config['detectedWithNoTemp']:
           x, y = luminlib.detectedWithNoTemp(catalog, x=x, y=y)
-        elif config['uppLimUndetected']:
+        if config['uppLimUndetected']:
           x, y = luminlib.uppLimUndetected(catalog, x=x, y=y)
         else:
           pass
