@@ -72,7 +72,7 @@ class Config:
 
     def __repr__(self):
         return repr(self._config)
-
+      
 class Catalog:
     """
     Read/Load the fits table that contains the data.
@@ -134,7 +134,7 @@ class Data:
             mask = np.zeros(len(catalog), dtype=bool)
 
             # Boolean Flags
-
+            
             # Access True or False key value.
             TF = list(config['Bool_Flag'].keys())[0]
 
@@ -143,7 +143,7 @@ class Data:
                 # Loop over all boolean flags.
                 for bflag_ in config['Bool_Flag'][True]:
                     bool_type = config['Bool_Flag'][True][bflag_]
-
+                    
                     # Double check if flag is boolean.
                     if isinstance(bool_type, bool):
                         
@@ -158,7 +158,7 @@ class Data:
 
                     # Include flag cut into mask array.
                     mask |= cutb
-
+                    
                     print(
                     'Removed {} clusters due to `{}` flag of type boolean.'
                     .format(np.size(np.where(cutb)), bflag_)
