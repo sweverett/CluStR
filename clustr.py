@@ -16,8 +16,9 @@ parser = ArgumentParser()
 parser.add_argument('cat_filename', help='FITS catalog to open')
 # Required arguement for axes
 valid_axes = ['l500kpc', 'lr2500', 'lr500', 'lr500cc', 't500kpc', 'tr2500',
-              'tr500', 'tr500cc', 'lambda', 'lambdaxmm', 'lambdamatcha', 'lx', 'LAMBDA',
-              'lam', 'txmm', 'tr2500matcha', 'tr500matcha', 'tr2500xmm', 'tr500xmm', 'kt', 'lambdachisq','R2500']
+              'tr500', 'tr500cc', 'lambda', 'lambdaxray','lambdachisqxray','lambdaxmm', 'lambdamatcha', 'lx', 'LAMBDA',
+              'lam', 'txmm', 'tr2500matcha', 'tr500matcha', 'tr2500xmm', 'tr500xmm', 'kt', 'lambdachisq','R2500'
+              'txmm', 'tmatcha']
 parser.add_argument('x', help='what to plot on x axis', choices=valid_axes)
 parser.add_argument('y', help='what to plot on y axis', choices=valid_axes)
 parser.add_argument('config_file',
@@ -84,7 +85,7 @@ class Catalog:
         return
 
     def _load_catalog(self):
-        self._catalog = Table.read(self.file_name, format = utf8)
+        self._catalog = Table.read(self.file_name)
 
         # could do other things...
 
@@ -236,12 +237,11 @@ class Data:
 
         x_arg = config.x
         y_arg = config.y
-        self.dlabel = config['Detected']
         self.xlabel = config['Column_Names'][x_arg]
         self.ylabel = config['Column_Names'][y_arg]
         x = catalog[self.xlabel]
         y = catalog[self.ylabel]
-        delta_ = catalog["Detected"].astype(np.int64)
+        #delta_ = catalog["Detected"].astype(np.int64)
 
         # Size of original data
         N = np.size(x)
@@ -291,7 +291,7 @@ class Data:
         x_err_high = x_err_high[good_rows]
         y_err_low = y_err_low[good_rows]
         y_err_high = y_err_high[good_rows]
-        delta_ = delta_[good_rows]
+        #delta_ = delta_[good_rows]
 
         # Cut out any NaNs
         cuts = np.where( (~np.isnan(x)) &
@@ -301,8 +301,8 @@ class Data:
                          (~np.isnan(x_err_low)) &
                          (~np.isnan(x_err_high)) &
                          (~np.isnan(y_err_low)) &
-                         (~np.isnan(y_err_high)) &
-                         (~np.isnan(delta_))
+                         (~np.isnan(y_err_high)) #&
+                         #(~np.isnan(delta_))
                          )
         print(
             'Removed {} nans'
@@ -317,7 +317,7 @@ class Data:
         self.x_err_high = x_err_high[cuts]
         self.y_err_low = y_err_low[cuts]
         self.y_err_high = y_err_high[cuts]
-        self.delta_ = delta_[cuts]
+        #self.delta_ = delta_[cuts]
 
         print('Accepted {} data out of {}\n'.format(np.size(self.x), N))
 
@@ -350,7 +350,7 @@ class Fitter:
         self.algorithm = 'linmix'
         self.data_x = data.x
         self.data_y = data.y
-        self.delta_ = data.delta_
+        #self.delta_ = data.delta_
         self.data_x_err_obs = data.x_err
         self.data_y_err_obs = data.y_err
         self.data_x_err_low_obs = data.x_err_low
@@ -373,25 +373,21 @@ class Fitter:
         '''
 
         #Censored Data
-        
-        delta = self.delta_
+
+        #delta = self.delta_
 
         # run linmix
 
-        if delta is None:
+        #if delta is None:
 
-            self.kelly_b, self.kelly_m, self.kelly_sigsqr = reglib.run_linmix(
+
+
+        self.kelly_b, self.kelly_m, self.kelly_sigsqr = reglib.run_linmix(
                                                         self.log_x,
                                                         self.log_y,
                                                         self.log_x_err,
-                                                        self.log_y_err)
-        else:
-            self.kelly_b, self.kelly_m, self.kelly_sigsqr = reglib.run_linmix(
-                                                        self.log_x,
-                                                        self.log_y,
-                                                        self.log_x_err,
-                                                        self.log_y_err,
-                                                        delta=delta)
+                                                        self.log_y_err )#,
+                                                        #delta=delta)
         return
 
     def log_data(self, data, config):

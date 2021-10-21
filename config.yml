@@ -17,7 +17,7 @@
 Om: 0.3
 H_0: 0.7
 #set piv_type to median
-piv_type: Notmedian
+piv_type: Not
 piv_value: 70
 
 
@@ -25,14 +25,14 @@ piv_value: 70
 # Scale
 #--------
 scale_x_by_ez: False
-scale_y_by_ez: False
-Redshift : "Redshift"
+scale_y_by_ez: True
+Redshift : "Z_1"
 
 #------------------------------------------------------------------------
 
 # Censored Data
 #---------------
-Censored: True
+Censored: False
 
 # NB: Not all default options are implemented yet!
 
@@ -46,6 +46,8 @@ default_prefix: Test2
 Column_Names:
     lambda: lambda
     lambdaxmm: Lambda_xmm
+    lambdaxray: lambda_xray
+    lambdachisqxray : LAMBDA_CHISQ_XRAY
     lambdamatcha : Lambda_matcha
     l500kpc: 500_kiloparsecs_band_lumin
     lr2500: r2500_band_lumin
@@ -65,14 +67,20 @@ Column_Names:
     lambdachisq: LAMBDA_CHISQ
     R2500: R2500_TEMPERATURE
     LAMBDA : LAMBDA_CHISQ
+    tmatcha: r2500_temperature_matcha
+    txmm : r2500_temperature_xmm
 # ---------------------------------------------------------------------
 # Error Labels
 # ---------------
-xlabel_err_low: "lambda_err_low"
-xlabel_err_high: "lambda_err_high"
+xlabel_err_low: "LAMBDA_CHISQ_E_XRAY"
+  #"r2500_temperature_xmm_err_low"
+xlabel_err_high: "LAMBDA_CHISQ_E_XRAY"
+#"r2500_temperature_xmm_err_high"
 
-ylabel_err_low: "r2500_temperature_err_low"
-ylabel_err_high: "r2500_temperature_err_high"
+ylabel_err_low: "kT_m"
+  #"r2500_temperature_matcha_err_low"
+ylabel_err_high: "kT_p"
+  #"r2500_temperature_matcha_err_high"
 
 
 # ----------------------------------------------------------------------
@@ -150,7 +158,7 @@ ylabel_err_high: "r2500_temperature_err_high"
 
 # Bools:
 Bool_Flag:
-    True:
+      False:
         bad_mode_bool_type: True
         edge_r2500_bool_type: True
         edge_r500_bool_type: True
@@ -166,7 +174,8 @@ Bool_Flag:
 # Cutoff:
 Cutoff_Flag:
     500_kiloparsecs_SNR:
-        True:
+
+        False:
           500_kpcs_SNR_cutoff: 9.0
           500_kpcs_SNR_cut_type: above
         False:
@@ -177,7 +186,7 @@ Cutoff_Flag:
 # Ranges:
 Range_Flag:
     Redshift:
-        True:
+        False:
             Redshift_minmax:
                 Redshift_range_min: 0.2
                 Redshift_range_max: 0.65
@@ -198,8 +207,8 @@ Range_Flag:
 #$k_bT_{x,r2500}$
 Plot_Labels:
         True:
-            x_axis: $\lambda_{RM}$
-            y_axis: $E(z)^{-2/3}\/kT_{X,r2500}\/\/Joint$
+            x_axis: kT\/\/Chandra
+            y_axis: kT\/\/XMM
 
 #Set what to scale line length for scatter plot
 scale_line: 1.75
@@ -208,7 +217,7 @@ scale_line: 1.75
 # into a single file unless `save_all_plots` is set to True.
 scatter: True
 asymmetric_err: False
-corner: False
+corner: True
 chains: False
 residuals: False
 save_all_plots: False
