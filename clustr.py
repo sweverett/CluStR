@@ -3,6 +3,7 @@ import os
 from astropy.table import Table
 import numpy as np
 import reglib  # Regression library
+import luminlib 
 import matplotlib.pyplot as plt
 import linmix
 import yaml
@@ -341,6 +342,15 @@ class Data:
         '\nNOTE: `Removed` counts may be redundant, '
         'as some data fail multiple flags.'
         )
+
+        if config['detectedWithTemp']:
+          x, y = luminlib.detectedWithTemp(catalog, x=x, y=y)
+        elif config['detectedWithNoTemp']:
+          x, y = luminlib.detectedWithNoTemp(catalog, x=x, y=y)
+        elif config['uppLimUndetected']:
+          x, y = luminlib.uppLimUndetected(catalog, x=x, y=y)
+        else:
+          pass
 
         # Keep rows with good data and remove all flagged data
         good_rows = np.all([x != -1, y != -1], axis=0)

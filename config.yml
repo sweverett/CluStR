@@ -39,6 +39,22 @@ Censored:
     False: "Detected"
 
 #-------------------------------------------------------------------------
+# Luminosity
+#---------------
+# detectedWithTemp: This function will return observations 
+#   that are Detected and have temperature values.
+#
+# detectedWithNoTemp: This function will return observations 
+#   that are Detected and have NO Temperature values.
+#
+# uppLimUndetected: This function will return observations 
+#   that are Not Detected and have upper-limits on luminosity values.
+
+detectedWithTemp: False
+detectedWithNoTemp: False
+uppLimUndetected: False
+
+#-------------------------------------------------------------------------
 # Column name conventions:
 Column_Names:
     lambda: lambda
@@ -69,8 +85,8 @@ Column_Names:
 xlabel_err_low: "lambda_err_low"
 xlabel_err_high: "lambda_err_high"
 
-ylabel_err_low: "r2500_temperature_err_low"
-ylabel_err_high: "r2500_temperature_err_high"
+ylabel_err_low: 'r2500_temperature_err_low'
+ylabel_err_high: 'r2500_temperature_err_high'
 
 asymmetric_err: False
 
@@ -219,7 +235,7 @@ burn: 0
 # --------
 
 # The used data and regression parameters can be saved independent of plots
-save_data: True
+save_data: False
 output_filename: Test1_lr2500_lambda
 
 # ======================================================================
