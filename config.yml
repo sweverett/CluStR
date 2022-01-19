@@ -19,10 +19,10 @@ H_0: 0.7
 
 #------------------------------------------------------------------------
 # Pivot Point
-#------------- 
+#-------------
 
 # Default: piv_type: median
-piv_type: "notmedian"
+piv_type: "nnmedian"
 piv_value: 70
 
 #-----------------------------------------------------------------------
@@ -30,24 +30,27 @@ piv_value: 70
 #--------
 scale_x_by_ez: False
 scale_y_by_ez: True
+#Temperature scale by -2/3. Luminosity scale by -1.
+scaling_factor_x: 1
+scaling_factor_y: -1
 Redshift : "Redshift"
 
 #------------------------------------------------------------------------
 # Censored Data
 #---------------
-Censored: 
-    False: "Detected"
+Censored:
+    True: "Delta"
 
 #-------------------------------------------------------------------------
 # Luminosity
 #---------------
-# detectedWithTemp: This function will return observations 
+# detectedWithTemp: This function will return observations
 #   that are Detected and have temperature values.
 #
-# detectedWithNoTemp: This function will return observations 
+# detectedWithNoTemp: This function will return observations
 #   that are Detected and have NO Temperature values.
 #
-# uppLimUndetected: This function will return observations 
+# uppLimUndetected: This function will return observations
 #   that are Not Detected and have upper-limits on luminosity values.
 
 detectedWithTemp: False
@@ -66,8 +69,10 @@ Column_Names:
     lr2500: r2500_band_lumin
     lr500: r500_band_lumin
     lr500cc: r500_core_cropped_band_lumin
+    lum: luminosity
     t500kpc: 500_kiloparsecs_temperature
     tr2500: r2500_temperature
+    tr2500scaled: r2500_temperature_scaled
     tr500: r200_temperature
     tr500cc: r500_core_cropped_temperature
     lam: LAM
@@ -79,17 +84,19 @@ Column_Names:
     kt : kT
     lambdachisq: LAMBDA_CHISQ
     R2500: R2500_TEMPERATURE
-    sigma_bi: sigma_bi
-    lumin_no_tx: lumin_no_tx
-
+    LAMBDA : LAMBDA_CHISQ
+    tmatcha: r2500_temperature_matcha
+    txmm : r2500_temperature_xmm
 # ---------------------------------------------------------------------
 # Error Labels
 # ---------------
-xlabel_err_low: "lambda_err_low"
-xlabel_err_high: "lambda_err_high"
+xlabel_err_low: "lambda_err"
+  #"r2500_temperature_xmm_err_low"
+xlabel_err_high: "lambda_err"
+#"r2500_temperature_xmm_err_high"
 
-ylabel_err_low: 'r2500_temperature_err_low'
-ylabel_err_high: 'r2500_temperature_err_high'
+ylabel_err_low: 'luminosity_err_low'
+ylabel_err_high: 'luminosity_err_high'
 
 asymmetric_err: False
 
@@ -171,7 +178,7 @@ Bool_Flag:
       True:
         bad_mode_bool_type: True
         edge_r2500_bool_type: True
-        edge_r500_bool_type: True
+        #edge_r500_bool_type: True
         edge_bkgd_bool_type: True
         masked_bool_type: True
         overlap_r500_bool_type: True
@@ -184,9 +191,6 @@ Bool_Flag:
 # Cutoff:
 Cutoff_Flag:
     500_kiloparsecs_SNR:
-        True:
-          500_kpcs_SNR_cutoff: 9.0
-          500_kpcs_SNR_cut_type: above
         False:
           500_kiloparsecs_SNR: 9.0
           500_kiloparsecs_SNR_cut_type: above
@@ -213,19 +217,20 @@ Range_Flag:
 
 # Plot_Labels : False uses default catalog labels
 # Lambda symbol unicode is \u03BB
-# $k_bT_{x,r2500}$
+#$k_bT_{x,r2500}$
 Plot_Labels:
         False:
             x_axis: $\lambda_{RM}$
             y_axis: $E(z)^{-2/3}\/kT_{X,r2500}\/\/Joint$
 
-# Set what to scale line length for scatter plot
+#Set what to scale line length for scatter plot
 scale_line: 1.75
 
 # Set which plots you want saved in the output .pdf file. Combines all plots
 # into a single file unless `save_all_plots` is set to True.
 scatter: True
-corner: False
+asymmetric_err: False
+corner: True
 chains: False
 residuals: False
 save_all_plots: False

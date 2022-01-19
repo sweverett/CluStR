@@ -16,15 +16,12 @@ parser = ArgumentParser()
 # Required argument for catalog
 parser.add_argument('cat_filename', help='FITS catalog to open')
 # Required arguement for axes
-valid_axes = ['l500kpc', 'lr2500', 'lr500', 'lr500cc', 't500kpc', 'tr2500',
-<<<<<<< HEAD
+valid_axes = ['l500kpc', 'lr2500', 'lr500', 'lr500cc', 't500kpc', 'tr2500', 'tr2500scaled',
               'tr500', 'tr500cc', 'lambda', 'lambdaxmm', 'lambdamatcha', 'lx', 'LAMBDA',
-              'lam', 'txmm', 'tr2500matcha', 'tr500matcha', 'tr2500xmm', 'tr500xmm', 'kt', 'lambdachisq','R2500', 'sigma_bi', 'lumin_no_tx']
-=======
+              'lam', 'txmm', 'tr2500matcha', 'tr500matcha', 'tr2500xmm', 'tr500xmm', 'kt', 'lambdachisq','R2500', 'sigma_bi', 'lumin_no_tx',
               'tr500', 'tr500cc', 'lambda', 'lambdaxray','lambdachisqxray','lambdaxmm', 'lambdamatcha', 'lx', 'LAMBDA',
               'lam', 'txmm', 'tr2500matcha', 'tr500matcha', 'tr2500xmm', 'tr500xmm', 'kt', 'lambdachisq','R2500'
-              'txmm', 'tmatcha']
->>>>>>> f50fb92df22cde1d62920a53133e4203c1aecf69
+              'txmm', 'tmatcha', 'lum']
 parser.add_argument('x', help='what to plot on x axis', choices=valid_axes)
 parser.add_argument('y', help='what to plot on y axis', choices=valid_axes)
 parser.add_argument('config_file',
@@ -36,9 +33,8 @@ parser.add_argument('-p', '--prefix', help='prefix for output file')
 
 def Ez(z):
     Om = 0.3
-    H_0 = 0.7
-    h = H_0/100
-    return np.sqrt(Om*(1.+z)**3 + h)
+    Ov = 0.7
+    return np.sqrt(Om*(1.+z)**3 + Ov)
 
 # We'll define useful classes here
 class Config:
@@ -332,11 +328,12 @@ class Data:
         # Scale data
         if config['scale_x_by_ez'] == True:
             redshift = config['Redshift']
-            x /= Ez(catalog[redshift][cuts])
+            x *= Ez(catalog[redshift][cuts])**(config['scaling_factor_x'])
 
         if config['scale_y_by_ez'] == True:
             redshift = config['Redshift']
-            y /= Ez(catalog[redshift][cuts])
+            print(Ez(0.2)**(config['scaling_factor_y']))
+            y *= (Ez(catalog[redshift][cuts]))**(config['scaling_factor_y'])
 
         # Set all masked values to negative one.
         mask = self.create_cuts(config, catalog)
