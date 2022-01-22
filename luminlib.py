@@ -5,7 +5,7 @@ import numpy as np
 
 from clustr import Data
 
-data1 = Table.read('Catalog/y3a2-6.4.22+2_v3.2.fits', format='fits')
+data1 = Table.read('Catalogs/y3a2-6.4.22+2_v3.2.fits', format='fits')
 
 def detectedWithTemp(data, x, y, detected='Detected', temp='r2500_temperature'):
   """ 
