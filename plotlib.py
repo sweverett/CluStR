@@ -117,6 +117,7 @@ def plot_scatter(args, fitter, config):
         yname = fitter.data_ylabel
 
 
+<<<<<<< HEAD
     #ax.set_xlabel(f'${xname}$', fontsize=10)
     #ax.set_ylabel(f'${yname}$', fontsize=10)
     #ax.set_xlim([0.7*np.min(x_obs), 1.4*np.max(x_obs)])
@@ -129,6 +130,20 @@ def plot_scatter(args, fitter, config):
     #ax.xaxis.set_minor_formatter(ScalarFormatter())
     #ax.yaxis.set_major_formatter(LogFormatter())
     #ax.yaxis.set_minor_formatter(ScalarFormatter())
+=======
+    ax.set_xlabel(f'{xname}', fontsize=10)
+    ax.set_ylabel(f'{yname}', fontsize=10)
+    ax.set_xlim([0.7*np.min(x_obs), 1.4*np.max(x_obs)])
+    ax.set_ylim([0.3*np.min(y_obs), 1.9*np.max(y_obs)])
+    ax.set_xscale('log', subsx=[2, 4, 6, 8])
+    ax.set_yscale('log', subsy=[2, 4, 6])
+    ax.tick_params(axis='both', which='major', direction='in', length=8, width=1.)
+    ax.tick_params(axis='both', which='minor', direction='in', length=4, width=0.5)
+    ax.xaxis.set_major_formatter(LogFormatter())
+    ax.xaxis.set_minor_formatter(ScalarFormatter())
+    ax.yaxis.set_major_formatter(LogFormatter())
+    ax.yaxis.set_minor_formatter(ScalarFormatter())
+>>>>>>> 8be16fa1235b7db6ba9ef79070c25e3771020aeb
 
     ax.grid(which='major', color='k', alpha=0.2)
     ax.grid(which='minor', color='k', alpha=0.1)

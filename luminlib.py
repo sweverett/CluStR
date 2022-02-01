@@ -1,7 +1,11 @@
 """Luminosity Library for CluStR"""
 
-from astropy.table import Table 
+from astropy.table import Table
+import numpy as np
 
+from clustr import Data
+
+data1 = Table.read('Catalogs/y3a2-6.4.22+2_v3.2.fits', format='fits')
 
 def detectedWithTemp(data, x, y, detected='Detected', temp='r2500_temperature'):
   """ 
@@ -10,7 +14,7 @@ def detectedWithTemp(data, x, y, detected='Detected', temp='r2500_temperature'):
   
   Will return x and y values. 
   """
-  data[temp] = data[temp].filled(0)
+  data[temp] = np.ma.filled(data[temp], fill_value=0)
 
   firstCond = data[temp] != 0
   secondCond = data[detected] == True
@@ -28,14 +32,19 @@ def detectedWithNoTemp(data, x, y, xerr, yerr, detected='Detected', temp='r2500_
   """
 
   # Some values are empty. We'll use the filled() method to set them to zero.
-  data[temp] = data[temp].filled(0)
+  data1[temp] = data1[temp].filled(0)
 
-  firstCond = data[temp] == 0
-  secondCond = data[detected] == True
+  firstCond = data1[temp] == 0
+  secondCond = data1[detected] == True
+
   yWithValues = y[firstCond & secondCond]
+  yErrWithValues = yerr[firstCond & secondCond]
   xWithValues = x[firstCond & secondCond]
+  xErrWithValues = xerr[firstCond & secondCond]
 
-  return xWithValues, yWithValues
+  
+
+  return xWithValues, yWithValues, xErrWithValues, yErrWithValues
 
 def uppLimUndetected(data, x, y, detected='Detected'):
   """ 
