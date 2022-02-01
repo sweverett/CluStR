@@ -22,7 +22,7 @@ H_0: 0.7
 #-------------
 
 # Default: piv_type: median
-piv_type: "nnmedian"
+piv_type: "notmedian"
 piv_value: 70
 
 #-----------------------------------------------------------------------
@@ -32,14 +32,14 @@ scale_x_by_ez: False
 scale_y_by_ez: True
 #Temperature scale by -2/3. Luminosity scale by -1.
 scaling_factor_x: 1
-scaling_factor_y: -1
+scaling_factor_y: -0.666666666
 Redshift : "Redshift"
 
 #------------------------------------------------------------------------
 # Censored Data
 #---------------
 Censored:
-    True: "Delta"
+    False: "Delta"
 
 #-------------------------------------------------------------------------
 # Luminosity
@@ -73,7 +73,8 @@ Column_Names:
     t500kpc: 500_kiloparsecs_temperature
     tr2500: r2500_temperature
     tr2500scaled: r2500_temperature_scaled
-    tr500: r200_temperature
+    tr500scaled: r500_temperature_scaled
+    tr500: r500_temperature
     tr500cc: r500_core_cropped_temperature
     lam: LAM
     lx: Lx
@@ -86,17 +87,20 @@ Column_Names:
     R2500: R2500_TEMPERATURE
     LAMBDA : LAMBDA_CHISQ
     tmatcha: r2500_temperature_matcha
-    txmm : r2500_temperature_xmm
+    txmm : r2500_temperature_xmm'
+    txr500xmm: Tx_r500_xmm
+    txr500matcha: Tx_r500_matcha
+
 # ---------------------------------------------------------------------
 # Error Labels
 # ---------------
-xlabel_err_low: "lambda_err"
+xlabel_err_low: "lambda_err_low"
   #"r2500_temperature_xmm_err_low"
-xlabel_err_high: "lambda_err"
+xlabel_err_high: "lambda_err_high"
 #"r2500_temperature_xmm_err_high"
 
-ylabel_err_low: 'luminosity_err_low'
-ylabel_err_high: 'luminosity_err_high'
+ylabel_err_low: 'r2500_temperature_err_low_scaled'
+ylabel_err_high: 'r2500_temperature_err_high_scaled'
 
 asymmetric_err: False
 
@@ -175,7 +179,7 @@ asymmetric_err: False
 
 # Bools:
 Bool_Flag:
-      True:
+      False:
         bad_mode_bool_type: True
         edge_r2500_bool_type: True
         #edge_r500_bool_type: True
@@ -199,7 +203,7 @@ Cutoff_Flag:
 # Ranges:
 Range_Flag:
     Redshift:
-        True:
+        False:
             Redshift_minmax:
                 Redshift_range_min: 0.2
                 Redshift_range_max: 0.65
@@ -219,9 +223,9 @@ Range_Flag:
 # Lambda symbol unicode is \u03BB
 #$k_bT_{x,r2500}$
 Plot_Labels:
-        False:
-            x_axis: $\lambda_{RM}$
-            y_axis: $E(z)^{-2/3}\/kT_{X,r2500}\/\/Joint$
+        True:
+            x_axis: \lambda_{RM}
+            y_axis: E(z)^{-2/3}\/kT_{X,r2500}\/\/Joint
 
 #Set what to scale line length for scatter plot
 scale_line: 1.75
