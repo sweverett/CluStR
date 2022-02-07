@@ -16,12 +16,12 @@ parser = ArgumentParser()
 # Required argument for catalog
 parser.add_argument('cat_filename', help='FITS catalog to open')
 # Required arguement for axes
-valid_axes = ['l500kpc', 'lr2500', 'lr500', 'lr500cc', 't500kpc', 'tr2500', 'tr2500scaled',
+valid_axes = ['l500kpc', 'lr2500', 'lr500', 'lr500cc', 't500kpc', 'tr2500', 'tr2500scaled', 'tr500scaled',
               'tr500', 'tr500cc', 'lambda', 'lambdaxmm', 'lambdamatcha', 'lx', 'LAMBDA',
               'lam', 'txmm', 'tr2500matcha', 'tr500matcha', 'tr2500xmm', 'tr500xmm', 'kt', 'lambdachisq','R2500', 'sigma_bi', 'lumin_no_tx',
               'tr500', 'tr500cc', 'lambda', 'lambdaxray','lambdachisqxray','lambdaxmm', 'lambdamatcha', 'lx', 'LAMBDA',
               'lam', 'txmm', 'tr2500matcha', 'tr500matcha', 'tr2500xmm', 'tr500xmm', 'kt', 'lambdachisq','R2500'
-              'txmm', 'tmatcha', 'lum']
+              'txmm', 'tmatcha', 'lum', 'txr500matcha', 'txr500xmm']
 parser.add_argument('x', help='what to plot on x axis', choices=valid_axes)
 parser.add_argument('y', help='what to plot on y axis', choices=valid_axes)
 parser.add_argument('config_file',
@@ -180,7 +180,7 @@ class Data:
                     # Save values in a list.
                     cvalues = list(TFc[True].values())
 
-                    # Save in indiviual variables.
+                    # Save in indiviual varnp.mean(self.y_err)}')iables.
                     cutoff = cvalues[0]
                     cut_type = cvalues[1]
 

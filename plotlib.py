@@ -79,7 +79,6 @@ def plot_scatter(args, fitter, config):
     )
 
     #Confidence Interval
-
     yMed0, yLow0, yUp0 = fitter.confInterval(16, 84)
     yMed0 = fitter._recoverY(yMed0)
     yUp0 = fitter._recoverY(yUp0)

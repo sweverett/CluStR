@@ -22,7 +22,7 @@ H_0: 0.7
 #-------------
 
 # Default: piv_type: median
-piv_type: "nnmedian"
+piv_type: "notmedian"
 piv_value: 70
 
 #-----------------------------------------------------------------------
@@ -35,6 +35,7 @@ scale_y_by_ez: True
 scaling_factor_x: [1,1]
 scaling_factor_y: [-2,3]
 Redshift : "Z"
+
 
 #------------------------------------------------------------------------
 # Censored Data
@@ -87,7 +88,10 @@ Column_Names:
     R2500: R2500_TEMPERATURE
     LAMBDA : LAMBDA_CHISQ
     tmatcha: r2500_temperature_matcha
-    txmm : r2500_temperature_xmm
+    txmm : r2500_temperature_xmm'
+    txr500xmm: Tx_r500_xmm
+    txr500matcha: Tx_r500_matcha
+
 # ---------------------------------------------------------------------
 # Error Labels
 # ---------------
