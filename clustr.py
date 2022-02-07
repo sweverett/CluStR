@@ -465,7 +465,7 @@ class Fitter:
     def scaled_fit_to_data(self):
         ''' Calculate scaled linear values. '''
 
-        self.scaled_x = np.linspace(1.5*self.xmin, 1.5*self.xmax, len(self.log_x))
+        self.scaled_x = np.linspace(1.6*self.xmin, 1.5*self.xmax, len(self.log_x))
         scaled_y = self.mean_int + self.mean_slope * self.scaled_x
         scaled_x_errs = np.zeros(len(self.log_x))
         scaled_y_errs = np.ones(len(self.log_y))*self.mean_slope
@@ -495,7 +495,7 @@ class Fitter:
         "This method will calculate confidence interval from y distribution."
 
         y = []
-        _x = np.linspace(1.5*self.xmin, 1.5*self.xmax, len(self.log_x))
+        _x = np.linspace(1.6*self.xmin, 1.5*self.xmax, len(self.log_x))
         for i, s in zip(self.kelly_b, self.kelly_m):
             y += [i + s * self.scaled_x]
 
@@ -510,7 +510,7 @@ class Fitter:
         " This method calulates sigma bands."
 
         y = []
-        _x = np.linspace(1.5*self.xmin, 1.5*self.xmax, len(self.log_x))
+        _x = np.linspace(1.6*self.xmin, 1.5*self.xmax, len(self.log_x))
         for i, s, sig in zip(self.kelly_b, self.kelly_m, np.sqrt(self.kelly_sigsqr)):
             y += [i + s * self.scaled_x + np.random.normal(0.0, sig)]
 

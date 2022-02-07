@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 import scipy.stats as stats
-from matplotlib.ticker import LogFormatter, ScalarFormatter, FormatStrFormatter
+from matplotlib.ticker import LogFormatter, ScalarFormatter, FuncFormatter, FormatStrFormatter
 #import seaborn as ssb
 #plt.style.use('seaborn')
 #matplotlib.use('Agg')
@@ -63,7 +63,7 @@ def plot_scatter(args, fitter, config):
 
     # Plot Linear Fit (x_fit = unscaled x) and (y_fit = unscaled line)
     plt.loglog(
-        x_fit, y_fit, color='navy', linewidth=2.0,
+        x_fit, y_fit, basex=np.e, basey=np.e, color='navy', linewidth=2.0,
         label=(
             r'$({0:0.2g} \pm {1:0.2g})'
             r'(x/x_{{piv}})^{{{2:0.2f} \pm {3:0.2f}}}'
@@ -107,25 +107,31 @@ def plot_scatter(args, fitter, config):
         xname = fitter.data_xlabel.capitalize()
         yname = fitter.data_ylabel
 
+    def myLogFormat(y,pos):
+      # Find the number of decimal places required
+      decimalplaces = int(np.maximum(-np.log10(y/10.0+0.01),0)) # =0  numbers >=1
+      # Insert that number into a format string
+      formatstring = '{{:.{:1d}f}}'.format(decimalplaces)
+      # Return the formatted tick label
+      return formatstring.format(y)
 
     ax.set_xlabel(f'{xname}', fontsize=10)
     ax.set_ylabel(f'{yname}', fontsize=10)
     ax.set_xlim([0.7*np.min(x_obs), 1.4*np.max(x_obs)])
-    ax.set_ylim([0.3*np.min(y_obs), 1.9*np.max(y_obs)])
+    ax.set_ylim([0.5, 22])
+    #ax.set_ylim([0.5*np.min(y_obs), 2.5*np.max(y_obs)])
     ax.set_xscale('log', subsx=[2, 4, 6, 8])
-    ax.set_yscale('log', subsy=[2, 4, 6])
+    ax.set_yscale('log', subsy=[2, 4, 6, 8, 10])
     ax.tick_params(axis='both', which='major', direction='in', length=8, width=1.)
     ax.tick_params(axis='both', which='minor', direction='in', length=4, width=0.5)
     ax.xaxis.set_major_formatter(LogFormatter())
     ax.xaxis.set_minor_formatter(ScalarFormatter())
     ax.yaxis.set_major_formatter(LogFormatter())
-    ax.yaxis.set_minor_formatter(ScalarFormatter())
+    ax.yaxis.set_minor_formatter(FuncFormatter(myLogFormat))
 
     ax.grid(which='major', color='k', alpha=0.2)
     ax.grid(which='minor', color='k', alpha=0.1)
     ax.legend(loc='best', fontsize='x-small')
-
-
 
     plt.savefig(
         'Scatter-{}{}-{}.pdf'
