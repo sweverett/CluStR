@@ -3,9 +3,9 @@
 # CluStR configuration file.
 #
 # Lines starting with '#' are ignored; all other lines must contain a
-# Name : Value pair to be read into the parameters dictionary.
+# Name : Value pair to be read into the parameters' dictionary.
 
-# Spencer Everett, Jose E. Jobel, Paige Kelly, UCSC, 2017 - 2021
+# Spencer Everett, Jose E. Jobel, Paige Kelly, UCSC, 2017 - 2022
 
 # ======================================================================
 
@@ -149,7 +149,7 @@ ylabel_err_high: 'kT_p'
 #
 # Cutoff_Flag:
 #   New_flag4:
-#       True/Flase:
+#       True/False:
 #           New_flag4_cutoff: value
 #           New_flag4_cut_type: above/below
 #
@@ -170,7 +170,8 @@ ylabel_err_high: 'kT_p'
 #               New_flag5_range_max: value,
 #               New_flag5_range_type: outside/inside
 #
-# Outside -> Removes observcatalog_matcha.write("filepath/filename.fits", format='fits')ations inside (min, max). Runs analysis on
+# Outside -> Removes observcatalog_matcha.write("filepath/filename.fits", format='fits') actions inside (min, max).
+  Runs analysis on
 #               obs outside range.
 #
 # Inside -> Removes observations outside (min, max). Runs analysis on
