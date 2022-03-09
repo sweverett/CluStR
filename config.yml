@@ -170,9 +170,7 @@ ylabel_err_high: 'kT_p'
 #               New_flag5_range_max: value,
 #               New_flag5_range_type: outside/inside
 #
-# Outside -> Removes observcatalog_matcha.write("filepath/filename.fits", format='fits') actions inside (min, max).
-  Runs analysis on
-#               obs outside range.
+# Outside -> Removes observcatalog_matcha.write("filepath/filename.fits", format='fits') actions inside (min, max). Runs analysis on obs outside range.
 #
 # Inside -> Removes observations outside (min, max). Runs analysis on
 #               obs inside range.

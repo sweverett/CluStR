@@ -6,7 +6,7 @@
 /.vscode/
 /linmix_folder/
 /linmix
-/Test_/
+/Test_Scripts/
 /Test_plots/
 clustr.pyc
 plotlib.pyc
@@ -15,3 +15,6 @@ reglib.pyc
 *.txt
 /Catalogs
 *.jpg
+/.idea/
+/Redshift_Comparison/
+/Published_Plots/
