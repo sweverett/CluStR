@@ -102,7 +102,7 @@ def plot_scatter(args, fitter, config):
         xname = fitter.data_xlabel.capitalize()
         yname = fitter.data_ylabel
 
-    def myLogFormat(y):
+    def myLogFormat(y,f):
         # Find the number of decimal places required
         decimalplaces = int(np.maximum(-np.log10(y/10.0+0.01),0)) # =0  numbers >=1
         # Insert that number into a format string

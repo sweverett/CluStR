@@ -34,7 +34,7 @@ scale_y_by_ez: True
 # [Numerator, Denominator]
 scaling_factor_x: [1,1]
 scaling_factor_y: [-2,3]
-Redshift : "Z"
+Redshift : "Z_1"
 
 
 #------------------------------------------------------------------------
@@ -214,7 +214,7 @@ Range_Flag:
                 Redshift_range_min: 0.2
                 Redshift_range_max: 0.65
                 Redshift_range_type: inside
-    Z:
+    Z_1:
         True:
             Redshift_minmax:
                 Redshift_range_min: 0.2
