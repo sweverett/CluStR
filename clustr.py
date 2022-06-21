@@ -328,11 +328,12 @@ class Data:
         # Scale data
         if config['scale_x_by_ez'] == True:
             redshift = config['Redshift']
-            x *= Ez(catalog[redshift][cuts])**((config['scaling_factor_x'][0]/config['scaling_factor_x'][1]))
+            x *= Ez(catalog[redshift][cuts])**(config['scaling_factor_x'])
 
         if config['scale_y_by_ez'] == True:
             redshift = config['Redshift']
-            y *= Ez(catalog[redshift][cuts])**((config['scaling_factor_y'][0]/config['scaling_factor_y'][1]))
+            print(Ez(0.2)**(config['scaling_factor_y']))
+            y *= (Ez(catalog[redshift][cuts]))**(config['scaling_factor_y'])
 
         # Set all masked values to negative one.
         mask = self.create_cuts(config, catalog)
