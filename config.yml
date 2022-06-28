@@ -3,9 +3,9 @@
 # CluStR configuration file.
 #
 # Lines starting with '#' are ignored; all other lines must contain a
-# Name : Value pair to be read into the parameters dictionary.
+# Name : Value pair to be read into the parameters' dictionary.
 
-# Spencer Everett, Jose E. Jobel, Paige Kelly, UCSC, 2017 - 2021
+# Spencer Everett, Jose E. Jobel, Paige Kelly, UCSC, 2017 - 2022
 
 # ======================================================================
 
@@ -78,7 +78,6 @@ Column_Names:
     t500kpc: 500_kiloparsecs_temperature
     tr2500: r2500_temperature
     tr2500scaled: r2500_temperature_scaled
-    tr500scaled: r500_temperature_scaled
     tr500: r500_temperature
     tr500cc: r500_core_cropped_temperature
     lam: LAM
@@ -102,9 +101,9 @@ Column_Names:
 # ---------------------------------------------------------------------
 # Error Labels
 # ---------------
-xlabel_err_low: "lambda_err_low"
+xlabel_err_low: "LAMBDA_CHISQ_E"
   #"r2500_temperature_xmm_err_low"
-xlabel_err_high: "lambda_err_high"
+xlabel_err_high: "LAMBDA_CHISQ_E"
 #"r2500_temperature_xmm_err_high"
 
 ylabel_err_low: 'r2500_temperature_err_low_scaled'
@@ -158,7 +157,7 @@ asymmetric_err: False
 #
 # Cutoff_Flag:
 #   New_flag4:
-#       True/Flase:
+#       True/False:
 #           New_flag4_cutoff: value
 #           New_flag4_cut_type: above/below
 #
@@ -179,8 +178,7 @@ asymmetric_err: False
 #               New_flag5_range_max: value,
 #               New_flag5_range_type: outside/inside
 #
-# Outside -> Removes observcatalog_matcha.write("filepath/filename.fits", format='fits')ations inside (min, max). Runs analysis on
-#               obs outside range.
+# Outside -> Removes observcatalog_matcha.write("filepath/filename.fits", format='fits') actions inside (min, max). Runs analysis on obs outside range.
 #
 # Inside -> Removes observations outside (min, max). Runs analysis on
 #               obs inside range.
@@ -191,7 +189,7 @@ Bool_Flag:
 
         bad_mode_bool_type: True
         edge_r2500_bool_type: True
-        #edge_r500_bool_type: True
+        edge_r500_bool_type: True
         edge_bkgd_bool_type: True
         masked_bool_type: True
         overlap_r500_bool_type: True
@@ -207,11 +205,25 @@ Cutoff_Flag:
         False:
           500_kiloparsecs_SNR: 9.0
           500_kiloparsecs_SNR_cut_type: above
+    r500_SNR_matcha:
+        False:
+          r500_kilo_snr: 9.0
+          r500_kilo_snr_cut_type: above
+    pnsnr_alt:
+        True:
+          r500_kilo_snr: 9.0
+          r500_kilo_snr_cut_type: above
 
 # Ranges:
 Range_Flag:
     Redshift:
         False:
+            Redshift_minmax:
+                Redshift_range_min: 0.2
+                Redshift_range_max: 0.65
+                Redshift_range_type: inside
+    Z_1:
+        True:
             Redshift_minmax:
                 Redshift_range_min: 0.2
                 Redshift_range_max: 0.65

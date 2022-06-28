@@ -1,67 +1,54 @@
-'''Plotting library for CluStR '''
+"""Plotting library for CluStR """
 
-import os
-import clustr
 import corner
 import PyPDF2
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 import scipy.stats as stats
-from matplotlib.ticker import LogFormatter, ScalarFormatter, FormatStrFormatter
-#import seaborn as ssb
-#plt.style.use('seaborn')
-#matplotlib.use('Agg')
+from matplotlib.ticker import LogFormatter, ScalarFormatter, FuncFormatter
+# import seaborn as ssb
+# plt.style.use('seaborn')
+# matplotlib.use('Agg')
 
 # pylint: disable=invalid-name
 
 # ----------------------------------------------------------------------
-# Inividual plotting functions
+# Individual plotting functions
 
 # pylint: disable=too-many-arguments
 # pylint: disable=too-many-locals
 
-
-
 def plot_scatter(args, fitter, config):
-    ''' Plot data '''
+    """ Plot data """
 
-    #Grab data references
-    #Symmetric Errors
+    # Grab data references
+    # Symmetric Errors
     x_obs = fitter.data_x
     y_obs = fitter.data_y
     x_err_obs = fitter.data_x_err_obs
     y_err_obs = fitter.data_y_err_obs
 
-    #Asymmetric Errors
-    #x_err_obs_low = fitter.data_x_err_low_obs
-    #x_err_obs_high = fitter.data_x_err_high_obs
-    #y_err_obs_low = fitter.data_y_err_low_obs
-    #y_err_obs_high = fitter.data_y_err_high_obs
+    # Asymmetric Errors
+    # x_err_obs_low = fitter.data_x_err_low_obs
+    # x_err_obs_high = fitter.data_x_err_high_obs
+    # y_err_obs_low = fitter.data_y_err_low_obs
+    # y_err_obs_high = fitter.data_y_err_high_obs
 
-    #x_err_obs_asym = [x_err_obs_low, x_err_obs_high]
-    #y_err_obs_asym = [y_err_obs_low, y_err_obs_high]
+    # x_err_obs_asym = [x_err_obs_low, x_err_obs_high]
+    # y_err_obs_asym = [y_err_obs_low, y_err_obs_high]
 
     # Plot data
     fig, ax = plt.subplots()
-    plt.errorbar(x_obs[0:161], y_obs[0:161], xerr=x_err_obs[0:161], yerr=y_err_obs[0:161],
-        ecolor='k',
-        fmt='bo',
-        lw=1,
-        markersize=2,
-        markeredgecolor='k',
-        capsize=1,
-        label='_nolegend_'
-        )
-    plt.errorbar(x_obs[161:], y_obs[161:], xerr=x_err_obs[161:], yerr=y_err_obs[161:],
-        ecolor='r',
-        fmt='bo',
-        lw=1,
-        markersize=2,
-        markeredgecolor='r',
-        capsize=1,
-        label='_nolegend_'
-        )
+    plt.errorbar(x_obs, y_obs, xerr=x_err_obs, yerr=y_err_obs,
+                 ecolor='k',
+                 fmt='bo',
+                 lw=1,
+                 markersize=2,
+                 markeredgecolor='k',
+                 capsize=1,
+                 label='_nolegend_'
+                 )
     print('Reporting Symmetric Error Bars.')
 
     # Grab linmix data
@@ -72,7 +59,7 @@ def plot_scatter(args, fitter, config):
 
     # Plot Linear Fit (x_fit = unscaled x) and (y_fit = unscaled line)
     plt.loglog(
-        x_fit, y_fit, color='navy', linewidth=2.0,
+        x_fit, y_fit, basex=np.e, basey=np.e, color='navy', linewidth=2.0,
         label=(
             r'$({0:0.2g} \pm {1:0.2g})'
             r'(x/x_{{piv}})^{{{2:0.2f} \pm {3:0.2f}}}'
@@ -87,8 +74,7 @@ def plot_scatter(args, fitter, config):
         )
     )
 
-    #Confidence Interval
-
+    # Confidence Interval
     yMed0, yLow0, yUp0 = fitter.confInterval(16, 84)
     yMed0 = fitter._recoverY(yMed0)
     yUp0 = fitter._recoverY(yUp0)
@@ -106,9 +92,9 @@ def plot_scatter(args, fitter, config):
     yLow2 = fitter._recoverY(2*(yLow2 - yMed2) + yMed2)
     plt.fill_between(x_fit, yUp2, yLow2, color='teal', alpha=0.2, label= r'2$\sigma$ Band')
 
-    #-----------------------------------------------------------------
+    # -----------------------------------------------------------------
     # Plot Labels
-    if list(config["Plot_Labels"].keys())[0] == True:
+    if list(config["Plot_Labels"].keys())[0]:
         xname = list(config["Plot_Labels"][True].values())[0]
         yname = list(config["Plot_Labels"][True].values())[1]
 
@@ -116,51 +102,31 @@ def plot_scatter(args, fitter, config):
         xname = fitter.data_xlabel.capitalize()
         yname = fitter.data_ylabel
 
+    def myLogFormat(y,f):
+        # Find the number of decimal places required
+        decimalplaces = int(np.maximum(-np.log10(y/10.0+0.01),0)) # =0  numbers >=1
+        # Insert that number into a format string
+        formatstring = '{{:.{:1d}f}}'.format(decimalplaces)
+        # Return the formatted tick label
+        return formatstring.format(y)
 
-<<<<<<< HEAD
-    #ax.set_xlabel(f'${xname}$', fontsize=10)
-    #ax.set_ylabel(f'${yname}$', fontsize=10)
-    #ax.set_xlim([0.7*np.min(x_obs), 1.4*np.max(x_obs)])
-    #ax.set_ylim([0.3*np.min(y_obs), 1.9*np.max(y_obs)])
-    #plt.xscale('log', subs=[2, 4, 6, 8])
-    #plt.yscale('log', subs=[2, 4, 6])
-    #ax.tick_params(axis='both', which='major', direction='in', length=8, width=1.)
-    #ax.tick_params(axis='both', which='minor', direction='in', length=4, width=0.5)
-    #ax.xaxis.set_major_formatter(LogFormatter())
-    #ax.xaxis.set_minor_formatter(ScalarFormatter())
-    #ax.yaxis.set_major_formatter(LogFormatter())
-    #ax.yaxis.set_minor_formatter(ScalarFormatter())
-=======
     ax.set_xlabel(f'{xname}', fontsize=10)
     ax.set_ylabel(f'{yname}', fontsize=10)
     ax.set_xlim([0.7*np.min(x_obs), 1.4*np.max(x_obs)])
-    ax.set_ylim([0.3*np.min(y_obs), 1.9*np.max(y_obs)])
+    ax.set_ylim([0.5, 22])
+    # ax.set_ylim([0.5*np.min(y_obs), 2.5*np.max(y_obs)])
     ax.set_xscale('log', subsx=[2, 4, 6, 8])
-    ax.set_yscale('log', subsy=[2, 4, 6])
+    ax.set_yscale('log', subsy=[2, 4, 6, 8, 10])
     ax.tick_params(axis='both', which='major', direction='in', length=8, width=1.)
     ax.tick_params(axis='both', which='minor', direction='in', length=4, width=0.5)
     ax.xaxis.set_major_formatter(LogFormatter())
     ax.xaxis.set_minor_formatter(ScalarFormatter())
     ax.yaxis.set_major_formatter(LogFormatter())
-    ax.yaxis.set_minor_formatter(ScalarFormatter())
->>>>>>> 8be16fa1235b7db6ba9ef79070c25e3771020aeb
+    ax.yaxis.set_minor_formatter(FuncFormatter(myLogFormat))
 
     ax.grid(which='major', color='k', alpha=0.2)
     ax.grid(which='minor', color='k', alpha=0.1)
     ax.legend(loc='best', fontsize='x-small')
-
-    plt.xlabel(xname, fontsize=10)
-    plt.ylabel(yname, fontsize=10)
-    plt.xlim([15, 250])
-    plt.ylim([0.6, 25])
-    plt.xscale('log') #, subsx=[2, 4, 6, 8])
-    plt.yscale('log')
-    ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
-    ax.get_xaxis().get_major_formatter().labelOnlyBase = False
-    ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
-    ax.get_yaxis().get_major_formatter().labelOnlyBase = False
-    ax.set_xticks([20,40,60,80,100,200])
-    ax.set_yticks([1,2,4,6,8,10,20])
 
     plt.savefig(
         'Scatter-{}{}-{}.pdf'
@@ -174,10 +140,10 @@ def plot_scatter(args, fitter, config):
 
     return
 
-def plot_residuals(args, fitter, config):
-    '''
+def plot_residuals(args, fitter):
+    """
     FIX: Description
-    '''
+    """
 
     (lx_obs, ly_obs, _lx_err_obs, _ly_err_obs) = fitter.log_x, fitter.log_y, fitter.log_x_err, fitter.log_y_err
     _x_piv = fitter.piv
@@ -234,12 +200,11 @@ def plot_residuals(args, fitter, config):
 
     return
 
-
 def plot_corners(args, config, fitter):
-    '''
+    """
     Makes corner plots for the desired Kelly method parameter
     posteriors. Burn is the burn in period parameter.
-    '''
+    """
 
     burn = config['burn']
 
@@ -253,7 +218,7 @@ def plot_corners(args, config, fitter):
 
     (B, M, S) = fitter.kelly_b, fitter.kelly_m, fitter.kelly_sigsqr
 
-    # Paramter Limits
+    # Parameter Limits
     blo, bhi = min(B[burn:]), max(B[burn:])
     mlo, mhi = min(M[burn:]), max(M[burn:])
     slo, shi = min(S[burn:]), max(S[burn:])
@@ -287,8 +252,8 @@ def plot_corners(args, config, fitter):
         bins=40,
         smooth=1.0
     )
-    fig.suptitle('Posterior Distributioon',
-                     fontsize=14)
+    fig.suptitle('Posterior Distribution',
+                 fontsize=14)
 
     plt.savefig(
         'Corner-{}{}-{}.pdf'
@@ -305,10 +270,10 @@ def plot_corners(args, config, fitter):
 
 
 def plot_chains(args, config, fitter):
-    '''
+    """
     Use this to examine chain convergence. May implement convergence tests in
-    future.
-    '''
+    the future.
+    """
 
     burn = config['burn']
 
@@ -352,8 +317,8 @@ def plot_chains(args, config, fitter):
     fig.suptitle(
         '{} vs. {} \n\nMarkov Chains for Kelly Method'
         .format(fitter.data_ylabel,
-        fitter.data_xlabel
-        ),
+                fitter.data_xlabel
+                ),
         fontsize=16
     )
 
@@ -377,15 +342,15 @@ def plot_chains(args, config, fitter):
 # Make all plots
 
 def make_plots(args, config, fitter):
-    '''
+    """
     Calls both plotting functions and then combines all outputs into a single
     PDF.
-    '''
+    """
 
     # pylint: disable=global-statement
 
     # OLD: now uses METHODS
-    # Retreive methods list
+    # Retrieve methods list
 
     # Initialize pdf list
     pdfs = []

@@ -1,11 +1,8 @@
 from argparse import ArgumentParser
-import os
 from astropy.table import Table
 import numpy as np
 import reglib  # Regression library
 import luminlib
-import matplotlib.pyplot as plt
-import linmix
 import yaml
 import plotlib
 import pyfiglet as pfig
@@ -15,21 +12,21 @@ from datetime import datetime
 parser = ArgumentParser()
 # Required argument for catalog
 parser.add_argument('cat_filename', help='FITS catalog to open')
-# Required arguement for axes
+# Required argument for axes
 valid_axes = ['l500kpc', 'lr2500', 'lr500', 'lr500cc', 't500kpc', 'tr2500', 'tr2500scaled', 'tr500scaled',
               'tr500', 'tr500cc', 'lambda', 'lambdaxmm', 'lambdamatcha', 'lx', 'LAMBDA',
-              'lam', 'txmm', 'tr2500matcha', 'tr500matcha', 'tr2500xmm', 'tr500xmm', 'kt', 'lambdachisq','R2500', 'sigma_bi', 'lumin_no_tx',
-              'tr500', 'tr500cc', 'lambda', 'lambdaxray','lambdachisqxray','lambdaxmm', 'lambdamatcha', 'lx', 'LAMBDA',
-              'lam', 'txmm', 'tr2500matcha', 'tr500matcha', 'tr2500xmm', 'tr500xmm', 'kt', 'lambdachisq','R2500'
-              'txmm', 'tmatcha', 'lum', 'txr500matcha', 'txr500xmm']
+              'lam', 'txmm', 'tr2500matcha', 'tr500matcha', 'tr2500xmm', 'tr500xmm', 'kt', 'lambdachisq', 'R2500',
+              'sigma_bi', 'lumin_no_tx',
+              'tr500', 'tr500cc', 'lambda', 'lambdaxray', 'lambdachisqxray', 'lambdaxmm', 'lambdamatcha', 'lx',
+              'LAMBDA', 'lam', 'txmm', 'tr2500matcha', 'tr500matcha', 'tr2500xmm', 'tr500xmm', 'kt', 'lambdachisq',
+              'R2500', 'txmm', 'tmatcha', 'lum', 'txr500matcha', 'txr500xmm']
 parser.add_argument('x', help='what to plot on x axis', choices=valid_axes)
 parser.add_argument('y', help='what to plot on y axis', choices=valid_axes)
-parser.add_argument('config_file',
-    help = 'the filename of the config to run')
+parser.add_argument('config_file', help='the filename of the config to run')
 # Optional argument for file prefix
 parser.add_argument('-p', '--prefix', help='prefix for output file')
 
-#----------------------CluStR----------------------------------------
+# ----------------------CluStR----------------------------------------
 
 def Ez(z):
     Om = 0.3
@@ -38,10 +35,9 @@ def Ez(z):
 
 # We'll define useful classes here
 class Config:
-    '''
+    """
     Used for CluStR config processing
-
-    '''
+    """
 
     def __init__(self, args):
         """Opens configuration file."""
@@ -77,11 +73,10 @@ class Config:
 
 class Catalog:
     """
-    Read/Load the fits table that contains the data.
-
+    Read/Load the fits' table that contains the data.
     """
 
-    def __init__(self, cat_file_name, config):
+    def __init__(self, cat_file_name):
         self.file_name = cat_file_name
 
         self._load_catalog()
@@ -116,12 +111,12 @@ class Catalog:
         return repr(self._catalog)
 
 class Data:
-    '''
+    """
     This class takes a catalog table and grabs only the relevant columns
     for the desired fit using the config dictionary.
 
     Config is expected to act like a dictionary
-    '''
+    """
 
     def __init__(self, config, catalog):
         self._load_data(config, catalog)
@@ -129,141 +124,142 @@ class Data:
         return
 
     def create_cuts(self, config, catalog):
-            """
-            Apply cuts to data. Will remove flags of type Boolean, Cutoff, and Range.
-            """
+        """
+        Apply cuts to data. Will remove flags of type Boolean, Cutoff, and Range.
+        """
 
-            # Initialize an array of the same size as catalog. Elements are boolean type.
-            mask = np.zeros(len(catalog), dtype=bool)
+        # Initialize an array of the same size as catalog. Elements are boolean type.
+        mask = np.zeros(len(catalog), dtype=bool)
 
-            # Boolean Flags
+        # Boolean Flags
 
-            # Access True or False key value.
-            TF = list(config['Bool_Flag'].keys())[0]
+        # Access True or False key value.
+        tf = list(config['Bool_Flag'].keys())[0]
 
-            # Check if user wants boolean cuts.
-            if TF == True:
-                # Loop over all boolean flags.
-                for bflag_ in config['Bool_Flag'][True]:
-                    bool_type = config['Bool_Flag'][True][bflag_]
+        # Check if user wants boolean cuts.
+        if tf:
+            # Loop over all boolean flags.
+            for bflag_ in config['Bool_Flag'][True]:
+                bool_type = config['Bool_Flag'][True][bflag_]
 
-                    # Double check if flag is boolean.
-                    if isinstance(bool_type, bool):
+                # Double check if flag is boolean.
+                if isinstance(bool_type, bool):
 
-                        bflag = bflag_.replace("_bool_type", "")
-                        cutb = catalog[bflag] == (bool_type)
-                    else:
-                        print(
+                    bflag = bflag_.replace("_bool_type", "")
+                    cutb = catalog[bflag] == bool_type
+                else:
+                    bflag = bflag_.replace("_bool_type", "")
+                    print(
                         "Warning: Boolean type must be `True` or  `False` - "
                         "you entered `{}`. Ignoring `{}` flag."
                         .format(bool_type, bflag)
-                        )
-
-                    # Include flag cut into mask array.
-                    mask |= cutb
-
-                    print(
-                    'Removed {} clusters due to `{}` flag of type boolean.'
-                    .format(np.size(np.where(cutb)), bflag_)
                     )
 
-            # Cutoff Flags
+                # Include flag cut into mask array.
+                mask |= cutb
 
-            # Loop through all cutoffs.
-            for cflag_ in config['Cutoff_Flag']:
+                print(
+                    'Removed {} clusters due to `{}` flag of type boolean.'
+                    .format(np.size(np.where(cutb)), bflag_)
+                )
 
-                TFc = config['Cutoff_Flag'][cflag_]
+        # Cutoff Flags
 
-                # Check if user wants cuts.
-                if cflag_ not in ('Other') and list(TFc.keys())[0] != False:
+        # Loop through all cutoffs.
+        for cflag_ in config['Cutoff_Flag']:
 
-                    # Save values in a list.
-                    cvalues = list(TFc[True].values())
+            TFc = config['Cutoff_Flag'][cflag_]
 
-                    # Save in indiviual varnp.mean(self.y_err)}')iables.
-                    cutoff = cvalues[0]
-                    cut_type = cvalues[1]
+            # Check if user wants cuts.
+            if cflag_ not in 'Other' and list(TFc.keys())[0] is not False:
 
-                    # Remove rows below cutoff value.
-                    if cut_type == 'above':
+                # Save values in a list.
+                cvalues = list(TFc[True].values())
 
-                        # Nan's interfere with evaluation. Set them to dummy value.
-                        nan_cut = np.where(np.isnan(catalog[cflag_]))
-                        catalog[cflag_][nan_cut] = 2*(cutoff)
+                # Save in individual variables' np.mean(self.y_err).
+                cutoff = cvalues[0]
+                cut_type = cvalues[1]
 
-                        cutc = catalog[cflag_] < cutoff
+                # Remove rows below cutoff value.
+                if cut_type == 'above':
 
-                    # Remove rows above cutoff value.
-                    elif cut_type == 'below':
+                    # Nan's interfere with evaluation. Set them to dummy value.
+                    nan_cut = np.where(np.isnan(catalog[cflag_]))
+                    catalog[cflag_][nan_cut] = 2 * cutoff
 
-                        # NaN's interfere with evaluation. Set them to dummy value.
-                        nan_cut = np.where(np.isnan(catalog[cflag_]))
-                        catalog[cflag_][nan_cut] = -2*(cutoff)
+                    cutc = catalog[cflag_] < cutoff
 
-                        cutc = catalog[cflag_] > cutoff
+                # Remove rows above cutoff value.
+                elif cut_type == 'below':
+
+                    # NaN's interfere with evaluation. Set them to dummy value.
+                    nan_cut = np.where(np.isnan(catalog[cflag_]))
+                    catalog[cflag_][nan_cut] = -2*cutoff
+
+                    cutc = catalog[cflag_] > cutoff
+
+                else:
+                    print(
+                        'WARNING: Cutoff type must be `above` or `below` - '
+                        'you entered `{}`. Ignoring `{}` flag.'
+                        .format(cut_type, cflag_))
+
+                mask |= cutc
+
+                print(
+                    'Removed {} clusters due to `{}` flag of type cutoff.'
+                    .format(np.size(np.where(cutc)), cflag_)
+                )
+
+        # Range Flags
+
+        # Loop through all ranges.
+        for rflag_ in config['Range_Flag']:
+            TF = config['Range_Flag'][rflag_]
+
+            # Check if user wants range cuts.
+            if rflag_ not in 'Other' and list(TF.keys())[0] is not False:
+
+                rflag = TF[True]
+
+                for _, rvalues in rflag.items():
+
+                    # Save values to list.
+                    minmax_ = list(rvalues.values())
+
+                    rmin = minmax_[0]
+                    rmax = minmax_[1]
+                    range_type = minmax_[2]
+
+                    # Remove rows outside range.
+                    if range_type == 'inside':
+                        cutr = (catalog[rflag_] < rmin) | (catalog[rflag_] > rmax)
+
+                    # Remove rows inside range.
+                    elif range_type == 'outside':
+                        cutr = (catalog[rflag_] > rmin) & (catalog[rflag_] < rmax)
 
                     else:
                         print(
-                            'WARNING: Cutoff type must be `above` or `below` - '
+                            'WARNING: Range type must be `inside` or `outside` - '
                             'you entered `{}`. Ignoring `{}` flag.'
-                            .format(cut_type, cflag_))
+                            .format(range_type, rflag)
+                        )
+                        continue
 
-                    mask |= cutc
+                    mask |= cutr
 
                     print(
-                    'Removed {} clusters due to `{}` flag of type cutoff.'
-                    .format(np.size(np.where(cutc)), cflag_)
+                        'Removed {} clusters due to `{}` flag of type range.'
+                        .format(np.size(np.where(cutr)), rflag_)
                     )
 
-            # Range Flags
-
-            # Loop through all ranges.
-            for rflag_ in config['Range_Flag']:
-                TF = config['Range_Flag'][rflag_]
-
-                # Check if user wants range cuts.
-                if rflag_ not in ('Other') and list(TF.keys())[0] != False:
-
-                    rflag = TF[True]
-
-                    for _, rvalues in rflag.items():
-
-                        # Save values to list.
-                        minmax_ = list(rvalues.values())
-
-                        rmin = minmax_[0]
-                        rmax = minmax_[1]
-                        range_type = minmax_[2]
-
-                        # Remove rows outside range.
-                        if range_type == 'inside':
-                            cutr = (catalog[rflag_] < rmin) | (catalog[rflag_] > rmax)
-
-                        # Remove rows inside range.
-                        elif range_type == 'outside':
-                            cutr = (catalog[rflag_] > rmin) & (catalog[rflag_] < rmax)
-
-                        else:
-                            print (
-                                'WARNING: Range type must be `inside` or `outside` - '
-                                'you entered `{}`. Ignoring `{}` flag.'
-                                .format(range_type, rflag)
-                            )
-                            continue
-
-                        mask |= cutr
-
-                        print(
-                            'Removed {} clusters due to `{}` flag of type range.'
-                            .format(np.size(np.where(cutr)), rflag_)
-                        )
-
-            return mask
+        return mask
 
     def _load_data(self, config, catalog):
-        '''
+        """
         Obtains x, y, x errors, and y errors from config & catalog files.
-        '''
+        """
 
         x_arg = config.x
         y_arg = config.y
@@ -300,16 +296,15 @@ class Data:
             delta_ = np.ones(N)
 
         # Cut out any NaNs
-        cuts = np.where( (~np.isnan(x)) &
-                         (~np.isnan(y)) &
-                         (~np.isnan(x_err)) &
-                         (~np.isnan(y_err)) &
-                         (~np.isnan(x_err_low)) &
-                         (~np.isnan(x_err_high)) &
-                         (~np.isnan(y_err_low)) &
-                         (~np.isnan(y_err_high)) #&
-                         #(~np.isnan(delta_))
-                         )
+        cuts = np.where((~np.isnan(x)) &
+                        (~np.isnan(y)) &
+                        (~np.isnan(x_err)) &
+                        (~np.isnan(y_err)) &
+                        (~np.isnan(x_err_low)) &
+                        (~np.isnan(x_err_high)) &
+                        (~np.isnan(y_err_low)) &
+                        (~np.isnan(y_err_high))
+                        )
         print(
             'Removed {} NaNs'
             .format(N - (N-len(x[cuts])))
@@ -326,11 +321,11 @@ class Data:
         delta_ = delta_[cuts]
 
         # Scale data
-        if config['scale_x_by_ez'] == True:
+        if config['scale_x_by_ez']:
             redshift = config['Redshift']
-            x *= Ez(catalog[redshift][cuts])**(config['scaling_factor_x'])
+            x *= Ez(catalog[redshift][cuts])**(config['scaling_factor_x'][0] / config['scaling_factor_x'][1])
 
-        if config['scale_y_by_ez'] == True:
+        if config['scale_y_by_ez']:
             redshift = config['Redshift']
             print(Ez(0.2)**(config['scaling_factor_y']))
             y *= (Ez(catalog[redshift][cuts]))**(config['scaling_factor_y'])
@@ -343,18 +338,18 @@ class Data:
 
         y[mask] = -1
 
-        print (
-        '\nNOTE: `Removed` counts may be redundant, '
-        'as some data fail multiple flags.'
+        print(
+            '\nNOTE: `Removed` counts may be redundant, '
+            'as some data fail multiple flags.'
         )
         if config['detectedWithTemp']:
-          x, y = luminlib.detectedWithTemp(catalog, x=x, y=y)
+            x, y = luminlib.detectedWithTemp(catalog, x=x, y=y)
         if config['detectedWithNoTemp']:
-          x, y = luminlib.detectedWithNoTemp(catalog, x=x, y=y, xerr=x_err, yerr=y_err)
+            x, y = luminlib.detectedWithNoTemp(catalog, x=x, y=y, xerr=x_err, yerr=y_err)
         if config['uppLimUndetected']:
-          x, y = luminlib.uppLimUndetected(catalog, x=x, y=y)
+            x, y = luminlib.uppLimUndetected(catalog, x=x, y=y)
         else:
-          pass
+            pass
 
         # Keep rows with good data and remove all flagged data
         good_rows = np.all([x != -1, y != -1], axis=0)
@@ -372,14 +367,14 @@ class Data:
         print('Accepted {} data out of {}\n'.format(np.size(self.x), N))
 
         if np.size(self.x) == 0:
-            print (
+            print(
                 '\nWARNING: No data survived flag removal. '
                 'Suggest changing flag parameters in `param.config`.'
                 '\n\nClosing program...\n'
             )
             raise SystemExit(2)
 
-        #if config is True:
+        # if config is True:
         if config["asymmetric_err"]:
             print(f'Mean {self.xlabel} error low: {np.mean(self.x_err_low)}')
             print(f'Mean {self.xlabel} error high: {np.mean(self.x_err_high)}')
@@ -389,18 +384,32 @@ class Data:
         else:
             print(f'Mean {self.xlabel} error: {np.mean(self.x_err)}')
             print(f'Mean {self.ylabel} error: {np.mean(self.y_err)}')
-            print ('\n')
+            print('\n')
 
         return
 
 class Fitter:
-    """Runs linmix alogirthm using the regression library."""
+    """Runs linmix algorithm using the regression library."""
 
     def __init__(self, data, config):
         """ Here we can use the super method to inherit
             the attributes from the Data class.
         """
 
+        self.scaled_x = None
+        self.log_y_err = None
+        self.log_x_err = None
+        self.xmax = None
+        self.xmin = None
+        self.log_y = None
+        self.log_x = None
+        self.piv = None
+        self.mean_sigsqr = None
+        self.mean_slope = None
+        self.mean_int = None
+        self.kelly_sigsqr = None
+        self.kelly_m = None
+        self.kelly_b = None
         self.algorithm = 'linmix'
         self.data_x = data.x
         self.data_y = data.y
@@ -419,10 +428,10 @@ class Fitter:
         return
 
     def fit(self, data):
-        '''
+        """
         Calculates fit parameters using the Kelly method (linmix) and returns
         intercept, slope, and sigma_sqr.
-        '''
+        """
 
         self.kelly_b, self.kelly_m, self.kelly_sigsqr = reglib.run_linmix(
                                                             x=self.log_x,
@@ -434,12 +443,10 @@ class Fitter:
         self.mean_int = np.mean(self.kelly_b)
         self.mean_slope = np.mean(self.kelly_m)
         self.mean_sigsqr = np.mean(self.kelly_sigsqr)
-
-
         return
 
     def log_data(self, config):
-        ''' Scale data to log'''
+        """ Scale data to log"""
 
         # Log-x before pivot
         xlog = np.log(self.data_x)
@@ -459,22 +466,20 @@ class Fitter:
 
         self.log_x_err = np.log(self.data_x_err_obs + self.data_x) - xlog
         self.log_y_err = np.log(self.data_y_err_obs + self.data_y) - self.log_y
-
-
         return
 
     def scaled_fit_to_data(self):
-        ''' Calculate scaled linear values. '''
+        """ Calculate scaled linear values. """
 
-        self.scaled_x = np.linspace(1.5*self.xmin, 1.5*self.xmax, len(self.log_x))
+        self.scaled_x = np.linspace(1.6*self.xmin, 1.5*self.xmax, len(self.log_x))
         scaled_y = self.mean_int + self.mean_slope * self.scaled_x
         scaled_x_errs = np.zeros(len(self.log_x))
         scaled_y_errs = np.ones(len(self.log_y))*self.mean_slope
 
-        return (self.scaled_x, scaled_y, scaled_x_errs, scaled_y_errs)
+        return self.scaled_x, scaled_y, scaled_x_errs, scaled_y_errs
 
     def unscaled(self):
-        ''' Recover original data from scaled_fit_to_data() '''
+        """ Recover original data from scaled_fit_to_data() """
 
         # Grab log-scaled linear values.
         sx, sy, sx_err, sy_err = self.scaled_fit_to_data()
@@ -485,33 +490,33 @@ class Fitter:
         ux_err = sx_err * sx
         uy_err = sy_err * sy
 
-        return (ux, uy, ux_err, uy_err)
+        return ux, uy, ux_err, uy_err
 
     def _recoverY(self, yObs):
-        "This method will return unscaled Y."
+        """This method will return unscaled Y."""
         y = np.exp(yObs)
         return y
 
     def confInterval(self, low, high):
-        "This method will calculate confidence interval from y distribution."
+        """This method will calculate confidence interval from y distribution."""
 
         y = []
-        _x = np.linspace(1.5*self.xmin, 1.5*self.xmax, len(self.log_x))
+        _x = np.linspace(1.6*self.xmin, 1.5*self.xmax, len(self.log_x))
         for i, s in zip(self.kelly_b, self.kelly_m):
             y += [i + s * self.scaled_x]
 
         y = np.array(y)
         yMed = np.percentile(y, 50, axis=0)
         yLow = np.percentile(y, low, axis=0)
-        yUp  = np.percentile(y, high, axis=0)
+        yUp = np.percentile(y, high, axis=0)
 
         return yMed, yUp, yLow
 
     def sigmaBands(self, low, high):
-        " This method calulates sigma bands."
+        """ This method calculates sigma bands."""
 
         y = []
-        _x = np.linspace(1.5*self.xmin, 1.5*self.xmax, len(self.log_x))
+        _x = np.linspace(1.6*self.xmin, 1.5*self.xmax, len(self.log_x))
         for i, s, sig in zip(self.kelly_b, self.kelly_m, np.sqrt(self.kelly_sigsqr)):
             y += [i + s * self.scaled_x + np.random.normal(0.0, sig)]
 
@@ -523,11 +528,11 @@ class Fitter:
         # print (yUp-yMed)[::5]
         return yMed, yUp, yLow
 
-class Banner():
+class Banner:
     """Contains Program Banner"""
 
     def __init__(self):
-        #CluStR Banner
+        # CluStR Banner
         ascii_banner = pfig.figlet_format("CluStR")
         print(ascii_banner)
         print("-----------------------------------")
@@ -542,15 +547,15 @@ class Banner():
 
 def main():
 
-    #CluStR Banner
+    # CluStR Banner
     Banner()
 
-    #CluStR args
+    # CluStR args
     args = parser.parse_args()
 
     config = Config(args)
 
-    catalog = Catalog(args.cat_filename, config)
+    catalog = Catalog(args.cat_filename)
 
     data = Data(config, catalog)
 
@@ -572,6 +577,7 @@ def main():
     print('Done!')
 
     return
+
 
 if __name__ == '__main__':
     main()
