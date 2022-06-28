@@ -5,14 +5,14 @@ import numpy as np
 
 from clustr import Data
 
-data1 = Table.read('Catalogs/y3a2-6.4.22+2_v3.2.fits', format='fits')
+#data1 = Table.read('Catalogs/y3a2-6.4.22+2_v3.2.fits', format='fits')
 
 def detectedWithTemp(data, x, y, detected='Detected', temp='r2500_temperature'):
-  """ 
-  This function will return observations 
+  """
+  This function will return observations
   that are Detected and have temperature values.
-  
-  Will return x and y values. 
+
+  Will return x and y values.
   """
   data[temp] = np.ma.filled(data[temp], fill_value=0)
 
@@ -24,11 +24,11 @@ def detectedWithTemp(data, x, y, detected='Detected', temp='r2500_temperature'):
   return xWithValues, yWithValues
 
 def detectedWithNoTemp(data, x, y, xerr, yerr, detected='Detected', temp='r2500_temperature'):
-  """ 
-  This function will return observations 
+  """
+  This function will return observations
   that are Detected and have NO Temperature values.
-  
-  Will return x and y values. 
+
+  Will return x and y values.
   """
 
   # Some values are empty. We'll use the filled() method to set them to zero.
@@ -42,16 +42,16 @@ def detectedWithNoTemp(data, x, y, xerr, yerr, detected='Detected', temp='r2500_
   xWithValues = x[firstCond & secondCond]
   xErrWithValues = xerr[firstCond & secondCond]
 
-  
+
 
   return xWithValues, yWithValues, xErrWithValues, yErrWithValues
 
 def uppLimUndetected(data, x, y, detected='Detected'):
-  """ 
-  This function will return observations 
+  """
+  This function will return observations
   that are Not Detected and have upper-limits on luminosity values.
-  
-  Will return x and y values. 
+
+  Will return x and y values.
   """
 
   secondCond = data[detected] == False
@@ -59,4 +59,3 @@ def uppLimUndetected(data, x, y, detected='Detected'):
   xWithValues = x[secondCond]
 
   return xWithValues, yWithValues
-
