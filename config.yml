@@ -30,18 +30,19 @@ piv_value: 70
 #--------
 scale_x_by_ez: False
 scale_y_by_ez: True
-#Temperature scale by -2/3. Luminosity scale by -1.
+#Temperature scale by -2/3 (-0.6666666). Luminosity scale by -1.
 
 scaling_factor_x: [1,1]
-scaling_factor_y: -1.0
+scaling_factor_y: -0.66666
 
 Redshift : "Redshift"
 
 #------------------------------------------------------------------------
 # Censored Data
 #---------------
+#for luminoisty fits with upper limits set to true. otherwise false.
 Censored:
-    True: "Delta"
+    False: "Delta"
 
 #-------------------------------------------------------------------------
 # Luminosity
@@ -96,17 +97,18 @@ Column_Names:
     txr500xmm: Tx_r500_xmm
     txr500matcha: Tx_r500_matcha
     LX52 : Lx52_upper
+    LX52u : Lx52_upperlim
 
 # ---------------------------------------------------------------------
 # Error Labels
 # ---------------
-xlabel_err_low: "lambda_err"
+xlabel_err_low: "lambda_err_low"
   #"r2500_temperature_xmm_err_low"
-xlabel_err_high: "lambda_err"
+xlabel_err_high: "lambda_err_high"
 #"r2500_temperature_xmm_err_high"
 
-ylabel_err_low: 'luminosity_err_low'
-ylabel_err_high: 'luminosity_err_low'
+ylabel_err_low: 'r2500_temperature_err_low_scaled'
+ylabel_err_high: 'r2500_temperature_err_high_scaled'
 
 asymmetric_err: False
 
@@ -185,7 +187,7 @@ asymmetric_err: False
 
 # Bools:
 Bool_Flag:
-      True:
+      False:
 
         bad_mode_bool_type: True
         edge_r2500_bool_type: True
@@ -202,30 +204,18 @@ Bool_Flag:
 # Cutoff:
 Cutoff_Flag:
     500_kiloparsecs_SNR:
-
         False:
           500_kiloparsecs_SNR: 9.0
           500_kiloparsecs_SNR_cut_type: above
-    lambda:
-      False:
-        lambda: 40
-        cut_type: above
-
 
 # Ranges:
 Range_Flag:
     Redshift:
-        True:
+        False:
             Redshift_minmax:
                 Redshift_range_min: 0.2
                 Redshift_range_max: 0.65
                 Redshift_range_type: inside
-    lambda:
-      False:
-          min/max:
-            lambda_min: 40
-            lambda_max: 300
-            range: inside
     Other:
         True/False:
             _minmax:
@@ -243,7 +233,7 @@ Range_Flag:
 Plot_Labels:
         True:
             x_axis: $\lambda_{RM}$
-            y_axis: $E(z)^{-2/3}k\/T_{X,r2500}\/\/\/Joint$
+            y_axis: $E(z)^{-2/3}k\/L_{X,r2500}\/\/\/Joint$
 #$L_{X,r2500}\/\//\/\/E(z)\/\/[erg\/s^{-1}10^{44}]$
 
 #Set what to scale line length for scatter plot
