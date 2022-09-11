@@ -7,13 +7,14 @@ import yaml
 import plotlib
 import pyfiglet as pfig
 from datetime import datetime
+from numpy import savetxt
 
 ''' Parse command line arguments '''
 parser = ArgumentParser()
 # Required argument for catalog
 parser.add_argument('cat_filename', help='FITS catalog to open')
 # Required argument for axes
-valid_axes = ['l500kpc', 'lr2500', 'lr500', 'lr500cc', 't500kpc', 'tr2500', 'tr2500scaled', 'tr500scaled',
+valid_axes = ['l500kpc','lr2500s','lx52', 'TR2500', 'LAMBDA', 'lr2500', 'lr500', 'lr500cc', 't500kpc', 'tr2500', 'tr2500scaled', 'tr500scaled',
               'tr500', 'tr500cc', 'lambda', 'lambdaxmm', 'lambdamatcha', 'lx', 'LAMBDA',
               'lam', 'txmm', 'tr2500matcha', 'tr500matcha', 'tr2500xmm', 'tr500xmm', 'kt', 'lambdachisq', 'R2500',
               'sigma_bi', 'lumin_no_tx',
@@ -265,8 +266,7 @@ class Data:
         y_arg = config.y
         self.xlabel = config['Column_Names'][x_arg]
         self.ylabel = config['Column_Names'][y_arg]
-        x = catalog[self.xlabel]
-        y = catalog[self.ylabel]
+
 
         # Error Labels
         xlabel_error_low = config["xlabel_err_low"]
@@ -277,6 +277,8 @@ class Data:
         x_err_high = catalog[xlabel_error_high]
         y_err_low = catalog[ylabel_error_low]
         y_err_high = catalog[ylabel_error_high]
+        x = catalog[self.xlabel]
+        y = ((catalog[self.ylabel] + y_err_high) + (catalog[self.ylabel] - y_err_low))/2
 
         # Average errors.
         x_err = (catalog[xlabel_error_low] + catalog[xlabel_error_high]) / 2.
@@ -292,8 +294,12 @@ class Data:
         if cenTF:
             cenName = config["Censored"][True]
             delta_ = catalog[cenName].astype(np.int64)
+            case = catalog["case"].astype(np.int64)
         else:
             delta_ = np.ones(N)
+
+            case = np.ones(N)
+            #case = catalog["case"].astype(np.int64)
 
         # Cut out any NaNs
         cuts = np.where((~np.isnan(x)) &
@@ -319,6 +325,8 @@ class Data:
         y_err_low = y_err_low[cuts]
         y_err_high = y_err_high[cuts]
         delta_ = delta_[cuts]
+        case = case[cuts]
+
 
         # Scale data
         if config['scale_x_by_ez']:
@@ -327,8 +335,7 @@ class Data:
 
         if config['scale_y_by_ez']:
             redshift = config['Redshift']
-            print(Ez(0.2)**(config['scaling_factor_y']))
-            y *= (Ez(catalog[redshift][cuts]))**(config['scaling_factor_y'])
+            y *= (Ez(catalog[redshift][cuts])**(config['scaling_factor_y']))
 
         # Set all masked values to negative one.
         mask = self.create_cuts(config, catalog)
@@ -363,6 +370,10 @@ class Data:
         self.y_err_low = y_err_low[good_rows]
         self.y_err_high = y_err_high[good_rows]
         self.delta_ = delta_[good_rows]
+        self.case = case[good_rows]
+
+        #np.savetxt('casesredlow.csv', self.case, delimiter=',')
+
 
         print('Accepted {} data out of {}\n'.format(np.size(self.x), N))
 
@@ -422,6 +433,7 @@ class Fitter:
         self.data_xlabel = data.xlabel
         self.data_ylabel = data.ylabel
         self._constant = config['scale_line']
+        self.case_n = data.case
         self.log_data(config)
         self.fit(data)
         self.scaled_fit_to_data()
@@ -439,6 +451,11 @@ class Fitter:
                                                             err_x=self.log_x_err,
                                                             err_y=self.log_y_err,
                                                             delta=data.delta_)
+
+#saving these to add to plotlib when plotting 2 lines
+    #    savetxt('kelly_bTa.csv', self.kelly_b, delimiter=',')
+    #    savetxt('kelly_mTa.csv', self.kelly_m, delimiter=',')
+    #    savetxt('kelly_sigsqrTa.csv', self.kelly_sigsqr, delimiter=',')
 
         self.mean_int = np.mean(self.kelly_b)
         self.mean_slope = np.mean(self.kelly_m)
@@ -463,15 +480,16 @@ class Fitter:
 
         self.xmin = np.min(self.log_x)
         self.xmax = np.max(self.log_x)
-
+        self.xlim = [0.7*np.min(self.data_x), 1.3*np.max(self.data_x)]
+        #self.xPlot = np.linspace(np.log(xlim[0])-self.piv, np.log(xlim[1])-self.piv, 201)
         self.log_x_err = np.log(self.data_x_err_obs + self.data_x) - xlog
         self.log_y_err = np.log(self.data_y_err_obs + self.data_y) - self.log_y
         return
 
     def scaled_fit_to_data(self):
         """ Calculate scaled linear values. """
-
-        self.scaled_x = np.linspace(1.6*self.xmin, 1.5*self.xmax, len(self.log_x))
+        self.scaled_x = np.linspace(np.log(self.xlim[0])-self.piv, np.log(self.xlim[1])-self.piv, 215)
+        #self.scaled_x = np.linspace(.02*self.xmin, 1.5*self.xmax, len(self.log_x))
         scaled_y = self.mean_int + self.mean_slope * self.scaled_x
         scaled_x_errs = np.zeros(len(self.log_x))
         scaled_y_errs = np.ones(len(self.log_y))*self.mean_slope
@@ -501,7 +519,7 @@ class Fitter:
         """This method will calculate confidence interval from y distribution."""
 
         y = []
-        _x = np.linspace(1.6*self.xmin, 1.5*self.xmax, len(self.log_x))
+        _x = np.linspace(.02*self.xmin, 10000*self.xmax, len(self.log_x))
         for i, s in zip(self.kelly_b, self.kelly_m):
             y += [i + s * self.scaled_x]
 
@@ -510,23 +528,22 @@ class Fitter:
         yLow = np.percentile(y, low, axis=0)
         yUp = np.percentile(y, high, axis=0)
 
-        return yMed, yUp, yLow
+        return yMed, yLow, yUp
 
     def sigmaBands(self, low, high):
         """ This method calculates sigma bands."""
 
         y = []
-        _x = np.linspace(1.6*self.xmin, 1.5*self.xmax, len(self.log_x))
-        for i, s, sig in zip(self.kelly_b, self.kelly_m, np.sqrt(self.kelly_sigsqr)):
+        _x = np.linspace(.02*self.xmin, 10000*self.xmax, len(self.log_x))
+        for i, s, sig in zip(self.kelly_b, self.kelly_m, (self.kelly_sigsqr)):
             y += [i + s * self.scaled_x + np.random.normal(0.0, sig)]
 
         y = np.array(y)
         yMed = np.percentile(y, 50, axis=0)
         yLow = np.percentile(y, low, axis=0)
         yUp = np.percentile(y, high, axis=0)
-        # print (yMed-yLow)[::5]
-        # print (yUp-yMed)[::5]
-        return yMed, yUp, yLow
+
+        return yMed, yLow, yUp
 
 class Banner:
     """Contains Program Banner"""
@@ -560,7 +577,6 @@ def main():
     data = Data(config, catalog)
 
     fitter = Fitter(data, config)
-
     print(f"x-pivot = {fitter.piv}")
     print(f"Mean Intercept: {np.mean(fitter.kelly_b)}")
     print(f"Mean Slope: {np.mean(fitter.kelly_m)}")
