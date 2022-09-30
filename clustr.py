@@ -277,12 +277,9 @@ class Data:
         x_err_high = catalog[xlabel_error_high]
         y_err_low = catalog[ylabel_error_low]
         y_err_high = catalog[ylabel_error_high]
+
         x = catalog[self.xlabel]
         y = ((catalog[self.ylabel] + y_err_high) + (catalog[self.ylabel] - y_err_low))/2
-
-        # Average errors.
-        x_err = (catalog[xlabel_error_low] + catalog[xlabel_error_high]) / 2.
-        y_err = (catalog[ylabel_error_high] + catalog[ylabel_error_low]) / 2.
 
         # Size of original data
         N = np.size(x)
@@ -299,13 +296,12 @@ class Data:
             delta_ = np.ones(N)
 
             case = np.ones(N)
+            #for cuts depending on column "case"
             #case = catalog["case"].astype(np.int64)
 
         # Cut out any NaNs
         cuts = np.where((~np.isnan(x)) &
                         (~np.isnan(y)) &
-                        (~np.isnan(x_err)) &
-                        (~np.isnan(y_err)) &
                         (~np.isnan(x_err_low)) &
                         (~np.isnan(x_err_high)) &
                         (~np.isnan(y_err_low)) &
@@ -318,15 +314,12 @@ class Data:
 
         x = x[cuts]
         y = y[cuts]
-        x_err = x_err[cuts]
-        y_err = y_err[cuts]
         x_err_low = x_err_low[cuts]
         x_err_high = x_err_high[cuts]
         y_err_low = y_err_low[cuts]
         y_err_high = y_err_high[cuts]
         delta_ = delta_[cuts]
         case = case[cuts]
-
 
         # Scale data
         if config['scale_x_by_ez']:
@@ -363,15 +356,13 @@ class Data:
 
         self.x = x[good_rows]
         self.y = y[good_rows]
-        self.x_err = x_err[good_rows]
-        self.y_err = y_err[good_rows]
         self.x_err_low = x_err_low[good_rows]
         self.x_err_high = x_err_high[good_rows]
         self.y_err_low = y_err_low[good_rows]
         self.y_err_high = y_err_high[good_rows]
         self.delta_ = delta_[good_rows]
         self.case = case[good_rows]
-
+        #saving columns for later
         #np.savetxt('casesredlow.csv', self.case, delimiter=',')
 
 
@@ -386,16 +377,11 @@ class Data:
             raise SystemExit(2)
 
         # if config is True:
-        if config["asymmetric_err"]:
-            print(f'Mean {self.xlabel} error low: {np.mean(self.x_err_low)}')
-            print(f'Mean {self.xlabel} error high: {np.mean(self.x_err_high)}')
-            print(f'Mean {self.ylabel} error low: {np.mean(self.y_err_low)}')
-            print(f'Mean {self.ylabel} error high: {np.mean(self.y_err_high)}')
+        print(f'Mean {self.xlabel} error low: {np.mean(self.x_err_low)}')
+        print(f'Mean {self.xlabel} error high: {np.mean(self.x_err_high)}')
+        print(f'Mean {self.ylabel} error low: {np.mean(self.y_err_low)}')
+        print(f'Mean {self.ylabel} error high: {np.mean(self.y_err_high)}')
 
-        else:
-            print(f'Mean {self.xlabel} error: {np.mean(self.x_err)}')
-            print(f'Mean {self.ylabel} error: {np.mean(self.y_err)}')
-            print('\n')
 
         return
 
@@ -424,8 +410,6 @@ class Fitter:
         self.algorithm = 'linmix'
         self.data_x = data.x
         self.data_y = data.y
-        self.data_x_err_obs = data.x_err
-        self.data_y_err_obs = data.y_err
         self.data_x_err_low_obs = data.x_err_low
         self.data_x_err_high_obs = data.x_err_high
         self.data_y_err_low_obs = data.y_err_low
@@ -452,7 +436,7 @@ class Fitter:
                                                             err_y=self.log_y_err,
                                                             delta=data.delta_)
 
-#saving these to add to plotlib when plotting 2 lines
+#saving to add to plotlib when plotting 2 lines
     #    savetxt('kelly_bTa.csv', self.kelly_b, delimiter=',')
     #    savetxt('kelly_mTa.csv', self.kelly_m, delimiter=',')
     #    savetxt('kelly_sigsqrTa.csv', self.kelly_sigsqr, delimiter=',')
@@ -464,10 +448,6 @@ class Fitter:
 
     def log_data(self, config):
         """ Scale data to log"""
-
-        # Log-x before pivot
-        xlog = np.log(self.data_x)
-
         # Set pivot
         piv_type = config["piv_type"]
         if piv_type == "median":
@@ -475,20 +455,46 @@ class Fitter:
         else:
             self.piv = np.log(config['piv_value'])
 
-        self.log_x = xlog - self.piv
-        self.log_y = np.log(self.data_y)
+        #find symmetric errors
+
+        y_max = self.data_y + self.data_y_err_high_obs
+        y_min = self.data_y - self.data_y_err_low_obs
+
+        x_max = self.data_x + self.data_x_err_high_obs
+        x_min = self.data_x - self.data_x_err_low_obs
+
+        log_y_err_high = np.log(y_max) - np.log(self.data_y)
+        log_y_err_low = np.log(self.data_y) - np.log(y_min)
+        log_x_err_high = np.log(x_max) - np.log(self.data_x)
+        log_x_err_low = np.log(self.data_x) - np.log(x_min)
+
+        #symmetric log errors
+        self.log_y_err = (log_y_err_high + log_y_err_low)/2
+        self.log_x_err = (log_x_err_high + log_x_err_low)/2
+
+        #centralize x and y
+
+        #and divide x by pivot
+        log_y_max = np.log(self.data_y) + log_y_err_high
+        log_y_min = np.log(self.data_y) - log_y_err_low
+        log_x_max = np.log(self.data_x) + log_x_err_high
+        log_x_min = np.log(self.data_x) - log_x_err_low
+
+
+        self.log_y = (log_y_min + log_y_max)/2
+        self.log_x = (log_x_min + log_x_max)/2 - self.piv
 
         self.xmin = np.min(self.log_x)
         self.xmax = np.max(self.log_x)
+
         self.xlim = [0.7*np.min(self.data_x), 1.3*np.max(self.data_x)]
-        #self.xPlot = np.linspace(np.log(xlim[0])-self.piv, np.log(xlim[1])-self.piv, 201)
-        self.log_x_err = np.log(self.data_x_err_obs + self.data_x) - xlog
-        self.log_y_err = np.log(self.data_y_err_obs + self.data_y) - self.log_y
+        self.xPlot = np.linspace(np.log(self.xlim[0])-self.piv, np.log(self.xlim[1])-self.piv, 201)
+
         return
 
     def scaled_fit_to_data(self):
         """ Calculate scaled linear values. """
-        self.scaled_x = np.linspace(np.log(self.xlim[0])-self.piv, np.log(self.xlim[1])-self.piv, 215)
+        self.scaled_x = np.linspace(np.log(self.xlim[0])-self.piv, np.log(self.xlim[1])-self.piv, 98)
         #self.scaled_x = np.linspace(.02*self.xmin, 1.5*self.xmax, len(self.log_x))
         scaled_y = self.mean_int + self.mean_slope * self.scaled_x
         scaled_x_errs = np.zeros(len(self.log_x))
