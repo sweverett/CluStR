@@ -102,13 +102,13 @@ Column_Names:
 # ---------------------------------------------------------------------
 # Error Labels
 # ---------------
-xlabel_err_low: "lambda_err"
+xlabel_err_low: "lambda_err_low"
   #"r2500_temperature_xmm_err_low"
-xlabel_err_high: "lambda_err"
+xlabel_err_high: "lambda_err_low"
 #"r2500_temperature_xmm_err_high"
 
-ylabel_err_low: 'luminosity_err_low'
-ylabel_err_high: 'luminosity_err_high'
+ylabel_err_low: 'r2500_temperature_err_low'
+ylabel_err_high: 'r2500_temperature_err_high'
 
 asymmetric_err: False
 
@@ -246,7 +246,7 @@ Range_Flag:
 Plot_Labels:
         True:
             x_axis: $\lambda_{RM}$
-            y_axis: $E(z)^{-2/3}k\/L_{X,r2500}\/\/\/Joint$
+            y_axis: $Tr2500\/\/\/Joint$
 #$L_{X,r2500}\/\//\/\/E(z)\/\/[erg\/s^{-1}10^{44}]$
 
 #Set what to scale line length for scatter plot

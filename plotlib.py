@@ -26,8 +26,10 @@ def plot_scatter(args, fitter, config):
     # Symmetric Errors
     x_obs = fitter.data_x
     y_obs = fitter.data_y
-    x_err_obs = fitter.data_x_err_obs
-    y_err_obs = fitter.data_y_err_obs
+    x_err_low_obs = fitter.data_x_err_low_obs
+    x_err_high_obs = fitter.data_x_err_high_obs
+    y_err_low_obs = fitter.data_y_err_low_obs
+    y_err_high_obs = fitter.data_y_err_high_obs
 
     # Asymmetric Errors
     # x_err_obs_low = fitter.data_x_err_low_obs
@@ -40,7 +42,7 @@ def plot_scatter(args, fitter, config):
 
     # Plot data
     fig, ax = plt.subplots()
-    plt.errorbar(x_obs, y_obs, xerr=x_err_obs, yerr=y_err_obs,
+    plt.errorbar(x_obs, y_obs, xerr=np.array([x_err_low_obs, x_err_high_obs]), yerr=np.array([y_err_low_obs, y_err_high_obs]),
                  ecolor='k',
                  fmt='bo',
                  lw=1,
@@ -59,7 +61,7 @@ def plot_scatter(args, fitter, config):
 
     # Plot Linear Fit (x_fit = unscaled x) and (y_fit = unscaled line)
     plt.loglog(
-        x_fit, y_fit, basex=np.e, basey=np.e, color='navy', linewidth=2.0,
+        x_fit, y_fit, base=np.e, color='navy', linewidth=2.0,
         label=(
             r'$({0:0.2g} \pm {1:0.2g})'
             r'(x/x_{{piv}})^{{{2:0.2f} \pm {3:0.2f}}}'
@@ -73,7 +75,7 @@ def plot_scatter(args, fitter, config):
             np.std(fit_sig)
         )
     )
-
+            
     # Confidence Interval
     yMed0, yLow0, yUp0 = fitter.confInterval(16, 84)
     yMed0 = fitter._recoverY(yMed0)
@@ -115,8 +117,15 @@ def plot_scatter(args, fitter, config):
     ax.set_xlim([0.7*np.min(x_obs), 1.4*np.max(x_obs)])
     ax.set_ylim([0.5, 22])
     # ax.set_ylim([0.5*np.min(y_obs), 2.5*np.max(y_obs)])
-    ax.set_xscale('log', subsx=[2, 4, 6, 8])
-    ax.set_yscale('log', subsy=[2, 4, 6, 8, 10])
+    ax.set_xscale('log')
+    #ax.tick_params(left = False, right = False , labelleft = False ,
+     #           labelbottom = False, bottom = False)
+    ax.set_xticks([20, 40, 60, 80, 100])
+    ax.set_xticklabels([20, 40, 60, 80, 100])
+    ax.get_xaxis().get_major_formatter().labelOnlyBase = False
+
+    #ax.set_yticks([2, 4, 6, 8, 10])
+    ax.set_yscale('log')
     ax.tick_params(axis='both', which='major', direction='in', length=8, width=1.)
     ax.tick_params(axis='both', which='minor', direction='in', length=4, width=0.5)
     ax.xaxis.set_major_formatter(LogFormatter())
