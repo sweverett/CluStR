@@ -111,28 +111,39 @@ def plot_scatter(args, fitter, config):
         formatstring = '{{:.{:1d}f}}'.format(decimalplaces)
         # Return the formatted tick label
         return formatstring.format(y)
-
+    #set labels for x and y axes
     ax.set_xlabel(f'{xname}', fontsize=10)
     ax.set_ylabel(f'{yname}', fontsize=10)
-    ax.set_xlim([0.7*np.min(x_obs), 1.4*np.max(x_obs)])
-    ax.set_ylim([0.5, 22])
-    # ax.set_ylim([0.5*np.min(y_obs), 2.5*np.max(y_obs)])
+    #set limits for x and y axes
+    ax.set_xlim([0.7*np.min(x_obs), 1.3*np.max(x_obs)])
+    ax.set_ylim([0.4, 22])
+    #set scale for axes
     ax.set_xscale('log')
-    #ax.tick_params(left = False, right = False , labelleft = False ,
-     #           labelbottom = False, bottom = False)
-    ax.set_xticks([20, 40, 60, 80, 100])
-    ax.set_xticklabels([20, 40, 60, 80, 100])
-    ax.get_xaxis().get_major_formatter().labelOnlyBase = False
-
-    #ax.set_yticks([2, 4, 6, 8, 10])
     ax.set_yscale('log')
-    ax.tick_params(axis='both', which='major', direction='in', length=8, width=1.)
-    ax.tick_params(axis='both', which='minor', direction='in', length=4, width=0.5)
-    ax.xaxis.set_major_formatter(LogFormatter())
-    ax.xaxis.set_minor_formatter(ScalarFormatter())
-    ax.yaxis.set_major_formatter(LogFormatter())
-    ax.yaxis.set_minor_formatter(FuncFormatter(myLogFormat))
-
+    #set tick parameters
+    plt.tick_params(
+                    axis='x',          # changes apply to the x-axis
+                    which='major',      # both major and minor ticks are affected
+                    bottom=True,      # ticks along the bottom edge are off
+                    top=False,         # ticks along the top edge are off
+                    labelbottom=True     # labels along the bottom edge are off
+                    ) 
+    plt.tick_params(
+                    axis='y',          
+                    which='major',      
+                    bottom=True,      
+                    top=False,         
+                    labelbottom=True
+                    )
+    
+    #set ticks for x and y axis
+    ax.set_xticks([20, 40, 60, 80, 100, 200])
+    ax.set_yticks([0.6, 0.8, 1, 2, 4, 6, 8, 10, 20])
+    
+    #Honestly not sure what this does but the ticks don't format correctly without it
+    ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+    ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+    
     ax.grid(which='major', color='k', alpha=0.2)
     ax.grid(which='minor', color='k', alpha=0.1)
     ax.legend(loc='best', fontsize='x-small')
