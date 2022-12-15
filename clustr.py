@@ -177,7 +177,7 @@ class Data:
                 # Save values in a list.
                 cvalues = list(TFc[True].values())
 
-                # Save in individual variables' np.mean(self.y_err).
+                # Save in individual variables'
                 cutoff = cvalues[0]
                 cut_type = cvalues[1]
 
@@ -278,8 +278,8 @@ class Data:
         y_err_low = catalog[ylabel_error_low]
         y_err_high = catalog[ylabel_error_high]
 
-        x = catalog[self.xlabel]
-        y = ((catalog[self.ylabel] + y_err_high) + (catalog[self.ylabel] - y_err_low))/2
+        x = ((catalog[self.xlabel]))
+        y = ((catalog[self.ylabel]))
 
         # Size of original data
         N = np.size(x)
@@ -291,12 +291,12 @@ class Data:
         if cenTF:
             cenName = config["Censored"][True]
             delta_ = catalog[cenName].astype(np.int64)
+            #case to identify type of data
             case = catalog["case"].astype(np.int64)
         else:
             delta_ = np.ones(N)
 
             case = np.ones(N)
-            #for cuts depending on column "case"
             #case = catalog["case"].astype(np.int64)
 
         # Cut out any NaNs
@@ -342,6 +342,8 @@ class Data:
             '\nNOTE: `Removed` counts may be redundant, '
             'as some data fail multiple flags.'
         )
+
+        #method for implementing censored data not currently used
         if config['detectedWithTemp']:
             x, y = luminlib.detectedWithTemp(catalog, x=x, y=y)
         if config['detectedWithNoTemp']:
@@ -362,6 +364,7 @@ class Data:
         self.y_err_high = y_err_high[good_rows]
         self.delta_ = delta_[good_rows]
         self.case = case[good_rows]
+
         #saving columns for later
         #np.savetxt('casesredlow.csv', self.case, delimiter=',')
 
@@ -472,30 +475,29 @@ class Fitter:
         self.log_y_err = (log_y_err_high + log_y_err_low)/2
         self.log_x_err = (log_x_err_high + log_x_err_low)/2
 
-        #centralize x and y
-
-        #and divide x by pivot
         log_y_max = np.log(self.data_y) + log_y_err_high
         log_y_min = np.log(self.data_y) - log_y_err_low
         log_x_max = np.log(self.data_x) + log_x_err_high
         log_x_min = np.log(self.data_x) - log_x_err_low
 
-
+        #centralize x and y and divide x by log pivot
         self.log_y = (log_y_min + log_y_max)/2
         self.log_x = (log_x_min + log_x_max)/2 - self.piv
 
         self.xmin = np.min(self.log_x)
         self.xmax = np.max(self.log_x)
 
-        self.xlim = [0.7*np.min(self.data_x), 1.3*np.max(self.data_x)]
+        self.xlim = [0.07*np.min(self.data_x), 1.3*np.max(self.data_x)]
         self.xPlot = np.linspace(np.log(self.xlim[0])-self.piv, np.log(self.xlim[1])-self.piv, 201)
 
         return
 
     def scaled_fit_to_data(self):
         """ Calculate scaled linear values. """
-        self.scaled_x = np.linspace(np.log(self.xlim[0])-self.piv, np.log(self.xlim[1])-self.piv, 98)
-        #self.scaled_x = np.linspace(.02*self.xmin, 1.5*self.xmax, len(self.log_x))
+        #self.scaled_x = np.linspace(np.log(self.xlim[0])-self.piv, np.log(self.xlim[1])-self.piv, 98)
+
+        #if conf interval is not extending all the way adjust these
+        self.scaled_x = np.linspace(1.7*self.xmin, 1.5*self.xmax, len(self.log_x))
         scaled_y = self.mean_int + self.mean_slope * self.scaled_x
         scaled_x_errs = np.zeros(len(self.log_x))
         scaled_y_errs = np.ones(len(self.log_y))*self.mean_slope
@@ -508,7 +510,7 @@ class Fitter:
         # Grab log-scaled linear values.
         sx, sy, sx_err, sy_err = self.scaled_fit_to_data()
 
-        # Recover to cartesian
+        # Recover
         ux = np.exp(sx + self.piv)
         uy = np.exp(sy)
         ux_err = sx_err * sx

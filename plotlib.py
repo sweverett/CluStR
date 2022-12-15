@@ -19,18 +19,18 @@ from matplotlib.ticker import LogFormatter, ScalarFormatter, FuncFormatter
 # pylint: disable=too-many-arguments
 # pylint: disable=too-many-locals
 
+
 def plot_scatter(args, fitter, config):
     """ Plot data """
 
     # Grab data references
     # Symmetric Errors
-    x_obs = fitter.data_x
-    y_obs = fitter.data_y
-    x_err_low_obs = fitter.data_x_err_low_obs
-    x_err_high_obs = fitter.data_x_err_high_obs
-    y_err_low_obs = fitter.data_y_err_low_obs
-    y_err_high_obs = fitter.data_y_err_high_obs
+    x_obs = np.exp(fitter.log_x + fitter.piv)
+    y_obs = np.exp(fitter.log_y)
+    x_err = np.exp(fitter.log_x_err)
+    y_err = np.exp(fitter.log_y_err)
 
+    #linmix does not take symmetric errors so we do not need this now
     # Asymmetric Errors
     # x_err_obs_low = fitter.data_x_err_low_obs
     # x_err_obs_high = fitter.data_x_err_high_obs
@@ -42,7 +42,7 @@ def plot_scatter(args, fitter, config):
 
     # Plot data
     fig, ax = plt.subplots()
-    plt.errorbar(x_obs, y_obs, xerr=np.array([x_err_low_obs, x_err_high_obs]), yerr=np.array([y_err_low_obs, y_err_high_obs]),
+    plt.errorbar(x_obs, y_obs, xerr=x_err, yerr=y_err,
                  ecolor='k',
                  fmt='bo',
                  lw=1,
@@ -75,7 +75,7 @@ def plot_scatter(args, fitter, config):
             np.std(fit_sig)
         )
     )
-            
+
     # Confidence Interval
     yMed0, yLow0, yUp0 = fitter.confInterval(16, 84)
     yMed0 = fitter._recoverY(yMed0)
@@ -116,7 +116,7 @@ def plot_scatter(args, fitter, config):
     ax.set_ylabel(f'{yname}', fontsize=10)
     #set limits for x and y axes
     ax.set_xlim([0.7*np.min(x_obs), 1.3*np.max(x_obs)])
-    ax.set_ylim([0.4, 22])
+    ax.set_ylim([0.7*np.min(y_obs), 1.3*np.max(y_obs)])
     #set scale for axes
     ax.set_xscale('log')
     ax.set_yscale('log')
@@ -127,23 +127,23 @@ def plot_scatter(args, fitter, config):
                     bottom=True,      # ticks along the bottom edge are off
                     top=False,         # ticks along the top edge are off
                     labelbottom=True     # labels along the bottom edge are off
-                    ) 
+                    )
     plt.tick_params(
-                    axis='y',          
-                    which='major',      
-                    bottom=True,      
-                    top=False,         
+                    axis='y',
+                    which='major',
+                    bottom=True,
+                    top=False,
                     labelbottom=True
                     )
-    
+
     #set ticks for x and y axis
     ax.set_xticks([20, 40, 60, 80, 100, 200])
     ax.set_yticks([0.6, 0.8, 1, 2, 4, 6, 8, 10, 20])
-    
+
     #Honestly not sure what this does but the ticks don't format correctly without it
     ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
     ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
-    
+
     ax.grid(which='major', color='k', alpha=0.2)
     ax.grid(which='minor', color='k', alpha=0.1)
     ax.legend(loc='best', fontsize='x-small')
@@ -159,7 +159,6 @@ def plot_scatter(args, fitter, config):
     )
 
     return
-
 def plot_residuals(args, fitter):
     """
     FIX: Description
@@ -186,11 +185,9 @@ def plot_residuals(args, fitter):
     plt.errorbar(lx_obs, ly_obs, xerr=lx_err_obs, yerr=ly_err_obs, c='r',
     fmt='o') plt.plot(x_fit,y_fit,'b') #Best fit model
     frame1.set_xticklabels([]) #Remove x-tic labels for the first frame
-
     #Residual plot frame2 = fig1.add_axes((.1,.1,.8,.2))
     plt.plot(lx_obs,residuals,'ob')
     plt.plot([np.min(lx_obs),np.max(lx_obs)],[0,0],'k--',linewidth=2)
-
     plt.title('{} Method'.format(method.capitalize()),fontsize=14)
     '''
 
