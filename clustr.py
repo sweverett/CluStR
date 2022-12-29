@@ -4,7 +4,7 @@ import numpy as np
 import reglib  # Regression library
 import luminlib
 import yaml
-import plotlib
+import plotlib_2lines
 import pyfiglet as pfig
 from datetime import datetime
 from numpy import savetxt
@@ -440,9 +440,9 @@ class Fitter:
                                                             delta=data.delta_)
 
 #saving to add to plotlib when plotting 2 lines
-    #    savetxt('kelly_bTa.csv', self.kelly_b, delimiter=',')
-    #    savetxt('kelly_mTa.csv', self.kelly_m, delimiter=',')
-    #    savetxt('kelly_sigsqrTa.csv', self.kelly_sigsqr, delimiter=',')
+        #savetxt('kelly_bT_r2500_joint_0.2_to_0.4.csv', self.kelly_b, delimiter=',')
+        #savetxt('kelly_mT_r2500_joint_0.2_to_0.4.csv', self.kelly_m, delimiter=',')
+        #savetxt('kelly_sigsqrT_r2500_joint_0.2_to_0.4.csv', self.kelly_sigsqr, delimiter=',')
 
         self.mean_int = np.mean(self.kelly_b)
         self.mean_slope = np.mean(self.kelly_m)
@@ -460,29 +460,19 @@ class Fitter:
 
         #find symmetric errors
 
-        y_max = self.data_y + self.data_y_err_high_obs
-        y_min = self.data_y - self.data_y_err_low_obs
+        log_y_max = np.log(self.data_y + self.data_y_err_high_obs)
+        log_y_min = np.log(self.data_y - self.data_y_err_low_obs)
 
-        x_max = self.data_x + self.data_x_err_high_obs
-        x_min = self.data_x - self.data_x_err_low_obs
-
-        log_y_err_high = np.log(y_max) - np.log(self.data_y)
-        log_y_err_low = np.log(self.data_y) - np.log(y_min)
-        log_x_err_high = np.log(x_max) - np.log(self.data_x)
-        log_x_err_low = np.log(self.data_x) - np.log(x_min)
-
-        #symmetric log errors
-        self.log_y_err = (log_y_err_high + log_y_err_low)/2
-        self.log_x_err = (log_x_err_high + log_x_err_low)/2
-
-        log_y_max = np.log(self.data_y) + log_y_err_high
-        log_y_min = np.log(self.data_y) - log_y_err_low
-        log_x_max = np.log(self.data_x) + log_x_err_high
-        log_x_min = np.log(self.data_x) - log_x_err_low
+        log_x_max = np.log(self.data_x + self.data_x_err_high_obs) - self.piv
+        log_x_min = np.log(self.data_x - self.data_x_err_low_obs) - self.piv
 
         #centralize x and y and divide x by log pivot
-        self.log_y = (log_y_min + log_y_max)/2
-        self.log_x = (log_x_min + log_x_max)/2 - self.piv
+
+        self.log_y = (log_y_max + log_y_min)/2
+        self.log_x = (log_x_max + log_x_min)/2
+
+        self.log_y_err = log_y_max - self.log_y
+        self.log_x_err = log_x_max - self.log_x
 
         self.xmin = np.min(self.log_x)
         self.xmax = np.max(self.log_x)
@@ -596,7 +586,7 @@ def main():
 
     print('\nMaking Plots...')
 
-    plotlib.make_plots(args, config, fitter)
+    plotlib_2lines.make_plots(args, config, fitter)
 
     print('Done!')
 

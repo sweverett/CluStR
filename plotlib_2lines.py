@@ -1,4 +1,4 @@
-x_datax_data"""Plotting library for CluStR """
+"""Plotting library for CluStR """
 import corner
 import PyPDF2
 import csv
@@ -11,7 +11,7 @@ from matplotlib.ticker import LogFormatter, ScalarFormatter, FuncFormatter
 
 
 def data1():
-    file1 = "joint_target.fits"
+    file1 = "tr2500_joint_0.2<z<0.4.csv"
     catalog1 = Table.read(file1)
     x_data = catalog1["lambda"]
     y_data = catalog1["r2500_temperature_scaled"]
@@ -19,8 +19,6 @@ def data1():
     y_data_err_high = catalog1["r2500_temperature_err_high_scaled"]
     x_data_err_low = catalog1["lambda_err_low"]
     x_data_err_high = catalog1["lambda_err_high"]
-
-    #THIS NEEDS TO BE FIXED TOO MATCH CLUSTR ERR HANDLING
 
     #change these
     return  x_data, y_data, y_data_err_low, y_data_err_high, x_data_err_low, x_data_err_high
@@ -30,65 +28,40 @@ def log_data1():
 
     # Log-x before pivot
     x_data, y_data, y_data_err_low, y_data_err_high, x_data_err_low, x_data_err_high = data1()
-    y_max = y_data + y_data_err_high
-    y_min = y_data - y_data_err_low
+    piv = np.log(70)
+    log_y_max = np.log(y_data + y_data_err_high)
+    log_y_min = np.log(y_data - y_data_err_low)
 
-    x_max = x_data + x_data_err_high
-    x_min = x_data- x_data_err_low
+    log_x_max = np.log(x_data + x_data_err_high) - piv
+    log_x_min = np.log(x_data - x_data_err_low) - piv
 
-    log_y_err_high = np.log(y_max) - np.log(y_data)
-    log_y_err_low = np.log(y_data) - np.log(y_min)
-    log_x_err_high = np.log(x_max) - np.log(x_data)
-    log_x_err_low = np.log(x_data) - np.log(x_min)
+    #centralize x and y and divide x by log pivot
+
+    log_y = (log_y_max + log_y_min)/2
+    log_x = (log_x_max + log_x_min)/2
 
     #symmetric log errors
-    log_y_err = (log_y_err_high + log_y_err_low)/2
-    log_x_err = (log_x_err_high + log_x_err_low)/2
-
-    #centralize x and y
-
-    #and divide x by pivot
-    log_y_max = np.log(y_data) + log_y_err_high
-    log_y_min = np.log(y_data) - log_y_err_low
-    log_x_max = np.log(x_data) + log_x_err_high
-    log_x_min = np.log(x_data) - log_x_err_low
-
-
-    log_y = (log_y_min + log_y_max)/2
-    log_x = (log_x_min + log_x_max)/2 - np.log(70)
+    log_y_err = log_y_max - log_y
+    log_x_err = log_x_max - log_x
 
     xmin = np.min(log_x)
     xmax = np.max(log_x)
 
     xlim = [0.7*np.min(x_data), 1.3*np.max(x_data)]
-    xPlot = np.linspace(np.log(self.xlim[0])-self.piv, np.log(self.xlim[1])-self.piv, 201)
-
-    xlog = np.log(x_data1)
-
-    # Set pivot
-
-    piv = np.log(70)
-
-    log_x = xlog - piv
-    log_y = np.log(y_data1)
-
-    xmin = np.min(log_x)
-    xmax = np.max(log_y)
-
-    log_x_err = np.log(x_err_obs1 + x_data1) - xlog
-    log_y_err = np.log(y_err_obs1 + y_data1) - log_y
+    #xPlot = np.linspace(np.log(self.xlim[0])-self.piv, np.log(self.xlim[1])-self.piv, 109)
 
     return log_x, log_y, log_x_err, log_y_err, xmin, xmax
 
 def scaled_fit_to_data1():
     """ Calculate scaled linear values. """
     log_x1, log_y1, log_x_err1, log_y_err1, xmin1, xmax1 = log_data1()
-    x_data2, y_data2, x_err_obs2, y_err_obs2 = data1()
-    xlim = [0.7*np.min(x_data2), 1.3*np.max(x_data2)]
-    scaled_x = np.linspace(np.log(xlim[0])-np.log(70), np.log(xlim[1])-np.log(70), 162)
-    scaled_y = 1.46 + 0.41 * scaled_x
+    x_data2, y_data2, err1, err2 , err3, err4  = data1()
+    xlim = [1.7*np.min(x_data2), 1.5*np.max(x_data2)]
+    scaled_x = np.linspace(1.7*xmin1, 1.5*xmax1, len(log_x1))
+    #scaled_x = np.linspace(np.log(xlim[0])-np.log(70), np.log(xlim[1])-np.log(70), 109)
+    scaled_y = 1.38 + 0.60 * scaled_x
     scaled_x_errs = np.zeros(len(log_x1))
-    scaled_y_errs = np.ones(len(log_y1))*0.41
+    scaled_y_errs = np.ones(len(log_y1))
 
     return scaled_x, scaled_y, scaled_x_errs, scaled_y_errs
 
@@ -110,35 +83,33 @@ def _recoverY1(yObs):
     """This method will return unscaled Y."""
     y = np.exp(yObs)
     return y
-
+#OPEN A PREVIOUSLY SAVED LINMIX OUTPUT
 kelly_b1 = []
-with open("kelly_bTa.csv") as csvfile:
+with open("kelly_bT_r2500_joint_0.2_to_0.4.csv") as csvfile:
     reader = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC) # change contents to floats
     for row in reader: # each row is a list
         kelly_b1.append(row)
 kelly_m1 = []
-with open("kelly_mTa.csv") as csvfile:
+with open("kelly_mT_r2500_joint_0.2_to_0.4.csv") as csvfile:
     reader = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC) # change contents to floats
     for row in reader: # each row is a list
         kelly_m1.append(row)
 kelly_s1 = []
-with open("kelly_sigsqrTa.csv") as csvfile:
+with open("kelly_sigsqrT_r2500_joint_0.2_to_0.4.csv") as csvfile:
     reader = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC) # change contents to floats
     for row in reader: # each row is a list
         kelly_s1.append(row)
-
-
 
 print(np.mean(kelly_b1))
 def confInterval1(low, high):
     """This method will calculate confidence interval from y distribution."""
     log_x1, log_y1, log_x_err1, log_y_err1, xmin1, xmax1 = log_data1()
-    scaled_x, scaled_y, scaled_x_errs, scaled_y_errs = scaled_fit_to_data1()
+    scaled_x4, scaled_y, scaled_x_errs, scaled_y_errs = scaled_fit_to_data1()
     y = []
 
-    #NEED TO RUN LINMIX IN HERE
+    #NEED TO USE LINMIX OUTPUT IN HERE
     for i, s in zip(kelly_b1, kelly_m1):
-        y += [i + s * scaled_x]
+        y += [i + s * scaled_x4]
 
     y = np.array(y)
     yMed = np.percentile(y, 50, axis=0)
@@ -172,17 +143,39 @@ def plot_scatter(args, fitter, config):
     case = fitter.case_n
     x_obs = fitter.data_x
     y_obs = fitter.data_y
-    x_err_obs = fitter.data_x_err_obs
-    y_err_obs = fitter.data_y_err_obs
+    x_err_obs_low = fitter.data_x_err_low_obs
+    x_err_obs_high = fitter.data_x_err_high_obs
+    y_err_obs_low = fitter.data_y_err_low_obs
+    y_err_obs_high = fitter.data_y_err_high_obs
+    print("richness (0.4<z<0.65) low:" ,np.min(x_obs))
+    print("richness (0.4<z<0.65) median:" ,np.mean(x_obs))
+    print("richness (0.4<z<0.65) high:", np.max(x_obs))
+    # Plot data
+    fig, ax = plt.subplots()
+    plt.errorbar(x_obs, y_obs,
+                 xerr = np.array([x_err_obs_low ,x_err_obs_high]),
+                 yerr=np.array([y_err_obs_low, y_err_obs_high]),
+                 ecolor='k',
+                 fmt='bo',
+                 lw=1,
+                 markersize=2,
+                 markeredgecolor='k',
+                 capsize=1,
+                 label='0.4<z<0.65'
+                 )
 
-#THIS NEEDS TO BE CHANGED FROM THIS METHOD TO TAKING THE
-    x_obs1, y_obs1, x_err_obs1, y_err_obs1 = data1()
+    x_data, y_data, y_data_err_low, y_data_err_high, x_data_err_low, x_data_err_high = data1()
 
     #categories, Chandra data to be red, XMM black. represent upper limits (delta = 0) with a caret (red+black)
-    fig, ax = plt.subplots()
+
 
 #Case 1 + 2:
-    plt.errorbar(x_obs1, y_obs1, xerr=x_err_obs1, yerr=y_err_obs1,
+    print("richness (0.2<z<0.4) low:" ,np.min(x_data))
+    print("richness (0.2<z<0.4) median:" ,np.mean(x_data))
+    print("richness (0.2<z<0.4) high:", np.max(x_data))
+    plt.errorbar(x_data, y_data,
+                 xerr = np.array([x_data_err_low, x_data_err_high]),
+                 yerr=np.array([y_data_err_low, y_data_err_high]),
                  ecolor='r',
                  color = 'r',
                  fmt='o',
@@ -191,20 +184,7 @@ def plot_scatter(args, fitter, config):
                  markersize=1,
                  markeredgecolor='r',
                  capsize=.5,
-                 label='Target'
-                 )
-
-
-    plt.errorbar(x_obs, y_obs, xerr=x_err_obs, yerr=y_err_obs,
-                 ecolor='k',
-                 color = 'k',
-                 fmt='o',
-                 lw=.75,
-                 elinewidth = .5,
-                 markersize=1,
-                 markeredgecolor='k',
-                 capsize=.5,
-                 label='Serendipitous'
+                 label='0.2<z<0.4'
                  )
 
 
@@ -224,9 +204,9 @@ def plot_scatter(args, fitter, config):
     plt.loglog(
         x_fit1, y_fit1, basex=np.e, basey=np.e, color='maroon', linewidth=2.0,
         label=(
-            r'$Target ({0:0.2g} \pm {1:0.2g})'
+            r'$ ({0:0.2g} \pm {1:0.2g}) '
             r'(x/x_{{piv}})^{{{2:0.2f} \pm {3:0.2f}}}'
-            r'(\sigma^2 = {4:0.2f} \pm {5:0.2f})$'
+            r'(\sigma^2 = {4:0.2f} \pm {5:0.2f})\/$(0.2<z<0.4)'
         ).format(
             np.exp(np.mean(fit_int1)),
             np.exp(np.mean(fit_int1)) * np.std(fit_int1),
@@ -236,33 +216,32 @@ def plot_scatter(args, fitter, config):
             np.std(fit_sig1)
         )
     )
-    #ignore
         # Confidence Interval
     yMed01, yLow01, yUp01 = confInterval1(16, 84)
     yMed01 = _recoverY1(yMed01)
     yUp01 = _recoverY1(yUp01)
     yLow01 = _recoverY1(yLow01)
-    plt.fill_between(x_fit1, yUp01, yLow01, color='b', alpha=0.3, label=r'68% Confidence Interval Target')
+    plt.fill_between(x_fit1, yUp01, yLow01, color='r', alpha=0.3, label=r'68% Confidence Interval (0.2<z<0.4)')
 
         # Sigma Bands
     yMed11, yLow11, yUp11 = sigmaBands1(16, 84)
     yUp11 = _recoverY1((yUp11 - yMed11) + yMed11)
     yLow11 = _recoverY1((yLow11 - yMed11) + yMed11)
-    plt.fill_between(x_fit1, yUp11, yLow11, color='dimgrey', alpha=0.25, label= r'1$\sigma$ Band Target')
+    plt.fill_between(x_fit1, yUp11, yLow11, color='goldenrod', alpha=0.27, label= r'1$\sigma$ Band (0.2<z<0.4)')
 
     yMed21, yLow21, yUp21 = sigmaBands1(16, 84)
     yUp21 = _recoverY1(2*(yUp21 - yMed21) + yMed21)
     yLow21 = _recoverY1(2*(yLow21 - yMed21) + yMed21)
-    plt.fill_between(x_fit1, yUp21, yLow21, color='dimgrey', alpha=0.2, label= r'2$\sigma$ Band Target')
+    plt.fill_between(x_fit1, yUp21, yLow21, color='goldenrod', alpha=0.24, label= r'2$\sigma$ Band (0.2<z<0.4)')
 
 
     # Plot Linear Fit (x_fit = unscaled x) and (y_fit = unscaled line)
     plt.loglog(
         x_fit, y_fit, basex=np.e, basey=np.e, color='navy', linewidth=2.0,
         label=(
-            r'$Serendipitous ({0:0.2g} \pm {1:0.2g})'
+            r'$ ({0:0.2g} \pm {1:0.2g})'
             r'(x/x_{{piv}})^{{{2:0.2f} \pm {3:0.2f}}}'
-            r'(\sigma^2 = {4:0.2f} \pm {5:0.2f})$'
+            r'(\sigma^2 = {4:0.2f} \pm {5:0.2f}) \/$ (0.4<z<0.65)'
         ).format(
             np.exp(np.mean(fit_int)),
             np.exp(np.mean(fit_int)) * np.std(fit_int),
@@ -278,18 +257,18 @@ def plot_scatter(args, fitter, config):
     yMed0 = fitter._recoverY(yMed0)
     yUp0 = fitter._recoverY(yUp0)
     yLow0 = fitter._recoverY(yLow0)
-    plt.fill_between(x_fit, yUp0, yLow0, color='b', alpha=0.3, label=r'68% Confidence Interval Serendipitous')
+    plt.fill_between(x_fit, yUp0, yLow0, color='b', alpha=0.15, label=r'68% Confidence Interval (0.4<z<0.65)')
 
     # Sigma Bands
     yMed1, yLow1, yUp1 = fitter.sigmaBands(16, 84)
     yUp1 = fitter._recoverY((yUp1 - yMed1) + yMed1)
     yLow1 = fitter._recoverY((yLow1 - yMed1) + yMed1)
-    plt.fill_between(x_fit, yUp1, yLow1, color='teal', alpha=0.25, label= r'1$\sigma$ Band Serendipitous')
+    plt.fill_between(x_fit, yUp1, yLow1, color='teal', alpha=0.16, label= r'1$\sigma$ Band (0.4<z<0.65)')
 
     yMed2, yLow2, yUp2 = fitter.sigmaBands(16, 84)
     yUp2 = fitter._recoverY(2*(yUp2 - yMed2) + yMed2)
     yLow2 = fitter._recoverY(2*(yLow2 - yMed2) + yMed2)
-    plt.fill_between(x_fit, yUp2, yLow2, color='teal', alpha=0.2, label= r'2$\sigma$ Band Serendipitous')
+    plt.fill_between(x_fit, yUp2, yLow2, color='teal', alpha=0.18, label= r'2$\sigma$ Band (0.4<z<0.65)')
 
     # -----------------------------------------------------------------
     # Plot Labels
@@ -301,7 +280,7 @@ def plot_scatter(args, fitter, config):
     else:
         xname = fitter.data_xlabel.capitalize()
         yname = fitter.data_ylabel
-#ignore
+
     def myLogFormat(y,f):
         # Find the number of decimal places required
         decimalplaces = int(np.maximum(-np.log10(y/10.0+0.01),0)) # =0  numbers >=1
@@ -309,28 +288,42 @@ def plot_scatter(args, fitter, config):
         formatstring = '{{:.{:1d}f}}'.format(decimalplaces)
         # Return the formatted tick label
         return formatstring.format(y)
-
+    #set labels for x and y axes
     ax.set_xlabel(f'{xname}', fontsize=10)
     ax.set_ylabel(f'{yname}', fontsize=10)
-    #we will work on this together
-    ax.set_xlim([0.7*np.min(x_obs), 1.5*np.max(x_obs)])
-    ax.set_ylim([0.5, 22])
-    ax.set_ylim([.1*np.min(y_obs), 2.5*np.max(y_obs1)]) # (ignore for now)
-    #we will work on this together
-    ax.set_xscale('log', subsx=[2, 4, 6, 8,10])
-    ax.set_yscale('log', subsy=[2, 4, 6, 8, 10,200])
-    ax.set_yticks([20,30])
-    ax.set_xticks([20,40,300])
-    #ax.tick_params(axis='both', which='major', direction='in', length=8, width=1.)
-    #ax.tick_params(axis='both', which='minor', direction='in', length=4, width=0.5)
-    ax.xaxis.set_major_formatter(LogFormatter())
-    ax.xaxis.set_minor_formatter(ScalarFormatter())
-    #ax.yaxis.set_major_formatter(LogFormatter())
-    #ax.yaxis.set_minor_formatter(FuncFormatter(myLogFormat))
+    #set limits for x and y axes
+    ax.set_xlim([0.7*np.min(x_obs), 1.3*np.max(x_obs)])
+    ax.set_ylim([0.7*np.min(y_obs), 1.3*np.max(y_obs)])
+    #set scale for axes
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    #set tick parameters
+    plt.tick_params(
+                    axis='x',          # changes apply to the x-axis
+                    which='major',      # both major and minor ticks are affected
+                    bottom=True,      # ticks along the bottom edge are off
+                    top=False,         # ticks along the top edge are off
+                    labelbottom=True     # labels along the bottom edge are off
+                    )
+    plt.tick_params(
+                    axis='y',
+                    which='major',
+                    bottom=True,
+                    top=False,
+                    labelbottom=True
+                    )
+
+    #set ticks for x and y axis
+    ax.set_xticks([20, 40, 60, 80, 100, 200])
+    ax.set_yticks([0.6, 0.8, 1, 2, 4, 6, 8, 10, 20])
+
+    #Honestly not sure what this does but the ticks don't format correctly without it
+    ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+    ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
 
     ax.grid(which='major', color='k', alpha=0.2)
     ax.grid(which='minor', color='k', alpha=0.1)
-    ax.legend(loc='best', fontsize='x-small')
+    ax.legend(loc='best', fontsize='xx-small')
 
     plt.savefig(
         'Scatter-{}{}-{}.pdf'
@@ -341,7 +334,7 @@ def plot_scatter(args, fitter, config):
         ),
         bbox_inches='tight'
     )
-    plt.show()
+
     return
 '''
     plt.errorbar(x_obs[0:74], y_obs[0:74], xerr=x_err_obs[0:74], yerr=y_err_obs[0:74],

@@ -24,25 +24,21 @@ def plot_scatter(args, fitter, config):
     """ Plot data """
 
     # Grab data references
-    # Symmetric Errors
-    x_obs = np.exp(fitter.log_x + fitter.piv)
-    y_obs = np.exp(fitter.log_y)
-    x_err = np.exp(fitter.log_x_err)
-    y_err = np.exp(fitter.log_y_err)
-
-    #linmix does not take symmetric errors so we do not need this now
+    x_obs = fitter.data_x
+    y_obs = fitter.data_y
+    #errors do not represent linmix input. Might be better to change.
     # Asymmetric Errors
-    # x_err_obs_low = fitter.data_x_err_low_obs
-    # x_err_obs_high = fitter.data_x_err_high_obs
-    # y_err_obs_low = fitter.data_y_err_low_obs
-    # y_err_obs_high = fitter.data_y_err_high_obs
+    x_err_obs_low = fitter.data_x_err_low_obs
+    x_err_obs_high = fitter.data_x_err_high_obs
+    y_err_obs_low = fitter.data_y_err_low_obs
+    y_err_obs_high = fitter.data_y_err_high_obs
 
-    # x_err_obs_asym = [x_err_obs_low, x_err_obs_high]
-    # y_err_obs_asym = [y_err_obs_low, y_err_obs_high]
 
     # Plot data
     fig, ax = plt.subplots()
-    plt.errorbar(x_obs, y_obs, xerr=x_err, yerr=y_err,
+    plt.errorbar(x_obs[0:161], y_obs[0:161],
+                 xerr = np.array([x_err_obs_low[0:161],x_err_obs_high[0:161]]),
+                 yerr=np.array([y_err_obs_low[0:161], y_err_obs_high[0:161]]),
                  ecolor='k',
                  fmt='bo',
                  lw=1,
@@ -51,7 +47,16 @@ def plot_scatter(args, fitter, config):
                  capsize=1,
                  label='_nolegend_'
                  )
-    print('Reporting Symmetric Error Bars.')
+    plt.errorbar(x_obs[161:], y_obs[161:], xerr = np.array([x_err_obs_low[161:],x_err_obs_high[161:]]), yerr=np.array([y_err_obs_low[161:], y_err_obs_high[161:]]),
+                 ecolor='r',
+                 fmt='bo',
+                 lw=1,
+                 markersize=2,
+                 markeredgecolor='r',
+                 capsize=1,
+                 label='_nolegend_'
+                 )
+    print('Reporting Asymmetric Error Bars.')
 
     # Grab linmix data
     fit_int, fit_slope, fit_sig = fitter.kelly_b, fitter.kelly_m, fitter.kelly_sigsqr
