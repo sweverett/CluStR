@@ -4,7 +4,7 @@ import numpy as np
 import reglib  # Regression library
 import luminlib
 import yaml
-import plotlib_2lines
+import plotlib_2_lines_S_T
 import pyfiglet as pfig
 from datetime import datetime
 from numpy import savetxt
@@ -14,13 +14,13 @@ parser = ArgumentParser()
 # Required argument for catalog
 parser.add_argument('cat_filename', help='FITS catalog to open')
 # Required argument for axes
-valid_axes = ['l500kpc','lr2500s','lx52', 'TR2500', 'LAMBDA', 'lr2500', 'lr500', 'lr500cc', 't500kpc', 'tr2500', 'tr2500scaled', 'tr500scaled',
+valid_axes = ['l500kpc','lr2500s','lx52', 'lum_no_tx', 'TR2500', 'LAMBDA', 'lr2500', 'lr500', 'lr500cc', 't500kpc', 'tr2500', 'tr2500scaled', 'tr500scaled',
               'tr500', 'tr500cc', 'lambda', 'lambdaxmm', 'lambdamatcha', 'lx', 'LAMBDA',
               'lam', 'txmm', 'tr2500matcha', 'tr500matcha', 'tr2500xmm', 'tr500xmm', 'kt', 'lambdachisq', 'R2500',
-              'sigma_bi', 'lumin_no_tx',
+              'sigma_bi', 'lumin_no_tx', 'richness', 'Tx_r2500','Tx_r500','Lx_r2500',
               'tr500', 'tr500cc', 'lambda', 'lambdaxray', 'lambdachisqxray', 'lambdaxmm', 'lambdamatcha', 'lx',
-              'LAMBDA', 'lam', 'txmm', 'tr2500matcha', 'tr500matcha', 'tr2500xmm', 'tr500xmm', 'kt', 'lambdachisq',
-              'R2500', 'txmm', 'tmatcha', 'lum', 'txr500matcha', 'txr500xmm']
+              'LAMBDA', 'lam', 'txmm', 'tr2500matcha', 'tr500matcha', 'tr2500xmm', 'tr500xmm', 'kt', 'lambdachisq', 'Tr2500',
+              'R2500', 'txmm', 'tmatcha', 'lum', 'txr500matcha', 'txr500xmm', 'Tr500', 'Lr2500']
 parser.add_argument('x', help='what to plot on x axis', choices=valid_axes)
 parser.add_argument('y', help='what to plot on y axis', choices=valid_axes)
 parser.add_argument('config_file', help='the filename of the config to run')
@@ -280,6 +280,7 @@ class Data:
 
         x = ((catalog[self.xlabel]))
         y = ((catalog[self.ylabel]))
+        redshif = ((catalog[config["Redshift"]]))
 
         # Size of original data
         N = np.size(x)
@@ -292,12 +293,12 @@ class Data:
             cenName = config["Censored"][True]
             delta_ = catalog[cenName].astype(np.int64)
             #case to identify type of data
-            case = catalog["case"].astype(np.int64)
+            case = catalog["case"].astype(float)
         else:
             delta_ = np.ones(N)
 
             case = np.ones(N)
-            #case = catalog["case"].astype(np.int64)
+            #case = catalog["case"].astype(float)
 
         # Cut out any NaNs
         cuts = np.where((~np.isnan(x)) &
@@ -309,7 +310,7 @@ class Data:
                         )
         print(
             'Removed {} NaNs'
-            .format(N - (N-len(x[cuts])))
+            .format((N-len(x[cuts])))
         )
 
         x = x[cuts]
@@ -320,16 +321,20 @@ class Data:
         y_err_high = y_err_high[cuts]
         delta_ = delta_[cuts]
         case = case[cuts]
+        redshif = redshif[cuts]
+
 
         # Scale data
         if config['scale_x_by_ez']:
             redshift = config['Redshift']
             x *= Ez(catalog[redshift][cuts])**(config['scaling_factor_x'][0] / config['scaling_factor_x'][1])
-
+            x_err_low *= (Ez(catalog[redshift][cuts])**(config['scaling_factor_x']))
+            x_err_high *= (Ez(catalog[redshift][cuts])**(config['scaling_factor_x']))
         if config['scale_y_by_ez']:
             redshift = config['Redshift']
             y *= (Ez(catalog[redshift][cuts])**(config['scaling_factor_y']))
-
+            y_err_low *= (Ez(catalog[redshift][cuts])**(config['scaling_factor_y']))
+            y_err_high *= (Ez(catalog[redshift][cuts])**(config['scaling_factor_y']))
         # Set all masked values to negative one.
         mask = self.create_cuts(config, catalog)
         mask = mask[cuts]
@@ -364,9 +369,18 @@ class Data:
         self.y_err_high = y_err_high[good_rows]
         self.delta_ = delta_[good_rows]
         self.case = case[good_rows]
+        self.redshif = redshif[good_rows]
+
+
+        print("z low:" ,np.min(self.redshif))
+        print("z median:" ,np.median(self.redshif))
+        print("z high:", np.max(self.redshif))
+        print("richness low:" ,np.min(self.x))
+        print("richness median:" ,np.median(self.x))
+        print("richness high:", np.max(self.x))
 
         #saving columns for later
-        #np.savetxt('casesredlow.csv', self.case, delimiter=',')
+        #np.savetxt('cases_lum_high_z.csv', self.case, delimiter=',')
 
 
         print('Accepted {} data out of {}\n'.format(np.size(self.x), N))
@@ -440,9 +454,9 @@ class Fitter:
                                                             delta=data.delta_)
 
 #saving to add to plotlib when plotting 2 lines
-        #savetxt('kelly_bT_r2500_joint_0.2_to_0.4.csv', self.kelly_b, delimiter=',')
-        #savetxt('kelly_mT_r2500_joint_0.2_to_0.4.csv', self.kelly_m, delimiter=',')
-        #savetxt('kelly_sigsqrT_r2500_joint_0.2_to_0.4.csv', self.kelly_sigsqr, delimiter=',')
+        #savetxt('kelly_bT_r2500_xmm_serend.csv', self.kelly_b, delimiter=',')
+        #savetxt('kelly_mT_r2500_xmm_serend.csv', self.kelly_m, delimiter=',')
+        #savetxt("kelly_sigsqrT_r2500_serend.csv", self.kelly_sigsqr, delimiter=',')
 
         self.mean_int = np.mean(self.kelly_b)
         self.mean_slope = np.mean(self.kelly_m)
@@ -458,11 +472,10 @@ class Fitter:
         else:
             self.piv = np.log(config['piv_value'])
 
-        #find symmetric errors
 
+        #find symmetric errors
         log_y_max = np.log(self.data_y + self.data_y_err_high_obs)
         log_y_min = np.log(self.data_y - self.data_y_err_low_obs)
-
         log_x_max = np.log(self.data_x + self.data_x_err_high_obs) - self.piv
         log_x_min = np.log(self.data_x - self.data_x_err_low_obs) - self.piv
 
@@ -477,17 +490,14 @@ class Fitter:
         self.xmin = np.min(self.log_x)
         self.xmax = np.max(self.log_x)
 
-        self.xlim = [0.07*np.min(self.data_x), 1.3*np.max(self.data_x)]
-        self.xPlot = np.linspace(np.log(self.xlim[0])-self.piv, np.log(self.xlim[1])-self.piv, 201)
+#if conf interval is not extending all the way adjust these
+        self.xlim = [0.1*np.min(self.data_x), 1.6*np.max(self.data_x)]
 
         return
 
     def scaled_fit_to_data(self):
         """ Calculate scaled linear values. """
-        #self.scaled_x = np.linspace(np.log(self.xlim[0])-self.piv, np.log(self.xlim[1])-self.piv, 98)
-
-        #if conf interval is not extending all the way adjust these
-        self.scaled_x = np.linspace(1.7*self.xmin, 1.5*self.xmax, len(self.log_x))
+        self.scaled_x = np.linspace(np.log(self.xlim[0])-self.piv, np.log(self.xlim[1])-self.piv, len(self.log_x))
         scaled_y = self.mean_int + self.mean_slope * self.scaled_x
         scaled_x_errs = np.zeros(len(self.log_x))
         scaled_y_errs = np.ones(len(self.log_y))*self.mean_slope
@@ -586,7 +596,7 @@ def main():
 
     print('\nMaking Plots...')
 
-    plotlib_2lines.make_plots(args, config, fitter)
+    plotlib_2_lines_S_T.make_plots(args, config, fitter)
 
     print('Done!')
 
